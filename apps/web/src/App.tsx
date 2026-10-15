@@ -218,9 +218,10 @@ export default function App() {
                 <h2>Feature workspace</h2>
                 <fieldset disabled={disabled}>
                   <legend>Project</legend>
-                  <label>
-                    Existing project
+                  <div>
+                    <label htmlFor="existing-project">Existing project</label>
                     <select
+                      id="existing-project"
                       value={project}
                       onChange={(e) =>
                         void act(() => chooseProject(e.target.value))
@@ -233,7 +234,7 @@ export default function App() {
                         </option>
                       ))}
                     </select>
-                  </label>
+                  </div>
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -308,9 +309,10 @@ export default function App() {
                 {project && (
                   <fieldset disabled={disabled}>
                     <legend>Resume saved work</legend>
-                    <label>
-                      Existing run
+                    <div>
+                      <label htmlFor="existing-run">Existing run</label>
                       <select
+                        id="existing-run"
                         value={selectedRun}
                         onChange={(e) => setSelectedRun(e.target.value)}
                       >
@@ -321,7 +323,7 @@ export default function App() {
                           </option>
                         ))}
                       </select>
-                    </label>
+                    </div>
                     <button
                       className="secondary"
                       disabled={!selectedRun}
