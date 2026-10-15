@@ -44,6 +44,7 @@ def test_reproducible_safe_complete_zip(artifact_dict, template):
         assert "<script>" not in markdown.split("---\n", 2)[2]
         assert "![steal]" not in markdown
         assert "&lt;script&gt;" in markdown
+        assert "\n# Product overview" not in markdown
         assert (
             json.loads(archive.read("revision.json"))["artifact"]["title"]
             == artifact.title

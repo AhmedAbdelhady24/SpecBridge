@@ -21,13 +21,20 @@ def test_project_source_contract_and_sanitized_validation(tmp_path: Path):
     )
     assert source.status_code == 201
     assert source.json()["kind"] == "user_provided"
+    source_url = f"/api/projects/{project_id}/sources/{source.json()['id']}"
+    assert client.get(source_url).json() == source.json()
+    other = client.post("/api/projects", json={"name": "Other"}).json()["id"]
+    assert (
+        client.get(f"/api/projects/{other}/sources/{source.json()['id']}").status_code
+        == 404
+    )
     invalid = client.post(
         "/api/projects",
         json={"name": "SECRET_SENTINEL", "unexpected": "SECRET_SENTINEL"},
     )
     assert invalid.status_code == 422
     assert "SECRET_SENTINEL" not in invalid.text
-    assert client.get("/api/projects").json() == [project.json()]
+    assert client.get("/api/projects").json()[0] == project.json()
 
 
 def test_http_intake_byte_boundary(tmp_path):

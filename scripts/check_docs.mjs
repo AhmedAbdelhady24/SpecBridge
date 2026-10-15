@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { chromium } from '@playwright/test';
+
+const [base, directory] = process.argv.slice(2);
+assert.equal(new URL(base).hostname, '127.0.0.1');
+const snapshot = JSON.parse(await readFile(join(directory, 'revision.json'), 'utf8'));
+const browser = await chromium.launch({ headless: true });
+try {
+  const page = await browser.newPage();
+  const remote = [];
+  await page.route('**/*', async (route) => {
+    if (new URL(route.request().url()).origin !== new URL(base).origin) {
+      remote.push(route.request().url());
+      await route.abort();
+    } else await route.continue();
+  });
+  await page.goto(base, { waitUntil: 'networkidle' });
+  assert.ok((await page.locator('h1').textContent()).includes(snapshot.artifact.title));
+  assert.equal(await page.locator('main script, main img, #attack-title, #attack-body').count(), 0);
+  assert.equal(await page.locator('main a[href^="javascript:"], main a[href^="data:"]').count(), 0);
+  for (const slug of ['requirements', 'stories', 'edge-cases', 'risks', 'questions', 'provenance']) {
+    const response = await page.goto(`${base}/${slug}/`, { waitUntil: 'networkidle' });
+    assert.equal(response.status(), 200, slug);
+    if (slug === 'requirements') {
+      for (const requirement of snapshot.artifact.requirements) {
+        assert.equal(await page.getByRole('heading', { name: requirement.id, exact: true }).count(), 1);
+      }
+      for (const link of await page.locator('main a[href*="stories/#"]').all()) {
+        const target = new URL(await link.getAttribute('href'), page.url());
+        const targetResponse = await page.request.get(target.href.split('#')[0]);
+        assert.equal(targetResponse.status(), 200);
+        assert.ok((await targetResponse.text()).includes(`id="${target.hash.slice(1)}"`));
+      }
+    }
+  }
+  assert.deepEqual(remote, [], 'Documentation must not request remote assets');
+  await page.screenshot({ path: join(directory, `website-${new URL(base).port}.png`), fullPage: true });
+  console.log(JSON.stringify({ website: base, navigation: 'passed', attack_content: 'inert', remote_requests: 0 }));
+} finally {
+  await browser.close();
+}

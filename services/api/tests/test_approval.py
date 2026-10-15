@@ -52,6 +52,8 @@ def test_revision_template_and_rejection_invalidate(publication):
     service.approve(project.id, candidate.id, candidate.digest)
     service.review(project.id, revision.id, "rejected", "Need clarification")
     with pytest.raises(Conflict):
+        service.prepare(project.id, revision.id)
+    with pytest.raises(Conflict):
         service.download(project.id, candidate.id)
     service.review(project.id, revision.id, "reviewed", "Clarified")
     (service.template_root / "package.json").write_text('{"changed": true}')

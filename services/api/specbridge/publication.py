@@ -80,6 +80,14 @@ class Publication:
         package = render_package(revision.artifact, provenance, self.template_root)
         with self.store.transaction() as db:
             self._current(db, project_id, revision_id)
+            review = db.execute(
+                "SELECT disposition FROM reviews WHERE project_id=? AND revision_id=? ORDER BY rowid DESC LIMIT 1",
+                (project_id, revision_id),
+            ).fetchone()
+            if review and review[0] == "rejected":
+                raise Conflict(
+                    "Rejected revision needs a new edit or explicit human review"
+                )
             existing = db.execute(
                 "SELECT id FROM candidates WHERE digest=? AND project_id=?",
                 (package.digest, project_id),

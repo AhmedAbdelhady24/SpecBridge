@@ -192,6 +192,10 @@ def create_app(
     def create_source(project_id: str, body: SourceCreate) -> Source:
         return store.add_source(project_id, body.text)
 
+    @app.get("/api/projects/{project_id}/sources/{source_id}")
+    def source(project_id: str, source_id: str) -> Source:
+        return store.sources(project_id, [source_id])[0]
+
     @app.get("/api/projects/{project_id}/revisions/{revision_id}")
     def revision(project_id: str, revision_id: str) -> Revision:
         return store.get_revision(project_id, revision_id)

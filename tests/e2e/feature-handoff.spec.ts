@@ -50,6 +50,8 @@ test('reload recovers an existing run without repeating generation', async ({ pa
   await page.getByLabel('Existing run', { exact: true }).selectOption(runId);
   await page.getByRole('button', { name: 'Open run', exact: true }).click();
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(/DEMO fixture/);
+  await page.getByText('Selected source evidence', { exact: true }).click();
+  await expect(page.getByText('Allow a customer to export their saved report.', { exact: true })).toBeVisible();
   const after = await (await request.get(runURL, { headers: authHeaders() })).json();
   expect(after.attempts).toBe(before.attempts);
   expect(after.history).toEqual(before.history);

@@ -84,7 +84,7 @@ def render_package(
     pages = {
         "index": (
             artifact.title,
-            "# Product overview\n\n"
+            "## Product overview\n\n"
             + text(artifact.purpose)
             + "\n\n## Scope\n\n"
             + statements(artifact.scope)
