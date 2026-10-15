@@ -4,19 +4,23 @@ Purpose: turn product ideas and project evidence into validated requirements, re
 
 ## Current state and paths
 
-- Phase Zero bootstrap only; no product code exists. First-slice design/ADR approved on 2026-10-15; detailed implementation plan awaits review.
+- Technical first slice implemented: local FastAPI/SQLite workflow, React review UI and standalone Starlight export. Fixture/browser verification is separate from pending semantic, live-provider and unfamiliar-human acceptance. See `docs/evaluations/first-slice-results.md` for current evidence and limits.
+- `services/api/specbridge/`: backend security, contracts, persistence, skills, providers, workflow and publication.
+- `apps/web/`: React/Vite UI and generated OpenAPI types; `packages/contracts/openapi.json` is generated from the backend.
+- `packages/docs-template/`: fixed independently runnable documentation template.
+- `skills/runtime/feature-handoff/`: original data-only runtime guidance and hashed provenance.
 - `docs/engineering/`: environment, skills, research, planning conventions.
 - `docs/architecture/`: first-slice behavior and boundaries.
 - `docs/decisions/`: ADRs with explicit decision status.
 - `docs/plans/`: resumable execution state. Read the current plan before work.
 - `docs/security/` and `docs/evaluations/`: trust boundaries and acceptance cases.
-- `tests/`: bootstrap checks only, until product tests are added.
+- `services/api/tests/`: backend regressions; `tests/e2e/`: real-browser fixture/security checks; `tests/fixtures/`: curated inputs; `scripts/verify_handoff.py`: standalone package verification.
 
 ## Work method
 
 Inspect source and callers before edits. Use installed Superpowers skills progressively for design, planning, TDD, debugging, review, and verification; prefer the versioned plugin over conflicting duplicate copies. Follow user instructions over skill defaults. Do not install duplicate skill collections.
 
-Write substantial plans according to `docs/engineering/PLANS.md`. Resolve current design gates before product scaffolding. Delegate only independent work with explicit ownership and acceptance checks; implementation agents use isolated Git worktrees. Do not overwrite others' work. Preserve failed work and logs; redact secrets.
+Write substantial plans according to `docs/engineering/PLANS.md`. Preserve accepted design boundaries; resolve new design gates before expanding product scope. Delegate only independent work with explicit ownership and acceptance checks; implementation agents use isolated Git worktrees. Do not overwrite others' work. Preserve failed work and logs; redact secrets.
 
 ## Approved boundaries
 
@@ -25,11 +29,22 @@ One backend owns workflow transitions, artifacts, approvals, skill access, and p
 ## Commands that exist
 
 ```sh
+uv sync --locked
 python3 -m unittest discover -s tests -v
+uv run pytest -q
+uv run ruff check services/api scripts
+uv run ruff format --check services/api scripts
+uv run mypy services/api/specbridge
+npm --prefix apps/web run typecheck
+npm --prefix apps/web run lint
+npm --prefix apps/web test
+npm --prefix apps/web run build
+npm run test:e2e
+uv run python scripts/verify_handoff.py --output /tmp/specbridge-handoff-check
 git diff --check
 ```
 
-Python 3.12 and Node 22.23.1 are the selected development targets; resolve and lock product dependencies before relying on them. Do not document nonexistent build commands as working.
+Use Python 3.12 and Node 22.23.1. Lockfiles are committed; use locked installs. Browser checks require root `npm ci`, `npm exec playwright install chromium`, UI dependencies and free ports 8000/5173. The handoff runner refuses existing output paths. See README for local setup, private token entry and fixture/compatible provider limits. Regenerate OpenAPI/types after contract changes and require no generated diff. Audit Python and every npm lockfile; report advisories rather than suppressing them.
 
 ## Security and review
 

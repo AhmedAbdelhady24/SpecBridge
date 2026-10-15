@@ -10,7 +10,17 @@
 
 **Spec:** [Approved first-slice design](../architecture/first-slice.md), [accepted ADR 0001](../decisions/0001-local-modular-monolith.md), [security requirements](../security/threat-model.md), [acceptance contract](../evaluations/acceptance.md).
 
-**Status:** Written for user review. Design approved in conversation on 2026-10-15. Implementation-plan approval is pending; no product dependencies or code have been installed/created.
+**Status — 2026-10-16:** Implementation was authorized after plan review. Tasks 1–8 technical deliverables are implemented and integrated. The lead has verified backend, browser, frontend and static checks; final independent-package rerun and reporting are being closed. Fixture-backed API/browser and independent-package verification exist. Full Milestone 1 semantic, live-provider and unfamiliar-human acceptance remains pending. See [first-slice results](../evaluations/first-slice-results.md) for actual commands, results and limits; this plan does not certify final checks.
+
+The detailed checklists below preserve the original test-first execution targets. Their unchecked markers are historical planning text, not a claim that current code is absent. Use the execution status here and the linked results to resume; do not repeat completed implementation because an original checklist marker remains unchecked.
+
+| Tasks | Current implementation / remaining boundary |
+| --- | --- |
+| 1–2 | Secure loopback API, SQLite contracts/revisions and generated OpenAPI exist. |
+| 3–4 | Original runtime skill, fixture/compatible adapters, checkpoint/retry workflow exist; compatible transport is mock-tested only. |
+| 5–6 | Fixed Starlight renderer/template, immutable candidate approval/download exist. |
+| 7 | React intake, evidence recovery, labeled revision editing, review and package UI exist. |
+| 8 | Browser/security/standalone runner and CI definitions exist. Integrated API/browser/static checks pass; the lead records final independent-package verification and audit results. Hosted CI and unfamiliar-human acceptance remain unverified. |
 
 **Execution method:** Preserve the user's lead-agent orchestration with bounded independent workers. The lead implements the shared backend contract and integrates; UI and template work use isolated Git worktrees after contracts pass. Maximum two implementation workers at once. Review each deliverable before integration and run combined checks afterward. This is not authorization for cloud calls or external publication.
 
@@ -39,7 +49,7 @@
 
 ## Repository state and file ownership
 
-Research baseline: commit `3742827` on `codex/phase-zero`. This plan and its approval-status updates follow that commit. The branch contains engineering documents and two bootstrap integrity tests only. No existing app callers, fixtures, exports, manifests or contracts need migration. The scope below creates their first versions; later tasks must update affected callers/tests together.
+Research baseline: commit `3742827` on `codex/phase-zero`. This plan and its approval-status updates follow that commit. At plan-writing time the branch contained engineering documents and two bootstrap integrity tests only. The scope below created the first application versions; current callers/tests now require coordinated updates. The original research baseline remains historical evidence.
 
 | Owner | Created/changed paths and responsibility |
 | --- | --- |
@@ -260,7 +270,7 @@ test('review is required before download', async ({ page }) => {
 
 ## Final commands and expected evidence
 
-These are execution targets, not commands already available or passing today. Tasks create the manifests, scripts and test cases they name.
+These commands now exist. Their presence is not a passing result: use the linked results for actual execution evidence and run affected checks after changes.
 
 ```sh
 uv sync --locked
@@ -292,8 +302,8 @@ Expected: each command exits 0; fresh output path for every handoff run; no secr
 
 Preserve worker branches/worktrees/logs on failure; do not rerun unchanged failures indefinitely. Integrate by dependency order after reviewing exact commits and contracts. Tests only use temporary databases; no reset of user `.data/`. Back up real data before future migrations. Restore from the backup only after verifying schema compatibility. No real remote/publication action is part of this plan.
 
-Plan self-review: scope and state stages map to Tasks 1–8; registry/provider failures to Task 3; persistence/ID/source invariants to Task 2; checkpoint recovery to Task 4; inert package/manifest to Task 5; approval authority to Task 6; browser preview to Task 7; independent build, evaluations and CI to Task 8. The five Review Focus cases have explicit owning tests. Contract names and routes are defined above; source redistribution is excluded. No implementation step is marked done.
+Plan self-review: scope and state stages map to Tasks 1–8; registry/provider failures to Task 3; persistence/ID/source invariants to Task 2; checkpoint recovery to Task 4; inert package/manifest to Task 5; approval authority to Task 6; browser preview to Task 7; independent build, evaluations and CI to Task 8. The five Review Focus cases have explicit owning test targets. Contract names and routes are defined above; source redistribution is excluded. This paragraph records the original planning self-review, not current implementation status.
 
-**Next resumable action:** obtain review of this written plan under the installed writing-plans handoff, then begin Task 1 with the preserved bounded-delegation execution method. No further design approval is required for the already accepted first-slice scope.
+**Next resumable action:** record final independent-package/combined verification evidence and remaining acceptance gaps in the results report, and conduct an unfamiliar-human handoff plus authorized live-provider/semantic evaluation before closing full Milestone 1. Do not redo approved design/plan gates or implemented Tasks 1–7.
 
 Planning verification on 2026-10-15: `python3 -m unittest discover -s tests -v` passed both bootstrap tests; `git diff --check` passed; the scan for unfinished task markers found none. These checks validate repository-document integrity, not the planned application. No subagents were spawned for plan writing; the planning skill calls for inline self-review. No product dependencies, provider calls, app builds or browser tests were run in this planning step.

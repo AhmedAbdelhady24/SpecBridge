@@ -1,12 +1,12 @@
 # Bootstrap and first-slice roadmap
 
-Status: Phase Zero research/bootstrap delivered; first-slice design approved on 2026-10-15. Product implementation awaits written-plan review. See the [detailed implementation plan](2026-10-15-first-slice-implementation.md).
+Status — 2026-10-16: technical first-slice implementation delivered following design and plan authorization. Local fixture/browser and standalone-package verification exist; final combined-check reporting is lead-owned. Full Milestone 1 semantic, live-provider and unfamiliar-human acceptance remains pending. See [results and limits](../evaluations/first-slice-results.md). See the [detailed implementation plan](2026-10-15-first-slice-implementation.md).
 
 ## Outcome and existing state
 
 Start from an empty local directory, build an independent local product, and prove feature idea → PM skill → PRD/stories → human review → portable documentation → local website. See [design](../architecture/first-slice.md), [ADR](../decisions/0001-local-modular-monolith.md), [audit](../engineering/environment-audit.md), and [acceptance](../evaluations/acceptance.md).
 
-Current installed skills are sufficient for engineering bootstrap. No product dependencies, third-party source, provider calls or real integrations have been installed/run. Python 3.12 and Node 22 targets are available; Docker daemon is unavailable. Upstream noncommercial/unlicensed code is excluded.
+The repository now includes FastAPI/SQLite services, generated OpenAPI types, a React/Vite UI, an original runtime handoff skill, and a fixed Astro/Starlight package renderer/template. Python and Node dependencies are locked. The fixture provider is generic deterministic DEMO output; compatible-provider transport is mock-tested, with no live-model quality claim. No real integration write or hosted deployment has been performed. The original environment audit remains historical; recheck Docker availability before any later container work. Upstream noncommercial/unlicensed source remains excluded.
 
 ## Milestones and gates
 
@@ -17,9 +17,10 @@ Current installed skills are sufficient for engineering bootstrap. No product de
 - [x] Finish bootstrap checks, independent review and actual verification report.
 - [x] Obtain review/approval of the concrete first-slice design and ADR 0001.
 - [x] Write and self-review the detailed first-slice implementation plan.
-- [ ] Obtain review of the written implementation plan; preserve the user's bounded-delegation execution method.
-- [ ] Resolve/lock product dependencies and validate compatibility; Milestone 0 cannot be called complete before the required readiness checks.
-- [ ] Milestone 1: implement and verify the complete local handoff slice.
+- [x] Obtain implementation-plan authorization; preserve the user's bounded-delegation execution method.
+- [x] Resolve/lock product dependencies and exercise local compatibility checks; consult the results report for audit limitations and final readiness evidence.
+- [x] Implement the technical local handoff slice and fixture-backed automated verification.
+- [ ] Milestone 1 acceptance: finish final combined reporting/review and validate semantic output, an explicitly authorized live provider, and an unfamiliar-human handoff.
 - [ ] Milestone 2: extend persistent project knowledge, retrieval, decisions and artifact versioning beyond the first slice.
 - [ ] Milestone 3: reviewable Git changesets, repository/PR previews, conflict detection and authorized destination support.
 - [ ] Milestone 4: meeting actions, deterministic prioritization, source-grounded status and Jira adapter.
@@ -28,7 +29,7 @@ Current installed skills are sufficient for engineering bootstrap. No product de
 
 The first slice necessarily includes minimal persistence, checkpoints and revisioning from Milestone 2. That overlap does not mean all of Milestone 2 is complete.
 
-## First-slice work packages after approval
+## Implemented first-slice work packages
 
 | Order | Ownership / planned paths | Dependency and acceptance |
 | --- | --- | --- |
@@ -40,16 +41,16 @@ The first slice necessarily includes minimal persistence, checkpoints and revisi
 | 6 | Lead: API publisher integration and approval checks | Exact revision + preview digest, stale approval rejection, concurrency/failure cases. Do not duplicate backend ownership with workers. |
 | 7 | QA/review: `tests/` browser/evaluations plus docs | End-to-end review/export, clean extracted install/build, security fixtures, checkpoint recovery and diff review. Lead runs combined suite after integration. |
 
-The [detailed implementation plan](2026-10-15-first-slice-implementation.md) expands these into test-first tasks with owned paths, contracts, commands and expected results according to [PLANS.md](../engineering/PLANS.md). User review of that plan remains pending; no product implementation has started.
+The [detailed implementation plan](2026-10-15-first-slice-implementation.md) expands these into test-first tasks with owned paths, contracts, commands and expected results according to [PLANS.md](../engineering/PLANS.md). The plan was authorized and these modules now exist. Its original detailed checklists are retained as historical targets; current implementation status and verification boundaries are recorded at its start and in the results report.
 
 Use at most two independent implementation workers after contracts stabilize; the root remains accountable for integration. Research agents required no worktrees because they only inspected public sources. Preserve failure logs/worktrees. Review returned changes and run regression checks before integration; no auto-merge.
 
 ## Verification and rollback
 
-Bootstrap commands are `python3 -m unittest discover -s tests -v` and `git diff --check`. Product acceptance requires separate API, browser, security, typing/lint, package audit and docs build checks. See the final bootstrap verification report for actual results.
+Bootstrap commands remain `python3 -m unittest discover -s tests -v` and `git diff --check`. Product verification now includes pytest, Ruff, mypy, UI typecheck/lint/build, Playwright, dependency audits and `scripts/verify_handoff.py`. README provides setup/run commands; the [first-slice results](../evaluations/first-slice-results.md) separates automated fixture checks from pending live-provider and human acceptance.
 
 Use temporary databases/output directories in tests; never delete user projects to reset a test. Migration changes require backup/restore verification. Export to fresh paths initially; Git publishing stays preview-only until explicit target/payload authorization. Local Git commits are safe points, not deployment approvals.
 
 ## Resume here
 
-Review the detailed implementation plan next; design/ADR approval is already recorded. Do not request that design approval again, restart repository research, or reinstall already available skills. Do not describe Milestone 0 or the product as complete from bootstrap tests.
+Finish lead-owned final-review fixes and combined-check reporting, then run the explicitly scoped semantic/live-provider and unfamiliar-human acceptance exercises. Do not request existing design/plan approval again, repeat implemented work, restart research, or reinstall skills. Do not claim full Milestone 1, hosted CI or later milestones from fixture/browser evidence alone.

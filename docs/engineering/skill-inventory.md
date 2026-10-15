@@ -1,8 +1,8 @@
 # Skill inventory and adoption decisions
 
-Inspected 2026-10-15. The scope is skills relevant to this project; this is not an audit of every globally installed plugin. Source identifiers are machine-readable in [sources.json](sources.json).
+Baseline inspected 2026-10-15; implementation update 2026-10-16 below. Historical inventory observations are preserved. The scope is skills relevant to this project; this is not an audit of every globally installed plugin. Source identifiers are machine-readable in [sources.json](sources.json).
 
-## Development skills already available
+## Development skills already available at bootstrap
 
 Canonical Superpowers source: `obra/superpowers`, installed 6.4.1 at revision `5bf4e78011075bcfc0dc295f0724994cd123ee71`, under `~/.codex/plugins/cache/claude-plugins-official/superpowers/6.4.1/skills/`. This is a development dependency of the assistant, not an application dependency. MIT. The native manifest declares Interactive/Read/Write and `hooks: {}`. Skills do not independently grant permissions; the host and user authorization govern tool use.
 
@@ -44,7 +44,9 @@ Keep all licenses/notices and modification notices required by their terms if la
 
 ## Runtime PM skills are separate
 
-No runtime skills have been bundled. Global Codex skills and their tools must never be exposed automatically through the application registry. An original minimal runtime handoff skill may be justified if available skills cannot meet engineering-output and redistribution requirements; create it only after that gap is explicitly established, using system skill-creator and Agent Skills specification validation.
+The bootstrap initially bundled no runtime skill. Implementation now includes original `skills/runtime/feature-handoff/SKILL.md`, a progressively loaded `references/output-contract.md`, and `provenance.json` with content hashes, version/schema metadata, original authorship and licensing observations. This guidance fits the strict Artifact contract without importing reviewed noncommercial or unlicensed material. No separate distribution license is asserted for original project content.
+
+The application loads only its project runtime registry, never global Codex development skills or their tools. The runtime permission allowlist is empty; skills are prompt data and cannot execute shell commands or access arbitrary files. Tests exercise strict metadata/YAML validation, provenance hashes, confined reference loading and traversal/symlink rejection. This is local registry/fixture and mocked-provider evidence, not live-provider output quality.
 
 Required runtime metadata includes name/description, compatible version/provenance, license and explicit permission allowlist. Safe YAML parsing and supporting reference confinement are application requirements, not guaranteed by SKILL.md itself. [Agent Skills specification](https://agentskills.io/specification) defines the interoperable format; host-specific tool declarations are not a sandbox.
 
@@ -52,4 +54,10 @@ Required runtime metadata includes name/description, compatible version/provenan
 
 Installed Superpowers is both listed enabled by `codex plugin list --json` and present in this session's skill catalog, with readable entrypoints. That establishes discoverability, not full behavior validation. Remote plugin catalog lookup failed independently of local enumeration. Deferred skills are deliberately not discoverable because none were installed. After any future project-scope install, verify files/frontmatter/references and refresh the Codex session before claiming native discovery.
 
-Minimum Phase Zero installation decision: **install nothing**. Existing development capabilities are sufficient. Future missing skills are staged at their actual point of use; runtime redistribution/licensing needs a separate review.
+Minimum Phase Zero installation decision: **install nothing**. That historical decision was retained; no duplicate collection or optional remote skill was installed.
+
+## Implementation adoption update — 2026-10-16
+
+The installed versioned Superpowers guidance was applied progressively to execution, tests, debugging, review and verification. UI/template workers used isolated Git worktrees with owned paths; the lead integrated changes. Actual test/command evidence belongs in the [first-slice results](../evaluations/first-slice-results.md), not the historical verification-status table above.
+
+Frontend work reused installed frontend-design and frontend-ui-engineering guidance and standard React controls. The optional Vercel skills and mutable remote design guidelines remain deferred. Browser checks use the project-owned Playwright suite; the reviewed third-party webapp-testing helper was not imported. System skill-creator guidance informed the original runtime skill; its application validation is in `services/api/tests/test_skills.py`. Development authoring skills are not shipped inside exported documentation.
