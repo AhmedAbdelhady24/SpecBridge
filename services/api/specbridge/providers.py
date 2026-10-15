@@ -3,7 +3,7 @@
 import ipaddress
 import json
 import os
-from typing import Protocol
+from typing import Any, Protocol
 from urllib.parse import urlsplit
 
 import httpx
@@ -13,6 +13,26 @@ from specbridge.models import Artifact, Source
 from specbridge.skills import Skill
 
 RESPONSE_LIMIT = 256 * 1024
+
+
+def strict_artifact_schema() -> dict[str, Any]:
+    """Adapt backend defaults to the provider's required-property schema contract."""
+    schema = Artifact.model_json_schema()
+
+    def visit(value: Any) -> None:
+        if isinstance(value, dict):
+            value.pop("default", None)
+            if value.get("type") == "object":
+                value["required"] = list(value["properties"])
+                value["additionalProperties"] = False
+            for child in value.values():
+                visit(child)
+        elif isinstance(value, list):
+            for child in value:
+                visit(child)
+
+    visit(schema)
+    return schema
 
 
 class ProviderFailure(ValueError):
@@ -187,7 +207,7 @@ class CompatibleProvider:
                 "json_schema": {
                     "name": "artifact",
                     "strict": True,
-                    "schema": Artifact.model_json_schema(),
+                    "schema": strict_artifact_schema(),
                 },
             },
         }
@@ -233,7 +253,14 @@ class CompatibleProvider:
             raise ProviderFailure("provider_timeout") from None
         except httpx.HTTPError:
             raise ProviderFailure("provider_transport_error") from None
-        except (ValueError, KeyError, IndexError, TypeError, ValidationError) as error:
+        except (
+            ValueError,
+            KeyError,
+            IndexError,
+            TypeError,
+            ValidationError,
+            RecursionError,
+        ) as error:
             if isinstance(error, ProviderFailure):
                 raise
             raise ProviderFailure("invalid_response") from None

@@ -66,7 +66,7 @@ class Provenance(Model):
     license_observation: str = Field(min_length=1)
     rationale: str = Field(min_length=1)
     tool_allowlist: list[str]
-    files: dict[str, str]
+    files: dict[str, str] = Field(max_length=33)
 
 
 @dataclass(frozen=True)
@@ -118,12 +118,28 @@ class SkillRegistry:
         except (OSError, UnicodeError) as error:
             raise InvalidSkill() from error
 
-    def load(self, name: str) -> Skill:
+    def _header(self, name: str) -> str:
         try:
-            raw = self._read(name, "SKILL.md")
-            if not raw.startswith("---\n"):
+            path = self._file(name, "SKILL.md")
+            if path.stat().st_size > LIMIT:
                 raise InvalidSkill()
-            header, body = raw[4:].split("\n---\n", 1)
+            with path.open("rb") as stream:
+                if stream.readline(LIMIT + 1) != b"---\n":
+                    raise InvalidSkill()
+                header = bytearray()
+                while len(header) <= LIMIT:
+                    line = stream.readline(LIMIT + 1)
+                    if line == b"---\n":
+                        return header.decode("utf-8")
+                    if not line:
+                        break
+                    header.extend(line)
+            raise InvalidSkill()
+        except (OSError, UnicodeError) as error:
+            raise InvalidSkill() from error
+
+    def _metadata(self, name: str, header: str) -> tuple[SkillMetadata, Provenance]:
+        try:
             front = Frontmatter.model_validate(yaml.load(header, Loader=UniqueLoader))
             provenance = Provenance.model_validate_json(
                 self._read(name, "provenance.json")
@@ -136,31 +152,56 @@ class SkillRegistry:
                 or details.version != provenance.version
                 or details.tool_allowlist
                 or provenance.tool_allowlist
-                or not body.strip()
+                or "SKILL.md" not in provenance.files
             ):
                 raise InvalidSkill()
-            if "SKILL.md" not in provenance.files:
-                raise InvalidSkill()
-            references = {}
             for relative, expected in provenance.files.items():
-                if relative != "SKILL.md" and not relative.startswith("references/"):
+                if (
+                    relative != "SKILL.md" and not relative.startswith("references/")
+                ) or (
+                    len(relative) > 256
+                    or any(p in ("", ".", "..") for p in relative.split("/"))
+                    or not re.fullmatch(r"[a-f0-9]{64}", expected)
+                ):
                     raise InvalidSkill()
-                content = raw if relative == "SKILL.md" else self._read(name, relative)
-                if hashlib.sha256(content.encode()).hexdigest() != expected:
-                    raise InvalidSkill()
-                if relative != "SKILL.md":
-                    references[relative] = expected
             metadata = SkillMetadata(
                 name=front.name, description=front.description, **details.model_dump()
             )
+            return metadata, provenance
+        except (
+            ValueError,
+            TypeError,
+            yaml.YAMLError,
+            ValidationError,
+            RecursionError,
+        ) as error:
+            raise InvalidSkill() from error
+
+    def load(self, name: str) -> Skill:
+        try:
+            raw = self._read(name, "SKILL.md")
+            if not raw.startswith("---\n"):
+                raise InvalidSkill()
+            header, body = raw[4:].split("\n---\n", 1)
+            metadata, provenance = self._metadata(name, header)
+            if (
+                not body.strip()
+                or hashlib.sha256(raw.encode()).hexdigest()
+                != provenance.files["SKILL.md"]
+            ):
+                raise InvalidSkill()
             return Skill(
                 metadata,
                 body,
                 digest(provenance.model_dump()),
                 provenance.model_dump(),
-                references,
+                {
+                    path: value
+                    for path, value in provenance.files.items()
+                    if path != "SKILL.md"
+                },
             )
-        except (ValueError, TypeError, yaml.YAMLError, ValidationError) as error:
+        except (ValueError, TypeError, RecursionError) as error:
             raise InvalidSkill() from error
 
     def search(self, intent: str) -> list[SkillMetadata]:
@@ -169,7 +210,11 @@ class SkillRegistry:
             entries = sorted(self.root.iterdir())
         except OSError as error:
             raise InvalidSkill() from error
-        metadata = [self.load(p.name).metadata for p in entries if p.is_dir()]
+        metadata = [
+            self._metadata(p.name, self._header(p.name))[0]
+            for p in entries
+            if p.is_dir()
+        ]
 
         def rank(item: SkillMetadata) -> tuple[int, str]:
             name = set(item.name.split("-"))

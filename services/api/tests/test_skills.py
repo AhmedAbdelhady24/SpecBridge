@@ -58,7 +58,8 @@ def test_reference_containment(path):
     "mutation",
     ["duplicate", "unknown", "permissions", "yaml", "large", "name", "version"],
 )
-def test_reject_bad_metadata(tmp_path, mutation):
+@pytest.mark.parametrize("operation", ["search", "load"])
+def test_reject_bad_metadata(tmp_path, mutation, operation):
     root = copy_skill(tmp_path)
     path = root / "feature-handoff/SKILL.md"
     text = path.read_text()
@@ -76,8 +77,12 @@ def test_reject_bad_metadata(tmp_path, mutation):
     }
     path.write_text(text.replace(*replacements[mutation]))
     rehash(root)
+    registry = SkillRegistry(root)
     with pytest.raises(InvalidSkill):
-        SkillRegistry(root).load("feature-handoff")
+        if operation == "search":
+            registry.search("")
+        else:
+            registry.load("feature-handoff")
 
 
 @pytest.mark.parametrize("target", ["directory", "reference"])
@@ -92,14 +97,21 @@ def test_symlinks_denied(tmp_path, target):
         ref.unlink()
         ref.symlink_to(ROOT / "feature-handoff/references/output-contract.md")
     with pytest.raises(InvalidSkill):
-        SkillRegistry(root).load("feature-handoff")
+        registry = SkillRegistry(root)
+        if target == "directory":
+            registry.load("feature-handoff")
+        else:
+            registry.reference("feature-handoff", "references/output-contract.md")
 
 
-def test_tamper_denied(tmp_path):
+def test_tamper_denied_at_reference_use(tmp_path):
     root = copy_skill(tmp_path)
     (root / "feature-handoff/references/output-contract.md").write_text("changed")
+    registry = SkillRegistry(root)
+    assert registry.search("")
+    assert registry.load("feature-handoff").body
     with pytest.raises(InvalidSkill):
-        SkillRegistry(root).load("feature-handoff")
+        registry.reference("feature-handoff", "references/output-contract.md")
 
 
 def test_nonregular_skill_file_denied(tmp_path):
@@ -153,3 +165,61 @@ def test_reference_size_bound(tmp_path):
         SkillRegistry(root).reference(
             "feature-handoff", "references/output-contract.md"
         )
+
+
+@pytest.mark.parametrize("damage", ["oversized", "missing"])
+def test_unused_reference_does_not_block_discovery_or_entrypoint(tmp_path, damage):
+    root = copy_skill(tmp_path)
+    path = root / "feature-handoff/references/output-contract.md"
+    if damage == "oversized":
+        path.write_bytes(b"x" * 131073)
+    else:
+        path.unlink()
+    registry = SkillRegistry(root)
+    assert registry.search("")[0].name == "feature-handoff"
+    assert registry.load("feature-handoff").body
+    with pytest.raises(InvalidSkill):
+        registry.reference("feature-handoff", "references/output-contract.md")
+
+
+def test_discovery_does_not_load_entrypoint_body(tmp_path, monkeypatch):
+    root = copy_skill(tmp_path)
+    registry = SkillRegistry(root)
+    original = registry._read
+
+    def metadata_read_only(name, relative):
+        assert relative == "provenance.json"
+        return original(name, relative)
+
+    monkeypatch.setattr(registry, "_read", metadata_read_only)
+    monkeypatch.setattr(
+        registry, "load", lambda name: pytest.fail("search loaded Skill")
+    )
+    assert registry.search("")[0].name == "feature-handoff"
+
+
+@pytest.mark.parametrize("target", ["yaml", "provenance"])
+def test_recursive_metadata_denied(tmp_path, target):
+    root = copy_skill(tmp_path)
+    nested = "[" * 2000 + '"SECRET"' + "]" * 2000
+    if target == "yaml":
+        path = root / "feature-handoff/SKILL.md"
+        path.write_text("---\nname: " + nested + "\n---\nbody")
+    else:
+        (root / "feature-handoff/provenance.json").write_text(nested)
+    with pytest.raises(InvalidSkill, match="invalid_skill"):
+        SkillRegistry(root).search("")
+
+
+@pytest.mark.parametrize("operation", ["search", "load"])
+def test_malformed_provenance_denied_at_both_stages(tmp_path, operation):
+    root = copy_skill(tmp_path)
+    (root / "feature-handoff/provenance.json").write_text(
+        '{"schema_version":1,"extra":true}'
+    )
+    registry = SkillRegistry(root)
+    with pytest.raises(InvalidSkill):
+        if operation == "search":
+            registry.search("")
+        else:
+            registry.load("feature-handoff")

@@ -181,3 +181,37 @@ def test_malformed_message_and_timeout_are_sanitized():
     with pytest.raises(ProviderFailure, match="provider_timeout") as error:
         generate(provider(timeout))
     assert "SECRET" not in str(error.value)
+
+
+def test_strict_schema_requires_nested_properties_without_changing_backend_defaults():
+    from specbridge.models import Artifact
+
+    original = Artifact.model_json_schema()
+
+    def check(value):
+        if isinstance(value, dict):
+            assert "default" not in value
+            if value.get("type") == "object":
+                assert set(value["required"]) == set(value["properties"])
+                assert value["additionalProperties"] is False
+            for child in value.values():
+                check(child)
+        elif isinstance(value, list):
+            for child in value:
+                check(child)
+
+    def handler(request):
+        schema = json.loads(request.content)["response_format"]["json_schema"]["schema"]
+        check(schema)
+        return httpx.Response(
+            200, json={"choices": [{"message": {"content": json.dumps(output())}}]}
+        )
+
+    assert generate(provider(handler)).requirements
+    assert Artifact.model_json_schema() == original
+
+
+def test_deep_json_is_sanitized():
+    nested = "[" * 10000 + '"SECRET"' + "]" * 10000
+    with pytest.raises(ProviderFailure, match="invalid_response"):
+        generate(provider(lambda request: httpx.Response(200, content=nested)))
