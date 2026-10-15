@@ -1,3 +1,4 @@
+import { useId } from "react";
 import type { components } from "./api/schema";
 type Artifact = components["schemas"]["Artifact"];
 const sections = [
@@ -25,14 +26,16 @@ export function ArtifactEditor({
   onChange: (value: Artifact) => void;
   disabled: boolean;
 }) {
+  const editorId = useId();
   const field = (
     label: string,
     text: string,
     change: (text: string) => void,
   ) => (
-    <label key={label}>
-      {label}
+    <div key={label}>
+      <label htmlFor={`${editorId}-${label.replaceAll(" ", "-")}`}>{label}</label>
       <textarea
+        id={`${editorId}-${label.replaceAll(" ", "-")}`}
         value={text}
         maxLength={label === "Title" ? 200 : 16384}
         required
@@ -40,7 +43,7 @@ export function ArtifactEditor({
         onChange={(e) => change(e.target.value)}
         rows={label === "Title" ? 1 : 3}
       />
-    </label>
+    </div>
   );
   return (
     <div className="artifact">
