@@ -1,6 +1,6 @@
 # ADR 0001: Local modular monolith and independent documentation exports
 
-Status: **proposed; awaiting user review**. Date: 2026-10-15.
+Status: **accepted by the user on 2026-10-15** following review of this ADR and the written first-slice design. Implementation remains pending plan review and validation.
 
 ## Context
 
@@ -14,12 +14,12 @@ The workspace is empty. The first useful result is a reviewed feature handoff th
 | Extend a reference PM app | Reuses a chat/intake shell | Requires replacing provider coupling, session persistence, permissions and publication; two candidates lack a distribution license |
 | Small dedicated modular monolith | Explicit domain and security boundaries; standalone application | Requires a small API, UI and persistence layer |
 
-Recommend the third option, with reusable PM methods as instructions rather than an autonomous software team.
+Select the third option, with reusable PM methods as instructions rather than an autonomous software team.
 
-## Proposed decision
+## Decision
 
 - Python 3.12, FastAPI, Pydantic v2; one backend owns all domain changes. Lock compatible versions after approval.
-- React and TypeScript with Vite for a local review UI. Next.js was evaluated; no SSR or server-component requirement currently justifies its second application-server responsibility. This is a deliberate deviation from the suggested stack, open for review.
+- React and TypeScript with Vite for a local review UI. Next.js was evaluated; no SSR or server-component requirement currently justifies its second application-server responsibility. This is an approved deviation from the suggested stack.
 - SQLite with explicit transactions and a schema-version table; keep persistence behind repository functions. PostgreSQL is a future migration, not a second database to support now.
 - A deterministic workflow with persisted stages and immutable artifact revisions. No LangGraph in the first slice; revisit when branching/recovery complexity exceeds a small explicit state machine. Durable execution itself does not require an agent framework.
 - Configurable provider boundary with a deterministic fixture provider for tests and an explicitly configured OpenAI-compatible HTTP provider. No Codex runtime dependency and no provider SDK orchestration framework. Provider use requires an explicit configured destination; no fallback to an unapproved cloud endpoint.
@@ -39,4 +39,4 @@ Separate API and browser dev processes remain necessary. A Vite proxy can provid
 
 Approval binds the artifact revision and a preview digest covering template version/digest, generated paths/content hashes and asset hashes. Export serves the immutable candidate bytes reviewed; edits or template changes require new approval. Preview and export use fixed templates, inert data and no remote assets, with fresh output directories. Later repository regeneration must compare manifests/hashes and produce a conflict preview before writing.
 
-Acceptance is defined in the [first-slice design](../architecture/first-slice.md) and [evaluation plan](../evaluations/acceptance.md). This ADR becomes accepted only after the user approves the concrete design; files and research alone do not settle it.
+Acceptance is defined in the [first-slice design](../architecture/first-slice.md) and [evaluation plan](../evaluations/acceptance.md). The user's explicit approval settles this decision; passing product checks are still required before any completion claim.

@@ -4,10 +4,10 @@ Purpose: turn product ideas and project evidence into validated requirements, re
 
 ## Current state and paths
 
-- Phase Zero bootstrap only; no product code exists. Architecture remains proposed.
+- Phase Zero bootstrap only; no product code exists. First-slice design/ADR approved on 2026-10-15; detailed implementation plan awaits review.
 - `docs/engineering/`: environment, skills, research, planning conventions.
 - `docs/architecture/`: first-slice behavior and boundaries.
-- `docs/decisions/`: ADRs; proposed is not accepted.
+- `docs/decisions/`: ADRs with explicit decision status.
 - `docs/plans/`: resumable execution state. Read the current plan before work.
 - `docs/security/` and `docs/evaluations/`: trust boundaries and acceptance cases.
 - `tests/`: bootstrap checks only, until product tests are added.
@@ -18,7 +18,7 @@ Inspect source and callers before edits. Use installed Superpowers skills progre
 
 Write substantial plans according to `docs/engineering/PLANS.md`. Resolve current design gates before product scaffolding. Delegate only independent work with explicit ownership and acceptance checks; implementation agents use isolated Git worktrees. Do not overwrite others' work. Preserve failed work and logs; redact secrets.
 
-## Proposed boundaries
+## Approved boundaries
 
 One backend owns workflow transitions, artifacts, approvals, skill access, and persistence. The frontend renders state and submits user intent; it cannot grant publication authority to generated content. Runtime PM skills are data, separate from development skills, with no shell or unrestricted filesystem access. Generated documentation is a standalone static project.
 

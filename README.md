@@ -2,13 +2,13 @@
 
 SpecBridge will turn product information into traceable requirements, reviewed backlog proposals, and independently runnable engineering documentation.
 
-**Current status: Phase Zero research and bootstrap. There is no application yet.** Architecture is proposed, not approved. No LLM, integration, or documentation website has been run. No external repository has been created or published.
+**Current status: first-slice design approved; implementation plan awaits review. There is no application yet.** No LLM, integration, or documentation website has been run. No external repository has been created or published.
 
-Start with the [environment audit](docs/engineering/environment-audit.md), [skill inventory](docs/engineering/skill-inventory.md), [repository comparison](docs/engineering/reference-research.md), and [proposed architecture](docs/decisions/0001-local-modular-monolith.md).
+Start with the [environment audit](docs/engineering/environment-audit.md), [skill inventory](docs/engineering/skill-inventory.md), [repository comparison](docs/engineering/reference-research.md), and [accepted architecture](docs/decisions/0001-local-modular-monolith.md).
 
 The [bootstrap report](docs/engineering/bootstrap-report.md) records delivered files, skills, delegated reviews, actual checks and remaining gates.
 
-The [first-slice design](docs/architecture/first-slice.md) defines the behavior to approve. The [execution roadmap](docs/plans/bootstrap-and-first-slice.md) records remaining gates and work packages. [PLANS.md](docs/engineering/PLANS.md) defines how future plans are maintained.
+The [approved first-slice design](docs/architecture/first-slice.md) defines the target behavior. The [implementation plan](docs/plans/2026-10-15-first-slice-implementation.md) contains concrete tasks and awaits user review. The [execution roadmap](docs/plans/bootstrap-and-first-slice.md) records milestone status. [PLANS.md](docs/engineering/PLANS.md) defines planning conventions.
 
 Run the bootstrap checks from the repository root, without installing dependencies:
 

@@ -1,6 +1,6 @@
 # Bootstrap and first-slice roadmap
 
-Status: Phase Zero research/bootstrap in progress; product implementation awaits design review. Date: 2026-10-15.
+Status: Phase Zero research/bootstrap delivered; first-slice design approved on 2026-10-15. Product implementation awaits written-plan review. See the [detailed implementation plan](2026-10-15-first-slice-implementation.md).
 
 ## Outcome and existing state
 
@@ -15,7 +15,9 @@ Current installed skills are sufficient for engineering bootstrap. No product de
 - [x] Delegate/review five reference repositories with exact source revisions.
 - [x] Record inventory and propose the smallest sustainable architecture.
 - [x] Finish bootstrap checks, independent review and actual verification report.
-- [ ] Obtain review/approval of the concrete first-slice design and settle implementation planning prerequisites.
+- [x] Obtain review/approval of the concrete first-slice design and ADR 0001.
+- [x] Write and self-review the detailed first-slice implementation plan.
+- [ ] Obtain review of the written implementation plan; preserve the user's bounded-delegation execution method.
 - [ ] Resolve/lock product dependencies and validate compatibility; Milestone 0 cannot be called complete before the required readiness checks.
 - [ ] Milestone 1: implement and verify the complete local handoff slice.
 - [ ] Milestone 2: extend persistent project knowledge, retrieval, decisions and artifact versioning beyond the first slice.
@@ -38,7 +40,7 @@ The first slice necessarily includes minimal persistence, checkpoints and revisi
 | 6 | Lead: API publisher integration and approval checks | Exact revision + preview digest, stale approval rejection, concurrency/failure cases. Do not duplicate backend ownership with workers. |
 | 7 | QA/review: `tests/` browser/evaluations plus docs | End-to-end review/export, clean extracted install/build, security fixtures, checkpoint recovery and diff review. Lead runs combined suite after integration. |
 
-Before execution, expand these into small test-first tasks under the approved design, with exact commands, contracts and expected results according to [PLANS.md](../engineering/PLANS.md). This is a roadmap, not a claim that detailed implementation planning or user review has happened.
+The [detailed implementation plan](2026-10-15-first-slice-implementation.md) expands these into test-first tasks with owned paths, contracts, commands and expected results according to [PLANS.md](../engineering/PLANS.md). User review of that plan remains pending; no product implementation has started.
 
 Use at most two independent implementation workers after contracts stabilize; the root remains accountable for integration. Research agents required no worktrees because they only inspected public sources. Preserve failure logs/worktrees. Review returned changes and run regression checks before integration; no auto-merge.
 
@@ -50,4 +52,4 @@ Use temporary databases/output directories in tests; never delete user projects 
 
 ## Resume here
 
-Read the final bootstrap report and the proposed ADR/design. Resolve the earliest unfinished gate; do not restart repository research or reinstall already available skills. Do not describe Milestone 0 or the product as complete from bootstrap tests.
+Review the detailed implementation plan next; design/ADR approval is already recorded. Do not request that design approval again, restart repository research, or reinstall already available skills. Do not describe Milestone 0 or the product as complete from bootstrap tests.

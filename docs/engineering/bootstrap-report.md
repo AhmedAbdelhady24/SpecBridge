@@ -2,6 +2,8 @@
 
 Date: 2026-10-15. Status: **research/bootstrap delivered; Milestone 0 remains open pending design/planning review and product dependency validation. No application implemented.**
 
+Historical checkpoint: this report describes the initial bootstrap commit. The user subsequently approved the written first-slice design and ADR on 2026-10-15. The [detailed implementation plan](../plans/2026-10-15-first-slice-implementation.md) now awaits review; no application implementation has started.
+
 ## Delivered
 
 - Local repository on `codex/phase-zero`, with no remote or external publication.

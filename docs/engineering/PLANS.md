@@ -1,6 +1,6 @@
 # Engineering plans
 
-Substantial changes have one self-contained plan in `docs/plans/`. The active plan is [bootstrap-and-first-slice.md](../plans/bootstrap-and-first-slice.md).
+Substantial changes have one self-contained plan in `docs/plans/`. The active implementation plan is [2026-10-15-first-slice-implementation.md](../plans/2026-10-15-first-slice-implementation.md); the [roadmap](../plans/bootstrap-and-first-slice.md) tracks milestone status. First-slice design is approved; the written implementation plan awaits review.
 
 Each plan records:
 

@@ -1,6 +1,6 @@
 # First vertical slice: reviewable feature handoff
 
-Status: **proposed design for review, not implemented**.
+Status: **approved by the user on 2026-10-15; not implemented**. Approval followed review of this written design and ADR 0001. The [implementation plan](../plans/2026-10-15-first-slice-implementation.md) awaits its separate review; this design approval does not authorize external publication.
 
 ## Intent and scope
 
@@ -8,7 +8,7 @@ The user requested an independent, configurable-provider product that converts i
 
 The first slice handles text intake for one feature within a project, a PRD with linked user stories, human review, and a complete Starlight source ZIP. A thin browser interface covers intake, findings, revision editing, approval and download. It does not attempt the final dashboard or external publication.
 
-Assumptions proposed for review: single local operator; manual text sources first; no confidential data leaves the machine until the operator configures a provider and explicitly generates using that destination. The fixture provider is labeled test/demo output, never presented as real AI validation.
+Approved initial boundaries: single local operator; manual text sources first; no confidential data leaves the machine until the operator configures a provider and explicitly generates using that destination. The fixture provider is labeled test/demo output, never presented as real AI validation.
 
 ## Modules and contracts
 
