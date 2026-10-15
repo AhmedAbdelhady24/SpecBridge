@@ -79,3 +79,82 @@ def test_api_idea_to_reviewed_independent_package(tmp_path):
     )
     assert result.status_code == 201
     assert client.get(candidate_url + "/download").status_code == 409
+
+
+def edited_run(tmp_path):
+    app = create_app(
+        data_dir=tmp_path, token="test", allowed_origin="http://127.0.0.1:5173"
+    )
+    client = TestClient(
+        app,
+        base_url="http://127.0.0.1:8000",
+        headers={"Authorization": "Bearer test"},
+    )
+    project = client.post("/api/projects", json={"name": "Edits"}).json()["id"]
+    base = f"/api/projects/{project}"
+    source = client.post(
+        base + "/sources", json={"text": "Build report export"}
+    ).json()["id"]
+    run = client.post(
+        base + "/runs",
+        json={
+            "source_ids": [source],
+            "skill_id": "feature-handoff",
+            "intent": "PRD",
+            "acknowledged_destination": "fixture",
+        },
+    ).json()
+    for _ in range(6):
+        run = client.post(base + "/runs/" + run["id"] + "/advance", json={}).json()
+    url = base + "/revisions/" + run["revision_id"]
+    return app.state.store, client, base, run, url, client.get(url).json()
+
+
+def test_edits_recompute_findings(tmp_path):
+    _store, client, base, run, url, revision = edited_run(tmp_path)
+    assert {f["code"] for f in revision["findings"]} == {"open_questions"}
+    artifact = revision["artifact"]
+    duplicate = dict(artifact["stories"][0], id="STORY-new")
+    artifact["stories"].append(duplicate)
+    revised = client.post(
+        url + "/edits",
+        json={
+            "expected_digest": revision["digest"],
+            "artifact": artifact,
+        },
+    ).json()
+    assert {f["code"] for f in revised["findings"]} == {
+        "open_questions",
+        "duplicate_story",
+    }
+    assert (
+        client.get(base + "/runs/" + run["id"]).json()["revision_id"] == revised["id"]
+    )
+
+
+def test_edit_run_update_failure_rolls_back_revision_and_audit(tmp_path):
+    import sqlite3
+
+    import pytest
+
+    store, client, base, run, url, revision = edited_run(tmp_path)
+    with store.transaction() as db:
+        before = db.execute("SELECT COUNT(*) FROM audit").fetchone()[0]
+        db.execute(
+            "CREATE TRIGGER fail_edit BEFORE UPDATE ON runs BEGIN SELECT RAISE(ABORT, 'injected failure'); END"
+        )
+    revision["artifact"]["title"] = "An edit that must roll back"
+    with pytest.raises(sqlite3.IntegrityError, match="injected failure"):
+        client.post(
+            url + "/edits",
+            json={
+                "expected_digest": revision["digest"],
+                "artifact": revision["artifact"],
+            },
+        )
+    with store.transaction() as db:
+        assert db.execute("SELECT COUNT(*) FROM revisions").fetchone()[0] == 1
+        assert db.execute("SELECT COUNT(*) FROM audit").fetchone()[0] == before
+    assert (
+        client.get(base + "/runs/" + run["id"]).json()["revision_id"] == revision["id"]
+    )

@@ -207,8 +207,14 @@ def create_app(
         previous = store.get_revision(project_id, revision_id)
         if previous.digest != body.expected_digest:
             raise Conflict("Revision changed; reload before editing")
-        revised = store.save_revision(project_id, body.artifact, body.expected_digest)
         with store.transaction() as db:
+            revised = store.save_revision(
+                project_id,
+                body.artifact,
+                body.expected_digest,
+                findings=workflow.findings(body.artifact),
+                connection=db,
+            )
             for row in db.execute(
                 "SELECT id,data FROM runs WHERE project_id=?", (project_id,)
             ).fetchall():

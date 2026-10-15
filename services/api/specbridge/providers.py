@@ -1,5 +1,6 @@
 """Explicit provider destinations and bounded, inert structured output."""
 
+import asyncio
 import ipaddress
 import json
 import os
@@ -13,6 +14,7 @@ from specbridge.models import Artifact, Source
 from specbridge.skills import Skill
 
 RESPONSE_LIMIT = 256 * 1024
+TOTAL_TIMEOUT = 60  # Whole request deadline, shorter than the workflow execution lease.
 
 
 def strict_artifact_schema() -> dict[str, Any]:
@@ -153,7 +155,7 @@ class CompatibleProvider:
         base_url: str,
         model: str,
         api_key: str,
-        transport: httpx.BaseTransport | None = None,
+        transport: httpx.AsyncBaseTransport | None = None,
     ):
         try:
             url = urlsplit(base_url)
@@ -212,27 +214,7 @@ class CompatibleProvider:
             },
         }
         try:
-            with (
-                httpx.Client(
-                    transport=self._transport,
-                    timeout=60,
-                    follow_redirects=False,
-                    trust_env=False,
-                ) as client,
-                client.stream(
-                    "POST",
-                    self.destination + "/chat/completions",
-                    json=payload,
-                    headers={"Authorization": "Bearer " + self._key},
-                ) as response,
-            ):
-                if response.status_code != 200:
-                    raise ProviderFailure("provider_http_error")
-                chunks = bytearray()
-                for chunk in response.iter_bytes(chunk_size=8192):
-                    if len(chunks) + len(chunk) > RESPONSE_LIMIT:
-                        raise ProviderFailure("response_too_large")
-                    chunks.extend(chunk)
+            chunks = asyncio.run(self._request(payload))
             data = json.loads(chunks)
             choices = data["choices"]
             if len(choices) != 1:
@@ -249,7 +231,7 @@ class CompatibleProvider:
             if not isinstance(content, str):
                 raise ProviderFailure("invalid_response")
             return validate_artifact(Artifact.model_validate_json(content), sources)
-        except httpx.TimeoutException:
+        except (TimeoutError, httpx.TimeoutException):
             raise ProviderFailure("provider_timeout") from None
         except httpx.HTTPError:
             raise ProviderFailure("provider_transport_error") from None
@@ -264,6 +246,31 @@ class CompatibleProvider:
             if isinstance(error, ProviderFailure):
                 raise
             raise ProviderFailure("invalid_response") from None
+
+    async def _request(self, payload: dict[str, Any]) -> bytes:
+        async with asyncio.timeout(TOTAL_TIMEOUT):
+            async with (
+                httpx.AsyncClient(
+                    transport=self._transport,
+                    timeout=TOTAL_TIMEOUT,
+                    follow_redirects=False,
+                    trust_env=False,
+                ) as client,
+                client.stream(
+                    "POST",
+                    self.destination + "/chat/completions",
+                    json=payload,
+                    headers={"Authorization": "Bearer " + self._key},
+                ) as response,
+            ):
+                if response.status_code != 200:
+                    raise ProviderFailure("provider_http_error")
+                chunks = bytearray()
+                async for chunk in response.aiter_bytes(chunk_size=8192):
+                    if len(chunks) + len(chunk) > RESPONSE_LIMIT:
+                        raise ProviderFailure("response_too_large")
+                    chunks.extend(chunk)
+                return bytes(chunks)
 
 
 def provider_from_env() -> Provider:

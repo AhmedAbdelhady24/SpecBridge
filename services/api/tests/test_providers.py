@@ -215,3 +215,58 @@ def test_deep_json_is_sanitized():
     nested = "[" * 10000 + '"SECRET"' + "]" * 10000
     with pytest.raises(ProviderFailure, match="invalid_response"):
         generate(provider(lambda request: httpx.Response(200, content=nested)))
+
+
+@pytest.mark.parametrize("phase", ["headers", "body"])
+def test_total_deadline_cancels_slow_response(monkeypatch, phase):
+    import asyncio
+    import time
+
+    from specbridge import providers
+
+    monkeypatch.setattr(providers, "TOTAL_TIMEOUT", 0.05, raising=False)
+    payload = json.dumps(
+        {"choices": [{"message": {"content": json.dumps(output())}}]}
+    ).encode()
+    closed = []
+
+    class Drip(httpx.SyncByteStream, httpx.AsyncByteStream):
+        def __iter__(self):
+            for offset in range(0, len(payload), len(payload) // 10):
+                time.sleep(0.02)
+                yield payload[offset : offset + len(payload) // 10]
+
+        async def __aiter__(self):
+            for offset in range(0, len(payload), len(payload) // 10):
+                await asyncio.sleep(0.02)
+                yield payload[offset : offset + len(payload) // 10]
+
+        def close(self):
+            closed.append(True)
+
+        async def aclose(self):
+            closed.append(True)
+
+    class SlowTransport(httpx.BaseTransport, httpx.AsyncBaseTransport):
+        def handle_request(self, request):
+            if phase == "headers":
+                time.sleep(0.2)
+            return httpx.Response(200, stream=Drip())
+
+        async def handle_async_request(self, request):
+            if phase == "headers":
+                await asyncio.sleep(0.2)
+            return httpx.Response(200, stream=Drip())
+
+    instance = CompatibleProvider(
+        base_url="https://model.example/v1",
+        model="x",
+        api_key="SECRET",
+        transport=SlowTransport(),
+    )
+    started = time.monotonic()
+    with pytest.raises(ProviderFailure, match="provider_timeout"):
+        generate(instance)
+    assert time.monotonic() - started < 0.2
+    if phase == "body":
+        assert closed == [True]
