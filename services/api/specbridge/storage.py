@@ -184,17 +184,22 @@ class Store:
             story.requirement_ids = [
                 mapping.get(key, key) for key in story.requirement_ids
             ]
+        cited: dict[str, int] = {}
         for statement in body.statements():
             if statement.kind == "verified":
                 raise ValueError("Generated or edited claims cannot self-verify")
             if statement.kind == "user_provided" and not statement.source_ids:
                 raise ValueError("User-provided claims require source references")
             for source_id in statement.source_ids:
-                if not db.execute(
-                    "SELECT 1 FROM sources WHERE id=? AND project_id=?",
+                row = db.execute(
+                    "SELECT data FROM sources WHERE id=? AND project_id=?",
                     (source_id, project_id),
-                ).fetchone():
+                ).fetchone()
+                if not row:
                     raise NotFound("Source not found")
+                cited[source_id] = len(Source.model_validate_json(row[0]).text.encode())
+        if len(cited) > 20 or sum(cited.values()) > 65536:
+            raise ValueError("Artifact citations exceed the selected evidence limit")
         revision = Revision(
             id=str(uuid4()),
             project_id=project_id,

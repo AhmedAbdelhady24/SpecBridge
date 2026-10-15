@@ -1,0 +1,13 @@
+{
+  "name": "specbridge-checks",
+  "private": true,
+  "engines": {
+    "node": ">=22.23.1 <23"
+  },
+  "scripts": {
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}

@@ -2,19 +2,40 @@ import os
 import secrets
 import stat
 from pathlib import Path
-from typing import Any
 from urllib.parse import urlsplit
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
 
-from .models import Project, ProjectCreate, Revision, RevisionEdit, Source, SourceCreate
+from .models import (
+    AdvanceRequest,
+    ApprovalCreate,
+    Candidate,
+    Project,
+    ProjectCreate,
+    ProviderInfo,
+    Review,
+    ReviewCreate,
+    Revision,
+    RevisionEdit,
+    Run,
+    RunCreate,
+    Source,
+    SourceCreate,
+)
+from .providers import FixtureProvider, Provider, provider_from_env
+from .publication import Publication
+from .skills import SkillMetadata, SkillRegistry
 from .storage import Conflict, NotFound, Store
+from .workflow import Workflow
 
 LOOPBACK = {"localhost", "127.0.0.1", "::1"}
+ROOT = Path(__file__).resolve().parents[3]
 
 
 def local_token(data_dir: Path) -> str:
@@ -43,7 +64,15 @@ def error(status: int, code: str, message: str) -> JSONResponse:
     )
 
 
-def create_app(*, data_dir: Path, token: str, allowed_origin: str) -> FastAPI:
+def create_app(
+    *,
+    data_dir: Path,
+    token: str,
+    allowed_origin: str,
+    provider: Provider | None = None,
+    skill_root: Path | None = None,
+    template_root: Path | None = None,
+) -> FastAPI:
     origin = urlsplit(allowed_origin)
     if (
         origin.scheme != "http"
@@ -65,6 +94,22 @@ def create_app(*, data_dir: Path, token: str, allowed_origin: str) -> FastAPI:
     )
     store = Store(data_dir / "specbridge.db")
     app.state.store = store
+    configured_provider = provider or FixtureProvider()
+    registry = SkillRegistry(skill_root or ROOT / "skills/runtime")
+    workflow = Workflow(store, registry, configured_provider)
+    publication = Publication(store, template_root or ROOT / "packages/docs-template")
+
+    @app.exception_handler(StarletteHTTPException)
+    async def http_failure(
+        request: Request, exc: StarletteHTTPException
+    ) -> JSONResponse:
+        return error(
+            exc.status_code,
+            "not_found" if exc.status_code == 404 else "http_error",
+            "Resource not found"
+            if exc.status_code == 404
+            else "Request could not be completed",
+        )
 
     @app.exception_handler(NotFound)
     async def not_found(request: Request, exc: NotFound) -> JSONResponse:
@@ -126,12 +171,14 @@ def create_app(*, data_dir: Path, token: str, allowed_origin: str) -> FastAPI:
         return {"status": "ok"}
 
     @app.get("/api/config")
-    def config() -> dict[str, Any]:
-        return {
-            "provider": "fixture",
-            "model": "demo",
-            "destination": "local fixture (no network)",
-        }
+    def config() -> ProviderInfo:
+        return ProviderInfo.model_validate(
+            {
+                "provider": configured_provider.mode,
+                "model": configured_provider.model,
+                "destination": configured_provider.destination,
+            }
+        )
 
     @app.get("/api/projects")
     def projects() -> list[Project]:
@@ -156,7 +203,109 @@ def create_app(*, data_dir: Path, token: str, allowed_origin: str) -> FastAPI:
         previous = store.get_revision(project_id, revision_id)
         if previous.digest != body.expected_digest:
             raise Conflict("Revision changed; reload before editing")
-        return store.save_revision(project_id, body.artifact, body.expected_digest)
+        revised = store.save_revision(project_id, body.artifact, body.expected_digest)
+        with store.transaction() as db:
+            for row in db.execute(
+                "SELECT id,data FROM runs WHERE project_id=?", (project_id,)
+            ).fetchall():
+                run = Run.model_validate_json(row["data"])
+                if run.revision_id == revision_id:
+                    run.revision_id = revised.id
+                    run.stage = "human_review"
+                    run.status = "review"
+                    db.execute(
+                        "UPDATE runs SET data=? WHERE id=?",
+                        (run.model_dump_json(), run.id),
+                    )
+        return revised
+
+    @app.get("/api/skills")
+    def skills(intent: str = "") -> list[SkillMetadata]:
+        if len(intent) > 2000:
+            raise ValueError("Intent too long")
+        return registry.search(intent)
+
+    @app.post("/api/projects/{project_id}/runs", status_code=201)
+    def start_run(project_id: str, body: RunCreate) -> Run:
+        return workflow.start(
+            project_id,
+            body.source_ids,
+            body.intent,
+            body.skill_id,
+            body.acknowledged_destination,
+        )
+
+    @app.get("/api/projects/{project_id}/runs")
+    def runs(project_id: str) -> list[Run]:
+        return workflow.list_runs(project_id)
+
+    @app.get("/api/projects/{project_id}/runs/{run_id}")
+    def get_run(project_id: str, run_id: str) -> Run:
+        return workflow.get(project_id, run_id)
+
+    @app.post("/api/projects/{project_id}/runs/{run_id}/advance", response_model=Run)
+    def advance(
+        project_id: str, run_id: str, body: AdvanceRequest
+    ) -> Run | JSONResponse:
+        run = workflow.advance(
+            project_id, run_id, retry_acknowledged=body.retry_acknowledged
+        )
+        if run.status == "failed":
+            return error(
+                502,
+                run.error or "stage_failed",
+                "Workflow stage failed; inspect saved state before an explicit retry",
+            )
+        return run
+
+    @app.get("/api/projects/{project_id}/revisions/{revision_id}/reviews")
+    def reviews(project_id: str, revision_id: str) -> list[Review]:
+        return publication.reviews(project_id, revision_id)
+
+    @app.post(
+        "/api/projects/{project_id}/revisions/{revision_id}/reviews", status_code=201
+    )
+    def review(project_id: str, revision_id: str, body: ReviewCreate) -> Review:
+        return publication.review(project_id, revision_id, body.disposition, body.notes)
+
+    @app.post(
+        "/api/projects/{project_id}/revisions/{revision_id}/candidates", status_code=201
+    )
+    def prepare(project_id: str, revision_id: str) -> Candidate:
+        return publication.prepare(project_id, revision_id)
+
+    @app.post("/api/projects/{project_id}/candidates/{candidate_id}/approve")
+    def approve(project_id: str, candidate_id: str, body: ApprovalCreate) -> Candidate:
+        return publication.approve(project_id, candidate_id, body.digest)
+
+    @app.get(
+        "/api/projects/{project_id}/candidates/{candidate_id}/download",
+        responses={
+            200: {
+                "content": {
+                    "application/zip": {
+                        "schema": {"type": "string", "format": "binary"}
+                    }
+                }
+            }
+        },
+    )
+    def download(project_id: str, candidate_id: str) -> Response:
+        return Response(
+            publication.download(project_id, candidate_id),
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": 'attachment; filename="specbridge-documentation.zip"'
+            },
+        )
+
+    web = ROOT / "apps/web/dist"
+    if (web / "index.html").is_file():
+        app.mount("/assets", StaticFiles(directory=web / "assets"), name="assets")
+
+        @app.get("/", include_in_schema=False)
+        def index() -> FileResponse:
+            return FileResponse(web / "index.html")
 
     return app
 
@@ -167,4 +316,5 @@ def create_default_app() -> FastAPI:
         data_dir=data_dir,
         token=os.environ.get("SPECBRIDGE_TOKEN") or local_token(data_dir),
         allowed_origin=os.environ.get("SPECBRIDGE_UI_ORIGIN", "http://127.0.0.1:5173"),
+        provider=provider_from_env(),
     )

@@ -119,6 +119,51 @@ class Run(Model):
     error: str | None = None
     attempts: int = 0
     history: list[str] = Field(default_factory=list)
+    base_digest: str | None = None
+
+
+class RunCreate(Model):
+    source_ids: list[str] = Field(min_length=1, max_length=20)
+    skill_id: str = Field(min_length=1, max_length=64)
+    intent: str = Field(min_length=1, max_length=2000)
+    acknowledged_destination: str
+
+
+class AdvanceRequest(Model):
+    retry_acknowledged: bool = False
+
+
+class ReviewCreate(Model):
+    disposition: Literal["reviewed", "rejected"]
+    notes: str = Field(max_length=16384)
+
+
+class ApprovalCreate(Model):
+    digest: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class Candidate(Model):
+    id: str
+    project_id: str
+    revision_id: str
+    digest: str
+    template_digest: str
+    manifest: dict[str, str]
+    approved: bool = False
+
+
+class Review(Model):
+    id: str
+    project_id: str
+    revision_id: str
+    disposition: Literal["reviewed", "rejected"]
+    notes: str
+
+
+class ProviderInfo(Model):
+    provider: Literal["fixture", "compatible"]
+    model: str
+    destination: str
 
 
 class ProjectCreate(Model):
@@ -126,7 +171,7 @@ class ProjectCreate(Model):
 
 
 class SourceCreate(Model):
-    text: Text
+    text: str = Field(min_length=1, max_length=32768)
 
 
 class RevisionEdit(Model):
