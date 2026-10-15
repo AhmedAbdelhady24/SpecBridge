@@ -463,3 +463,12 @@ footer {
     transition: none !important;
   }
 }
+
+.source-evidence pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  background: #f5f5ee;
+}

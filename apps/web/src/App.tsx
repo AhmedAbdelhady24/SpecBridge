@@ -14,6 +14,7 @@ export default function App() {
   const [retry, setRetry] = useState(false);
   const [runs, setRuns] = useState<Schema["Run"][]>([]);
   const [selectedRun, setSelectedRun] = useState("");
+  const [selectedSources, setSelectedSources] = useState<Schema["Source"][]>([]);
   const [run, setRun] = useState<Schema["Run"]>();
   const [revision, setRevision] = useState<Schema["Revision"]>();
   const [artifact, setArtifact] = useState<Schema["Artifact"]>();
@@ -70,6 +71,7 @@ export default function App() {
     setRun(undefined);
     setRuns([]);
     setSelectedRun("");
+    setSelectedSources([]);
     clearRevision();
     if (id) setRuns(await api<Schema["Run"][]>(`/projects/${id}/runs`));
   }
@@ -117,6 +119,7 @@ export default function App() {
     });
     clearRevision();
     setRun(created);
+    setSelectedSources([source]);
     setRuns((current) => [...current, created]);
     setSelectedRun(created.id);
     await progress(created);
@@ -325,10 +328,16 @@ export default function App() {
                       onClick={() =>
                         void act(async () => {
                           clearRevision();
+                          setSelectedSources([]);
                           const saved = await api<Schema["Run"]>(
                             `${base}/runs/${selectedRun}`,
                           );
                           setRun(saved);
+                          setSelectedSources(
+                            await Promise.all(saved.source_ids.map(id =>
+                              api<Schema["Source"]>(`${base}/sources/${id}`)
+                            )),
+                          );
                           if (saved.revision_id)
                             await loadRevision(saved.revision_id);
                         })
@@ -363,6 +372,18 @@ export default function App() {
                           <li key={`${stage}-${i}`}>{stage}</li>
                         ))}
                       </ol>
+                      <details className="source-evidence">
+                        <summary>Selected source evidence</summary>
+                        {selectedSources.map(source => (
+                          <section key={source.id}>
+                            <p>Source ID: <code>{source.id}</code> · {source.kind}</p>
+                            <pre>{source.text}</pre>
+                          </section>
+                        ))}
+                        {selectedSources.length === 0 && (
+                          <p>Source evidence has not loaded.</p>
+                        )}
+                      </details>
                       {run.error && (
                         <p className="error" role="alert">
                           Stage error: {run.error}
