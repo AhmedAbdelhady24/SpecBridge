@@ -1,0 +1,88 @@
+{
+  "reviewed_on": "2026-10-15",
+  "sources": [
+    {
+      "repository": "obra/superpowers",
+      "url": "https://github.com/obra/superpowers",
+      "revision": "bb92a77741419a4ab5f06e711a283343f1ada0c3",
+      "installed_version": "6.4.1",
+      "installed_revision": "5bf4e78011075bcfc0dc295f0724994cd123ee71",
+      "upstream_manifest_version": "7.0.0",
+      "inspected_paths": ["README.md", ".codex-plugin/plugin.json", "skills/brainstorming/SKILL.md", "skills/using-superpowers/references/codex-tools.md", "skills/brainstorming/scripts/start-server.sh"],
+      "license_observation": "MIT; retain notices. Installed cache license inspected.",
+      "decision": "reuse-installed",
+      "executed": false,
+      "vendored": false
+    },
+    {
+      "repository": "deanpeters/Product-Manager-Skills",
+      "url": "https://github.com/deanpeters/Product-Manager-Skills",
+      "revision": "1b5a524ebb95e9497fa3f25002d8b8ec528d4444",
+      "inspected_paths": ["LICENSE", "skills/prd-development/SKILL.md", "skills/user-story/SKILL.md", "skills/user-story/scripts/user-story-template.py", "skills/epic-breakdown-advisor/SKILL.md", "skills/context-engineering-advisor/SKILL.md", "skills/agent-orchestration-advisor/SKILL.md", "app/main.py", "app/requirements.txt", "scripts/test-library.sh"],
+      "license_observation": "CC BY-NC-SA 4.0; exclude commercial runtime imports absent suitable permission.",
+      "decision": "reference-only",
+      "executed": false,
+      "vendored": false
+    },
+    {
+      "repository": "julianoczkowski/product-manager",
+      "url": "https://github.com/julianoczkowski/product-manager",
+      "revision": "b408a093a5d0171937ce5f9035c2e3b073689e97",
+      "inspected_paths": ["LICENSE", "NOTICE.md", "skills/pm-prd/SKILL.md", "skills/pm-requirements/SKILL.md", "skills/pm-use-scenarios/SKILL.md", "skills/pm-copilot/references/artifact-output.md"],
+      "license_observation": "MIT original authored material; NOTICE preserves Pragmatic Framework/trademark restrictions.",
+      "decision": "defer",
+      "executed": false,
+      "vendored": false
+    },
+    {
+      "repository": "RamyaLakshmiKS/agentic_software_team",
+      "url": "https://github.com/RamyaLakshmiKS/agentic_software_team",
+      "revision": "e4c1e948f20968714fc96383c1d832d984788380",
+      "inspected_paths": ["LICENSE", "pyproject.toml", "src/ui/app.py", "src/agents/agent_system.py", "src/agents/product_manager_agent.py", "tests/evals/e2e_evals/test_full_workflow.py"],
+      "license_observation": "MIT; retain copyright/permission notice if copying.",
+      "decision": "reference-only",
+      "executed": false,
+      "vendored": false
+    },
+    {
+      "repository": "addyosmani/adk-product-engineers",
+      "url": "https://github.com/addyosmani/adk-product-engineers",
+      "revision": "3b122eabb86667852132938bc7400740560957d9",
+      "inspected_paths": ["python/agents/prd_studio/__init__.py", "python/agents/prd_studio/agent.py", "python/agents/prd_studio/requirements.txt"],
+      "license_observation": "No LICENSE/COPYING found in fetched archive; GitHub license null. No code copying.",
+      "decision": "reference-only",
+      "executed": false,
+      "vendored": false
+    },
+    {
+      "repository": "khileshwarpriya-design/AI-Product-Manager-Assistant",
+      "url": "https://github.com/khileshwarpriya-design/AI-Product-Manager-Assistant",
+      "revision": "3eeec544682706f6cd43dd58d7364ebec6415202",
+      "inspected_paths": ["app.py", "langgraph_agent.py", "tools.py", "requirements.txt", "agents/travel_agent.py"],
+      "license_observation": "No LICENSE/COPYING found in fetched archive; GitHub license null. No code copying.",
+      "decision": "reference-only",
+      "executed": false,
+      "vendored": false
+    },
+    {
+      "repository": "vercel-labs/agent-skills",
+      "url": "https://github.com/vercel-labs/agent-skills",
+      "revision": "063bee94c3f4df8453406c830b0a7df0f2860278",
+      "inspected_paths": ["README.md", "package.json", "skills/react-best-practices/SKILL.md", "skills/react-best-practices/metadata.json", "skills/web-design-guidelines/SKILL.md"],
+      "license_observation": "README and React skill state MIT; no standalone LICENSE found in reviewed root/selected folders.",
+      "decision": "defer",
+      "executed": false,
+      "vendored": false
+    },
+    {
+      "repository": "anthropics/skills",
+      "url": "https://github.com/anthropics/skills",
+      "revision": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+      "inspected_paths": ["skills/webapp-testing/SKILL.md", "skills/webapp-testing/LICENSE.txt", "skills/webapp-testing/scripts/with_server.py", "skills/mcp-builder/SKILL.md", "skills/mcp-builder/LICENSE.txt", "skills/mcp-builder/scripts/evaluation.py", "skills/mcp-builder/scripts/connections.py", "skills/mcp-builder/scripts/requirements.txt"],
+      "license_observation": "Selected skills each contain Apache 2.0 LICENSE.txt; preserve notices and mark modifications.",
+      "decision": "defer",
+      "executed": false,
+      "vendored": false
+    }
+  ]
+}
