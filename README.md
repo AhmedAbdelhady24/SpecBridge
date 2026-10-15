@@ -53,7 +53,7 @@ npm --prefix apps/web run lint
 npm --prefix apps/web test
 npm --prefix apps/web run build
 npm ci
-npm exec playwright install chromium
+PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npm exec playwright install chromium
 npm run test:e2e
 uv run python scripts/verify_handoff.py --output /tmp/specbridge-handoff-check
 ```

@@ -1,6 +1,6 @@
 # ADR 0001: Local modular monolith and independent documentation exports
 
-Status: **accepted by the user on 2026-10-15** following review of this ADR and the written first-slice design. Implementation remains pending plan review and validation.
+Status: **accepted by the user on 2026-10-15** following review of this ADR and the written first-slice design. The approved first-slice plan has been executed; see [verification and limits](../evaluations/first-slice-results.md).
 
 ## Context
 
@@ -35,7 +35,7 @@ Skip autonomous agent teams, vector storage, MCP servers, hosting, multi-user co
 
 ## Consequences and verification
 
-Separate API and browser dev processes remain necessary. A Vite proxy can provide a single browser origin; production assets should be served by the API. Starlight is an export/build dependency, not a live backend service. No application build chain exists yet.
+Separate API and browser dev processes remain necessary. A Vite proxy can provide a single browser origin; production assets should be served by the API. Starlight is an export/build dependency, not a live backend service. Locked application and independent documentation build chains now exist.
 
 Approval binds the artifact revision and a preview digest covering template version/digest, generated paths/content hashes and asset hashes. Export serves the immutable candidate bytes reviewed; edits or template changes require new approval. Preview and export use fixed templates, inert data and no remote assets, with fresh output directories. Later repository regeneration must compare manifests/hashes and produce a conflict preview before writing.
 

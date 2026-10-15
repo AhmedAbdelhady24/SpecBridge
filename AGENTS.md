@@ -14,7 +14,7 @@ Purpose: turn product ideas and project evidence into validated requirements, re
 - `docs/decisions/`: ADRs with explicit decision status.
 - `docs/plans/`: resumable execution state. Read the current plan before work.
 - `docs/security/` and `docs/evaluations/`: trust boundaries and acceptance cases.
-- `services/api/tests/`: backend regressions; `tests/e2e/`: real-browser fixture/security checks; `tests/fixtures/`: curated inputs; `scripts/verify_handoff.py`: standalone package verification.
+- `services/api/tests/`: backend regressions; `tests/e2e/`: real-browser fixture/security checks; `scripts/verify_handoff.py`: standalone package verification.
 
 ## Work method
 
@@ -44,7 +44,7 @@ uv run python scripts/verify_handoff.py --output /tmp/specbridge-handoff-check
 git diff --check
 ```
 
-Use Python 3.12 and Node 22.23.1. Lockfiles are committed; use locked installs. Browser checks require root `npm ci`, `npm exec playwright install chromium`, UI dependencies and free ports 8000/5173. The handoff runner refuses existing output paths. See README for local setup, private token entry and fixture/compatible provider limits. Regenerate OpenAPI/types after contract changes and require no generated diff. Audit Python and every npm lockfile; report advisories rather than suppressing them.
+Use Python 3.12 and Node 22.23.1. Lockfiles are committed; use locked installs. Browser checks require root `npm ci`, `PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npm exec playwright install chromium`, UI dependencies and free ports 8000/5173. The handoff runner refuses existing output paths. See README for local setup, private token entry and fixture/compatible provider limits. Regenerate OpenAPI/types after contract changes and require no generated diff. Audit Python and every npm lockfile; report advisories rather than suppressing them.
 
 ## Security and review
 

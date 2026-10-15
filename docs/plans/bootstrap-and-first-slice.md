@@ -20,7 +20,7 @@ The repository now includes FastAPI/SQLite services, generated OpenAPI types, a 
 - [x] Obtain implementation-plan authorization; preserve the user's bounded-delegation execution method.
 - [x] Resolve/lock product dependencies and exercise local compatibility checks; consult the results report for audit limitations and final readiness evidence.
 - [x] Implement the technical local handoff slice and fixture-backed automated verification.
-- [ ] Milestone 1 acceptance: finish final combined reporting/review and validate semantic output, an explicitly authorized live provider, and an unfamiliar-human handoff.
+- [ ] Milestone 1 acceptance: validate semantic output, an explicitly authorized live provider, and an unfamiliar-human handoff. Final technical reporting/review is complete.
 - [ ] Milestone 2: extend persistent project knowledge, retrieval, decisions and artifact versioning beyond the first slice.
 - [ ] Milestone 3: reviewable Git changesets, repository/PR previews, conflict detection and authorized destination support.
 - [ ] Milestone 4: meeting actions, deterministic prioritization, source-grounded status and Jira adapter.

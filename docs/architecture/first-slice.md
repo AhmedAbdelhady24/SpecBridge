@@ -1,6 +1,6 @@
 # First vertical slice: reviewable feature handoff
 
-Status: **approved by the user on 2026-10-15; not implemented**. Approval followed review of this written design and ADR 0001. The [implementation plan](../plans/2026-10-15-first-slice-implementation.md) awaits its separate review; this design approval does not authorize external publication.
+Status: **approved on 2026-10-15; technical first slice implemented and verified on 2026-10-16**. See [actual results and qualification limits](../evaluations/first-slice-results.md). Design approval does not authorize external publication.
 
 ## Intent and scope
 

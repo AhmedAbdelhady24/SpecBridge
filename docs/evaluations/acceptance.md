@@ -1,6 +1,6 @@
 # Acceptance and evaluation contract
 
-Status: required future checks, not a report of passing product tests.
+Status: acceptance contract. The [first-slice results](first-slice-results.md) distinguish passing technical checks from live-model, human and future-milestone checks still outstanding.
 
 Use human-reviewed reference fixtures and deterministic assertions. The fixture provider enables repeatable orchestration tests; its outputs are not evidence of LLM quality. Keep live provider evaluation opt-in with explicit destination, approved nonconfidential input, call/token limits and recorded model/skill revisions.
 
@@ -38,4 +38,4 @@ Automated evidence must cover clean extraction, lockfile install, production bui
 
 Record fixture/source hashes, skill/provider revisions, command, duration, exit status, assertion counts, failed cases, human-reviewed discrepancies, provider call/token totals where available, and limitations. Product checks cover completeness, AC quality, factual/source traceability, routing, schema validity, recovery, approval enforcement and docs build. No LLM-only self-grading.
 
-Bootstrap currently checks only local Markdown targets, reviewed source identifiers and required engineering artifacts. Extend CI with pytest/integration/contract tests, Ruff, typing, frontend checks, Playwright, package audits and exported-doc builds when those components exist; never replace product tests with this bootstrap check.
+Bootstrap checks local Markdown targets and reviewed source identifiers. CI now also defines pytest/integration/contract tests, Ruff, typing, frontend checks, Playwright, package audits and exported-doc builds. These commands passed locally; hosted CI has not run. Bootstrap checks do not replace product tests.

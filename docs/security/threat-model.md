@@ -1,6 +1,6 @@
 # Initial security boundaries
 
-Status: design requirements; controls are not implemented yet.
+Status: first-slice controls implemented with deterministic and browser checks; see [results and residual limits](../evaluations/first-slice-results.md). Rows concerning external integrations remain future requirements.
 
 | Threat | Required control | Verification before first-slice completion |
 | --- | --- | --- |
@@ -21,3 +21,5 @@ The local session control does not establish a multi-user identity. Add authenti
 Do not execute the reference calculator (`eval`), SDK permission bypasses, mutable `npx -y` MCP bootstrap, or model-selected file writers identified in the [source review](../engineering/reference-research.md).
 
 The Anthropic MCP Builder evaluator sends data to Anthropic and invokes configured MCP tools; it has not been authorized or executed. A source review is not runtime safety certification.
+
+Provider HTTP requests have a 60-second total async cancellation deadline (including headers and body), inside the 120-second workflow lease. Disconnecting cannot guarantee that a remote provider stops computing or billing; retries remain explicit and warn about repeated billing. The synchronous provider entrypoint runs in FastAPI worker threads.

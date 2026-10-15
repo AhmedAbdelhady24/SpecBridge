@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "provider": "fixture",
+  "live_model_calls": 0,
+  "duration_seconds": 15.39,
+  "candidate_digest": "a59060dfed5fece85d9ae0bfb29273ca75564a2763387d463f04191555356031",
+  "template_digest": "8cfb5c936f52b2daa3594bf5acbbaae3ca658db932e9107ce19355a20a46a642",
+  "manifest": {
+    ".gitignore": "1e8ecea9f9b9885706f069a48dfda6ee303e8bd5f358d9e7210536c9e576a96e",
+    "README.md": "7e2b0de1bb9df3a20f710030f9f66fa9758baf2026c7d3e1e80bf7b32b58f54a",
+    "astro.config.mjs": "9615870c78f2c18629a845de737d2d472572421b1a0bc6ec1f5624e9b7cc861b",
+    "manifest.json": "c08c18d23b02160d12be76308e02b048e9b983254214219f09bf1911c2c81b54",
+    "package-lock.json": "d98b5b9f4bcce3485023eb92ad07bbf8987b32ab8a714d6f07e0e5f7bafd48a0",
+    "package.json": "da45fec45bef4cb84864802e23b63c1cf6f6f4e48b1b8d4a3f31a8df35e31f8e",
+    "revision.json": "b2eb3bc5175c5b8163f5c44cecf44e626a0d502457c934c2ab12ed98d1c0b290",
+    "src/content.config.ts": "bc533390f9fb9456073792e4c55bec6f8f1db1811fdc224c66d5ab26965f2f49",
+    "src/content/docs/edge-cases.md": "6bc538e02c0f1534d54fb6a50f9d78564374b80ea081cae633bdec742aaa1469",
+    "src/content/docs/index.md": "628ddc6c2f6b10e4cc2a8b4e9e82aa78881997cd34ccd360c2c4e30c5e729502",
+    "src/content/docs/provenance.md": "92c67300947e40085019aeb12b2e840444c811dea116fd528f07293c5456a572",
+    "src/content/docs/questions.md": "2bf054c31f0ab6bff89aecf1bfa4b8b06f8257596cdceb234e3a813c5f132cb5",
+    "src/content/docs/requirements.md": "4bdad320ef1b8cb9ff7cab24e6f10a8944466622e86a938412b80efa6e1e91d9",
+    "src/content/docs/risks.md": "864c335593ccf67ab9e391d4d79dc0eefc3d38b4b4566bf58115d1f5a5c64cdf",
+    "src/content/docs/stories.md": "caffb75281c095e9ab6f9af29f3eb02ed3c9c5c045e15ce3729d3d1d7f0d5dce",
+    "tsconfig.json": "b5b0a5b04a14cddd7713c5e1c82e86c79c17c2f86b170e26e9b170b3d5e01cd9"
+  },
+  "site_modes_checked": [
+    "dev",
+    "preview"
+  ],
+  "human_handoff": "not performed"
+}
