@@ -73,7 +73,7 @@ def test_reject_bad_metadata(tmp_path, mutation, operation):
         "yaml": ("name: feature-handoff", "name: [broken"),
         "large": ("# Feature handoff", "x" * 131073),
         "name": ("name: feature-handoff", "name: other"),
-        "version": ('version: "1.0.0"', 'version: "9.0.0"'),
+        "version": ('version: "1.1.0"', 'version: "9.0.0"'),
     }
     path.write_text(text.replace(*replacements[mutation]))
     rehash(root)
@@ -223,3 +223,23 @@ def test_malformed_provenance_denied_at_both_stages(tmp_path, operation):
             registry.search("")
         else:
             registry.load("feature-handoff")
+
+
+def test_prepared_contract_is_bound_to_the_loaded_skill_snapshot(tmp_path, monkeypatch):
+    root = copy_skill(tmp_path)
+    registry = SkillRegistry(root)
+    original = registry._read
+    before = registry.load("feature-handoff").digest
+
+    def change_reference(name, relative):
+        if relative == "references/output-contract.md":
+            (root / name / relative).write_text(
+                "New contract with a fresh valid provenance"
+            )
+            rehash(root)
+        return original(name, relative)
+
+    monkeypatch.setattr(registry, "_read", change_reference)
+    with pytest.raises(InvalidSkill):
+        registry.load("feature-handoff", with_output_contract=True)
+    assert registry.load("feature-handoff").digest != before

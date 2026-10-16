@@ -106,3 +106,60 @@ def test_template_change_while_waiting_for_transaction(
             service.approve(project.id, candidate.id, candidate.digest)
         else:
             service.download(project.id, candidate.id)
+
+
+@pytest.mark.parametrize("action", ["prepare", "approve", "download"])
+def test_legacy_uncovered_artifact_stays_readable_but_cannot_publish(
+    publication, action
+):
+    from specbridge.models import canonical, digest
+    from specbridge.publisher import render_package
+
+    service, store, project, revision = publication
+    artifact = revision.artifact.model_copy(deep=True)
+    artifact.requirements.append(
+        artifact.requirements[0].model_copy(
+            update={"id": "REQ-headers", "text": "Include headers"}
+        )
+    )
+    legacy = revision.model_copy(
+        update={"artifact": artifact, "digest": digest(artifact.model_dump())}
+    )
+    package = render_package(
+        artifact, {"revision_id": legacy.id}, service.template_root
+    )
+    service.review(project.id, legacy.id, "reviewed", "Historical review")
+    with store.transaction() as db:
+        db.execute(
+            "UPDATE revisions SET data=?,digest=? WHERE id=?",
+            (legacy.model_dump_json(), legacy.digest, legacy.id),
+        )
+        db.execute(
+            "INSERT INTO candidates VALUES (?,?,?,?,?,?,?)",
+            (
+                "legacy-candidate",
+                project.id,
+                legacy.id,
+                package.digest,
+                package.template_digest,
+                canonical(package.manifest),
+                package.zip_bytes,
+            ),
+        )
+        db.execute(
+            "INSERT INTO approvals VALUES (?,?)", ("legacy-candidate", package.digest)
+        )
+    assert (
+        store.get_revision(project.id, legacy.id).artifact.requirements[-1].id
+        == "REQ-headers"
+    )
+    with pytest.raises(Conflict, match="handoff"):
+        if action == "prepare":
+            service.prepare(project.id, legacy.id)
+        elif action == "approve":
+            service.approve(project.id, "legacy-candidate", package.digest)
+        else:
+            service.download(project.id, "legacy-candidate")
+    artifact.stories[0].requirement_ids.append("REQ-headers")
+    fixed = store.save_revision(project.id, artifact, legacy.digest)
+    assert service.prepare(project.id, fixed.id).revision_id == fixed.id

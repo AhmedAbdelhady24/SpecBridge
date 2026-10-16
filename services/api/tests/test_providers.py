@@ -15,7 +15,7 @@ from specbridge.skills import SkillRegistry
 
 def skill_fixture():
     return SkillRegistry(Path(__file__).resolve().parents[3] / "skills/runtime").load(
-        "feature-handoff"
+        "feature-handoff", with_output_contract=True
     )
 
 
@@ -418,3 +418,103 @@ def test_explicit_reasoning_effort_is_sent_without_raising_output_budget(monkeyp
     monkeypatch.setenv("SPECBRIDGE_LLM_REASONING_EFFORT", "invalid")
     with pytest.raises(ProviderFailure, match="invalid_configuration"):
         provider_from_env()
+
+
+def test_unsupported_user_provided_story_is_rejected():
+    artifact = output()
+    artifact["stories"][0].update(
+        text="As a customer I export CSV so I can use external tools",
+        kind="user_provided",
+    )
+    with pytest.raises(ProviderFailure, match="invalid_artifact"):
+        generate(
+            provider(
+                lambda request: httpx.Response(
+                    200,
+                    json={"choices": [{"message": {"content": json.dumps(artifact)}}]},
+                )
+            )
+        )
+
+
+def test_uncovered_requirement_is_rejected():
+    artifact = output()
+    artifact["requirements"].append(
+        dict(
+            artifact["requirements"][0], id="REQ-headers", text="Include column headers"
+        )
+    )
+    with pytest.raises(ProviderFailure, match="invalid_artifact"):
+        generate(
+            provider(
+                lambda request: httpx.Response(
+                    200,
+                    json={"choices": [{"message": {"content": json.dumps(artifact)}}]},
+                )
+            )
+        )
+
+
+def test_exact_source_excerpt_and_synthesized_story_pass():
+    artifact = output()
+    artifact["requirements"][0].update(text="Build a library app", kind="user_provided")
+    assert generate(
+        provider(
+            lambda request: httpx.Response(
+                200, json={"choices": [{"message": {"content": json.dumps(artifact)}}]}
+            )
+        )
+    ).requirements
+
+
+def test_unknown_requirement_must_remain_an_open_question():
+    artifact = output()
+    artifact["requirements"][0].update(
+        text="The system shall enforce an unknown report-size limit", kind="unknown"
+    )
+    with pytest.raises(ProviderFailure, match="invalid_artifact"):
+        generate(
+            provider(
+                lambda request: httpx.Response(
+                    200,
+                    json={"choices": [{"message": {"content": json.dumps(artifact)}}]},
+                )
+            )
+        )
+
+
+def test_original_live_draft_is_readable_and_corrected_example_meets_policy():
+    from specbridge.models import Artifact, validate_handoff
+
+    root = Path(__file__).resolve().parents[3] / "docs/evaluations"
+    source = Source(
+        id="smoke-source-1",
+        project_id="synthetic",
+        text="Customers need to export their saved reports as CSV. Exports must include column headers. Owner, delivery date, maximum report size, and permission rules are unknown.",
+        digest="synthetic",
+    )
+    original = Artifact.model_validate_json(
+        (root / "deepseek-complete-csv-draft.json").read_text()
+    )
+    with pytest.raises(ValueError):
+        validate_handoff(original, [source])
+    corrected = Artifact.model_validate_json(
+        (root / "handoff-corrected-csv-example.json").read_text()
+    )
+    validate_handoff(corrected, [source])
+
+
+def test_request_schema_excludes_self_verification_and_unknown_requirements():
+    def handler(request):
+        schema = json.loads(request.content)["response_format"]["json_schema"]["schema"]
+        for name in ["Statement", "Requirement", "Story"]:
+            assert "verified" not in schema["$defs"][name]["properties"]["kind"]["enum"]
+        assert (
+            "unknown"
+            not in schema["$defs"]["Requirement"]["properties"]["kind"]["enum"]
+        )
+        return httpx.Response(
+            200, json={"choices": [{"message": {"content": json.dumps(output())}}]}
+        )
+
+    assert generate(provider(handler)).requirements

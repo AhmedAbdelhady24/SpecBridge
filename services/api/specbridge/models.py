@@ -90,6 +90,36 @@ class Source(Model):
     kind: Literal["user_provided"] = "user_provided"
 
 
+def validate_handoff(artifact: Artifact, sources: list[Source]) -> None:
+    """Enforce current eligibility without changing historical snapshot schemas."""
+    source_texts = {source.id: source.text for source in sources}
+    if (
+        len(source_texts) > 20
+        or sum(len(text.encode()) for text in source_texts.values()) > 65536
+    ):
+        raise ValueError("Artifact citations exceed the selected evidence limit")
+    covered = {key for story in artifact.stories for key in story.requirement_ids}
+    if {requirement.id for requirement in artifact.requirements} - covered:
+        raise ValueError("Every requirement must have an explicit story link")
+    if any(requirement.kind == "unknown" for requirement in artifact.requirements):
+        raise ValueError("Unknown requirements belong in open questions")
+    for statement in artifact.statements():
+        if (
+            statement.kind == "verified"
+            or set(statement.source_ids) - source_texts.keys()
+        ):
+            raise ValueError("Claims cannot self-verify or cite unavailable sources")
+        if statement.kind == "user_provided" and (
+            not statement.source_ids
+            or any(
+                statement.text not in source_texts[key] for key in statement.source_ids
+            )
+        ):
+            raise ValueError(
+                "User-provided statements must be exact excerpts in every cited source"
+            )
+
+
 class Finding(Model):
     code: str
     message: str

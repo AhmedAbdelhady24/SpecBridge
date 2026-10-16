@@ -1,7 +1,7 @@
 from types import SimpleNamespace
 
 import pytest
-from specbridge.models import Artifact
+from specbridge.models import Artifact, Source
 from specbridge.storage import Conflict, Store
 from specbridge.workflow import RetryAcknowledgmentRequired, Workflow
 
@@ -24,7 +24,7 @@ class Provider:
 
 
 class Registry:
-    def load(self, name):
+    def load(self, name, *, with_output_contract=False):
         return SimpleNamespace(
             name=name, digest="skill-v1", body="Write a careful draft"
         )
@@ -100,3 +100,103 @@ def test_generation_provenance_survives_config_change(tmp_path, artifact_dict):
         store.get_revision(run.project_id, run.revision_id).provenance["model"]
         == "demo"
     )
+
+
+def test_active_output_contract_is_in_actual_model_request(tmp_path):
+    import json
+    from pathlib import Path
+
+    import httpx
+    from fastapi.testclient import TestClient
+    from specbridge.main import create_app
+    from specbridge.providers import CompatibleProvider, FixtureProvider
+    from specbridge.skills import SkillRegistry
+
+    root = Path(__file__).resolve().parents[3] / "skills/runtime"
+    registry = SkillRegistry(root)
+    contract = registry.reference("feature-handoff", "references/output-contract.md")
+    requests = []
+
+    def handler(request):
+        body = json.loads(request.content)
+        requests.append(body)
+        sources = [
+            Source(id=row["id"], project_id="synthetic", text=row["text"], digest="d")
+            for row in json.loads(body["messages"][1]["content"])
+        ]
+        artifact = FixtureProvider().generate(
+            skill=registry.load("feature-handoff"), sources=sources
+        )
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": artifact.model_dump_json()},
+                    }
+                ]
+            },
+        )
+
+    provider = CompatibleProvider(
+        base_url="https://test.example",
+        model="test",
+        api_key="test",
+        transport=httpx.MockTransport(handler),
+    )
+    with TestClient(
+        create_app(
+            data_dir=tmp_path,
+            token="test",
+            allowed_origin="http://127.0.0.1:5173",
+            provider=provider,
+        ),
+        base_url="http://127.0.0.1:8000",
+        headers={"Authorization": "Bearer test"},
+    ) as client:
+        project = client.post("/api/projects", json={"name": "Contract test"}).json()[
+            "id"
+        ]
+        base = f"/api/projects/{project}"
+        source = client.post(
+            base + "/sources", json={"text": "Export saved reports as CSV."}
+        ).json()["id"]
+        run = client.post(
+            base + "/runs",
+            json={
+                "source_ids": [source],
+                "skill_id": "feature-handoff",
+                "intent": "PRD",
+                "acknowledged_destination": provider.destination,
+            },
+        ).json()
+        for _ in range(5):
+            run = client.post(base + "/runs/" + run["id"] + "/advance", json={}).json()
+        assert len(requests) == 1
+        assert contract in requests[0]["messages"][0]["content"]
+
+
+def test_tampered_contract_fails_before_a_provider_call(tmp_path, artifact_dict):
+    import shutil
+    from pathlib import Path
+
+    from specbridge.skills import SkillRegistry
+
+    root = tmp_path / "runtime"
+    shutil.copytree(Path(__file__).resolve().parents[3] / "skills/runtime", root)
+    store = Store(tmp_path / "db")
+    project = store.create_project("Tamper test")
+    source = store.add_source(project.id, "Export CSV")
+    provider = Provider(artifact_dict)
+    workflow = Workflow(store, SkillRegistry(root), provider)
+    run = workflow.start(
+        project.id, [source.id], "PRD", "feature-handoff", provider.destination
+    )
+    for _ in range(4):
+        run = workflow.advance(project.id, run.id)
+    (root / "feature-handoff/references/output-contract.md").write_text(
+        "Tampered contract"
+    )
+    run = workflow.advance(project.id, run.id)
+    assert run.status == "failed" and provider.calls == 0

@@ -24,7 +24,7 @@ Write substantial plans according to `docs/engineering/PLANS.md`. Preserve accep
 
 ## Approved boundaries
 
-One backend owns workflow transitions, artifacts, approvals, skill access, and persistence. The frontend renders state and submits user intent; it cannot grant publication authority to generated content. Runtime PM skills are data, separate from development skills, with no shell or unrestricted filesystem access. Generated documentation is a standalone static project.
+One backend owns workflow transitions, artifacts, approvals, skill access, and persistence. The frontend renders state and submits user intent; it cannot grant publication authority to generated content. Runtime PM skills are data, separate from development skills, with no shell or unrestricted filesystem access. Inject the active output contract through the registry, never by asking the model to read a local file. Handoff policy checks apply to generation, revision writes and publication; keep historical snapshots readable rather than silently rewriting them. Generated documentation is a standalone static project.
 
 ## Commands that exist
 

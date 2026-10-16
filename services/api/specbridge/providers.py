@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 import httpx
 from pydantic import ValidationError
 
-from specbridge.models import Artifact, Source
+from specbridge.models import Artifact, Source, validate_handoff
 from specbridge.skills import Skill
 
 RESPONSE_LIMIT = 256 * 1024
@@ -18,7 +18,7 @@ TOTAL_TIMEOUT = 60  # Whole request deadline, shorter than the workflow executio
 
 
 def strict_artifact_schema() -> dict[str, Any]:
-    """Adapt backend defaults to the provider's required-property schema contract."""
+    """Build the generation schema while preserving the backend snapshot schema."""
     schema = Artifact.model_json_schema()
 
     def visit(value: Any) -> None:
@@ -34,6 +34,10 @@ def strict_artifact_schema() -> dict[str, Any]:
                 visit(child)
 
     visit(schema)
+    for name in ("Statement", "Requirement", "Story"):
+        kinds = schema["$defs"][name]["properties"]["kind"]
+        forbidden = {"verified", "unknown"} if name == "Requirement" else {"verified"}
+        kinds["enum"] = [kind for kind in kinds["enum"] if kind not in forbidden]
     return schema
 
 
@@ -65,11 +69,10 @@ def validate_sources(sources: list[Source]) -> None:
 
 
 def validate_artifact(artifact: Artifact, sources: list[Source]) -> Artifact:
-    ids = {s.id for s in sources}
-    if any(
-        s.kind == "verified" or set(s.source_ids) - ids for s in artifact.statements()
-    ):
-        raise ProviderFailure("invalid_artifact")
+    try:
+        validate_handoff(artifact, sources)
+    except ValueError:
+        raise ProviderFailure("invalid_artifact") from None
     return artifact
 
 

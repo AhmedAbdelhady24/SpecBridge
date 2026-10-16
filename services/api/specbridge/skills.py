@@ -2,7 +2,7 @@
 
 import hashlib
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -177,7 +177,7 @@ class SkillRegistry:
         ) as error:
             raise InvalidSkill() from error
 
-    def load(self, name: str) -> Skill:
+    def load(self, name: str, *, with_output_contract: bool = False) -> Skill:
         try:
             raw = self._read(name, "SKILL.md")
             if not raw.startswith("---\n"):
@@ -190,7 +190,7 @@ class SkillRegistry:
                 != provenance.files["SKILL.md"]
             ):
                 raise InvalidSkill()
-            return Skill(
+            skill = Skill(
                 metadata,
                 body,
                 digest(provenance.model_dump()),
@@ -201,6 +201,13 @@ class SkillRegistry:
                     if path != "SKILL.md"
                 },
             )
+            if (
+                with_output_contract
+                and "references/output-contract.md" in skill.references
+            ):
+                contract = self._reference(skill, "references/output-contract.md")
+                skill = replace(skill, body=skill.body + "\n" + contract)
+            return skill
         except (ValueError, TypeError, RecursionError) as error:
             raise InvalidSkill() from error
 
@@ -224,10 +231,12 @@ class SkillRegistry:
         return sorted(metadata, key=rank)
 
     def reference(self, name: str, relative_path: str) -> str:
-        skill = self.load(name)
+        return self._reference(self.load(name), relative_path)
+
+    def _reference(self, skill: Skill, relative_path: str) -> str:
         if relative_path not in skill.references:
             raise InvalidSkill()
-        content = self._read(name, relative_path)
+        content = self._read(skill.name, relative_path)
         if (
             hashlib.sha256(content.encode()).hexdigest()
             != skill.references[relative_path]

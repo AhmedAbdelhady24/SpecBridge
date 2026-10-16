@@ -6,7 +6,7 @@ import time
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from .models import Artifact, Finding, Run, canonical
+from .models import Artifact, Finding, Run, canonical, digest
 from .storage import Conflict, NotFound, Store
 
 if TYPE_CHECKING:
@@ -147,7 +147,7 @@ class Workflow:
                     "destination": run.destination,
                 }
             elif run.stage == "execute":
-                skill = self.registry.load(run.skill_id)
+                skill = self.registry.load(run.skill_id, with_output_contract=True)
                 with self.store.transaction() as db:
                     selected = db.execute(
                         "SELECT data FROM checkpoints WHERE run_id=? AND stage='skill_selection'",
@@ -160,6 +160,7 @@ class Workflow:
                 generation_provenance = {
                     "skill": skill.name,
                     "skill_digest": skill.digest,
+                    "skill_instructions_digest": digest(skill.body),
                     "provider": self.provider.mode,
                     "model": self.provider.model,
                     "destination": self.provider.destination,

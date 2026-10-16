@@ -113,3 +113,24 @@ def test_saved_citations_stay_inside_export_evidence_bound(store, artifact_dict)
     body.stories[0].source_ids = [sources[-1].id]
     with pytest.raises(ValueError):
         store.save_revision(p.id, body, None)
+
+
+@pytest.mark.parametrize("fault", ["unsupported_evidence", "uncovered_requirement"])
+def test_revision_writes_enforce_handoff_policy(store, artifact_dict, fault):
+    project = store.create_project("Policy")
+    source = store.add_source(
+        project.id, "Customers need CSV export. Include column headers."
+    )
+    artifact = Artifact.model_validate(artifact_dict)
+    if fault == "unsupported_evidence":
+        artifact.stories[
+            0
+        ].text = "As a customer I want CSV so I can use external tools"
+        artifact.stories[0].kind = "user_provided"
+        artifact.stories[0].source_ids = [source.id]
+    else:
+        artifact.requirements.append(
+            artifact.requirements[0].model_copy(update={"id": "REQ-headers"})
+        )
+    with pytest.raises(ValueError):
+        store.save_revision(project.id, artifact, None)

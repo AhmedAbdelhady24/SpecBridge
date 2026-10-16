@@ -5,7 +5,15 @@ from copy import deepcopy
 from pathlib import Path
 from uuid import uuid4
 
-from .models import Artifact, Finding, Project, Revision, Source, digest
+from .models import (
+    Artifact,
+    Finding,
+    Project,
+    Revision,
+    Source,
+    digest,
+    validate_handoff,
+)
 
 
 class NotFound(Exception):
@@ -184,12 +192,8 @@ class Store:
             story.requirement_ids = [
                 mapping.get(key, key) for key in story.requirement_ids
             ]
-        cited: dict[str, int] = {}
+        cited: dict[str, Source] = {}
         for statement in body.statements():
-            if statement.kind == "verified":
-                raise ValueError("Generated or edited claims cannot self-verify")
-            if statement.kind == "user_provided" and not statement.source_ids:
-                raise ValueError("User-provided claims require source references")
             for source_id in statement.source_ids:
                 row = db.execute(
                     "SELECT data FROM sources WHERE id=? AND project_id=?",
@@ -197,9 +201,8 @@ class Store:
                 ).fetchone()
                 if not row:
                     raise NotFound("Source not found")
-                cited[source_id] = len(Source.model_validate_json(row[0]).text.encode())
-        if len(cited) > 20 or sum(cited.values()) > 65536:
-            raise ValueError("Artifact citations exceed the selected evidence limit")
+                cited[source_id] = Source.model_validate_json(row[0])
+        validate_handoff(body, list(cited.values()))
         revision = Revision(
             id=str(uuid4()),
             project_id=project_id,

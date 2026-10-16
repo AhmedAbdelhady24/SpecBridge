@@ -1,0 +1,196 @@
+{
+  "title": "Saved Report CSV Export Handoff",
+  "purpose": "Provide a structured handoff for enabling customers to export their saved reports as CSV, preserving the original request as context. This artifact distinguishes provided evidence from recommendations, assumptions, and unresolved unknowns; it does not authorize publication or implementation.",
+  "scope": [
+    {
+      "text": "Customers need to export their saved reports as CSV.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Exports must include column headers.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [
+    {
+      "text": "No commitment is made here regarding exporting unsaved or ad hoc reports, since the source only mentions saved reports.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "assumption"
+    },
+    {
+      "text": "No commitment is made here regarding non-CSV export formats, since the source only mentions CSV.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "assumption"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Customers need to export their saved reports as CSV.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "Exports must include column headers.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "Report an observable error when CSV export fails; this failure behavior is a recommendation for review.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "recommendation",
+      "id": "REQ-5"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a customer, I want to export a saved report as CSV with column headers.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1",
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a customer with access to a saved report, when they trigger CSV export for that report, then the system produces a CSV file representing the report's data.",
+        "Given a successful CSV export, when the customer opens the file, then the file contains column headers."
+      ]
+    },
+    {
+      "text": "As a customer, I want clear feedback when a CSV export cannot be completed so that I understand whether the request was denied or unsupported.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-5"
+      ],
+      "acceptance_criteria": [
+        "Given CSV generation fails, when export is requested, then an observable error outcome is presented instead of silent failure."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "Saved report is empty: CSV output behavior, including whether headers alone are produced, is undecided from the supplied evidence.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "Saved report exceeds the maximum report size: exact cutoff and behavior at the boundary are unknown.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "Customer lacks permission to export the saved report: the permission model and resulting behavior are unknown.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "Report column names, data types, or special characters may affect CSV formatting; handling is not specified in the supplied evidence.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "Definition of maximum report size eligible for export is required before REQ-3 can be completed.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "Definition of permission rules governing export is required before REQ-4 can be completed.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "An owner and delivery date are needed for delivery planning; neither is provided in the source.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Without a defined maximum report size, exports could consume excessive resources or fail unpredictably for very large saved reports.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "Without defined permission rules, unauthorized users might export saved reports.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "Absence of an owner and delivery date creates scheduling and accountability uncertainty.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "Customers can successfully export saved reports as CSV, verified by acceptance criteria that a CSV file is produced.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "Every exported CSV contains column headers, verified by acceptance criteria.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Who owns delivery of this feature?",
+    "What is the delivery date or target milestone?",
+    "What is the maximum report size eligible for CSV export?",
+    "What permission rules govern who may export a saved report?",
+    "What should happen when exporting an empty saved report, and are headers still produced?",
+    "How should special characters, delimiters, encoding, and data types be handled in CSV output?",
+    "Should CSV export be limited to saved reports only, or also support ad hoc reports?",
+    "What specific error states and messages should be returned for oversized reports or permission denials?"
+  ]
+}

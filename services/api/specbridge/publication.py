@@ -7,7 +7,16 @@ from typing import Literal
 from uuid import uuid4
 from zipfile import BadZipFile, ZipFile
 
-from .models import Candidate, Review, Run, canonical, digest
+from .models import (
+    Candidate,
+    Review,
+    Revision,
+    Run,
+    Source,
+    canonical,
+    digest,
+    validate_handoff,
+)
 from .publisher import hashes, render_package, template_digest
 from .storage import Conflict, NotFound, Store
 
@@ -79,7 +88,7 @@ class Publication:
             )
         package = render_package(revision.artifact, provenance, self.template_root)
         with self.store.transaction() as db:
-            self._current(db, project_id, revision_id)
+            self._eligible(db, project_id, revision_id)
             review = db.execute(
                 "SELECT disposition FROM reviews WHERE project_id=? AND revision_id=? ORDER BY rowid DESC LIMIT 1",
                 (project_id, revision_id),
@@ -110,13 +119,36 @@ class Publication:
             return self._candidate(db, project_id, candidate_id)[0]
 
     @staticmethod
-    def _current(db: sqlite3.Connection, project_id: str, revision_id: str) -> None:
+    def _eligible(db: sqlite3.Connection, project_id: str, revision_id: str) -> None:
         row = db.execute(
-            "SELECT id FROM revisions WHERE project_id=? ORDER BY number DESC LIMIT 1",
+            "SELECT id,data FROM revisions WHERE project_id=? ORDER BY number DESC LIMIT 1",
             (project_id,),
         ).fetchone()
         if not row or row[0] != revision_id:
             raise Conflict("A newer revision exists; prepare and review that revision")
+        revision = Revision.model_validate_json(row["data"])
+        ids = {
+            key
+            for statement in revision.artifact.statements()
+            for key in statement.source_ids
+        }
+        if len(ids) > 20:
+            raise Conflict("Correct the handoff evidence before publication")
+        sources = []
+        for source_id in ids:
+            source = db.execute(
+                "SELECT data FROM sources WHERE project_id=? AND id=?",
+                (project_id, source_id),
+            ).fetchone()
+            if not source:
+                raise Conflict("Correct the handoff evidence before publication")
+            sources.append(Source.model_validate_json(source[0]))
+        try:
+            validate_handoff(revision.artifact, sources)
+        except ValueError:
+            raise Conflict(
+                "Correct the handoff evidence and requirement links before publication"
+            ) from None
 
     @staticmethod
     def _candidate(
@@ -196,7 +228,7 @@ class Publication:
         with self.store.transaction() as db:
             active = template_digest(self.template_root)
             candidate, row = self._candidate(db, project_id, candidate_id)
-            self._current(db, project_id, candidate.revision_id)
+            self._eligible(db, project_id, candidate.revision_id)
             self._reviewed(db, candidate)
             if (
                 expected_digest != candidate.digest
@@ -216,7 +248,7 @@ class Publication:
         with self.store.transaction() as db:
             active = template_digest(self.template_root)
             candidate, row = self._candidate(db, project_id, candidate_id)
-            self._current(db, project_id, candidate.revision_id)
+            self._eligible(db, project_id, candidate.revision_id)
             self._reviewed(db, candidate)
             if not candidate.approved or active != candidate.template_digest:
                 raise Conflict("Approve the current package before downloading")
