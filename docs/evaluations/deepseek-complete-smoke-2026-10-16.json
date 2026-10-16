@@ -1,0 +1,30 @@
+{
+  "destination": "https://api.deepseek.com",
+  "model": "deepseek-flash",
+  "maximum_calls": 1,
+  "attempts": 1,
+  "client_output_token_limit": null,
+  "reasoning_effort": "none",
+  "automatic_retries": 0,
+  "source_kind": "synthetic",
+  "status": "validated",
+  "http_status": 200,
+  "usage": {
+    "prompt_tokens": 1446,
+    "completion_tokens": 1469,
+    "total_tokens": 2915
+  },
+  "finish_reason": "stop",
+  "requirements": 5,
+  "stories": 2,
+  "open_questions": 8,
+  "duration_seconds": 7.76,
+  "configured_output_token_limit": 3072,
+  "limit_basis": "Twice the observed 1469 completion tokens, rounded up to a multiple of 1024; one synthetic sample only.",
+  "request_body_sha256": "7c33b5a51d5dab270583b8c405d95a412f02460bb3468cad6016b5a3ea9e91f1",
+  "source_digests": {
+    "smoke-source-1": "0670889ffe9e931d3fc24441582db69fa2d1ebb17ea8b4ad545d4d392dd52326"
+  },
+  "skill_digest": "dfb186f5b2dc50aba76b17e8647f269cb4482542299f674caba8447755e17ed6",
+  "artifact_sha256": "41975e55c44c90aaeae2428773dc216cb02a49661375cd36250b658cacce7bbc"
+}

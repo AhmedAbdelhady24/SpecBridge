@@ -1,6 +1,6 @@
 # DeepSeek adapter readiness — 2026-10-16
 
-Status: implemented and mock-tested; one approved live request verified HTTP access but failed generation at the output-token cap. Semantic quality remains unverified. The user supplied a key in local `.env`. It loads as nonempty and keeps 0600 permissions; presence does not establish that the key is valid at the provider. No key value was printed, written into evidence or committed.
+Status: adapter implemented and mock-tested. The first approved live request was accepted but truncated; a later explicitly authorized measurement completed and passed structural/source validation. See [complete response, selected limit and quality gaps](deepseek-complete-response.md). The remainder records the initial readiness/first-call evidence.
 
 The existing compatible adapter now accepts explicit `json_object` mode. It sends the Artifact schema in the system instructions, requests JSON-object output and applies the same Pydantic/source validators after parsing. `json_schema` remains the default. There is no automatic format fallback or retry. `SPECBRIDGE_LLM_MAX_TOKENS` accepts 1–16384 (default 4096); JSON-object requests send `max_tokens`, strict-schema requests send `max_completion_tokens`. An explicitly non-stop completion reason is rejected even if content happens to parse as JSON. Providers omitting finish_reason retain existing behavior: local parsing/validation remains required.
 
