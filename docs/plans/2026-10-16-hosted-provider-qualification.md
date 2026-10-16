@@ -1,0 +1,44 @@
+# Hosted-provider qualification proposal
+
+Status: proposed direction requested by the user on 2026-10-16. This is a staged scope/acceptance plan, not evidence of provider compatibility and not authorization for an unspecified paid API run. Preserve lead implementation with bounded independent review; no framework or service is needed.
+
+## User outcome
+
+Start with a hosted OpenAI-compatible endpoint or Claude, prove that actual generated requirements are useful and traceable, then evaluate local models against the same cases. Keep SpecBridge independent of Codex. A provider generates a proposed Artifact; backend validation, human review and exact publication approval retain authority.
+
+Recommendation: qualify the existing OpenAI-compatible adapter first using a selected endpoint/model with strict schema support. Add native Claude next through the same Provider boundary. DeepSeek belongs to the compatible family, but needs an explicitly supported request/output mode rather than assuming every OpenAI option works. Local models follow after a hosted quality baseline exists. Provider/model choice remains operator configuration, with no routing service or automatic fallback.
+
+## What exists and what is missing
+
+`services/api/specbridge/providers.py` already sends `/chat/completions` requests with `response_format.json_schema`, an Artifact schema, selected source text and runtime skill body. It validates output with Pydantic and source rules, enforces response size and total HTTP deadline, rejects tools/refusals and does not retry automatically. `workflow.py` checkpoints results and records provenance; `main.py` exposes configuration and requires destination acknowledgment.
+
+Current gaps before a measured live qualification: explicit generation token limits, usage/finish-reason reporting, provider-specific schema compatibility, curated human-reviewed quality references and an opt-in evaluation runner. The current synchronous generate call returns only Artifact; choose a small typed generation-result contract when adding per-request usage so shared provider instances do not use mutable `last_usage` state. Persist metadata with the execution checkpoint. Missing usage must remain unknown. Do not export credentials or raw provider errors. Supporting skill references must be selected and loaded by the bounded workflow when needed; a model has no filesystem tool with which to follow a reference link.
+
+The existing 60-second deadline and 256KiB response limit bound local waiting/response consumption. They do not cap provider-side token generation or guarantee cancellation stops billing. Input byte limits do not establish a token or dollar budget.
+
+## Source-checked protocol differences
+
+Reviewed official documentation on 2026-10-16:
+
+| Route | Documented output mechanism | Consequence |
+| --- | --- | --- |
+| [OpenAI Chat Completions structured output](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=chat) | `response_format` with strict JSON schema; supported schema subset and model-specific support | Best match to current adapter; qualify the actual selected model and adapt only the request schema if necessary. Full local validation remains authoritative. |
+| [DeepSeek Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/) / [JSON guide](https://api-docs.deepseek.com/guides/json_mode/) | Documents `text`/`json_object`, with explicit JSON instruction; truncation/empty-response handling matters | Do not advertise strict Chat Completions schema compatibility. If selected, add explicit JSON-object mode, supply schema/instructions in the prompt and enforce every constraint locally. No silent downgrade. |
+| [Claude structured output](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) | Native Messages request with `output_config.format`, content blocks and `stop_reason`; schema limitations differ | Add a small native adapter using existing httpx. Normalize to the same Artifact/result; handle refusal/token exhaustion explicitly. Do not treat the native API as the current chat endpoint. |
+
+DeepSeek also advertises a separate Responses API in its documentation index, but that reference could not be opened reliably during this research. It is not qualified here and would require a separate inspected contract, not a URL-only switch in the existing chat adapter. Model availability, features, pricing and account limits must be rechecked at selection time. No specific current model is assumed.
+
+## Ordered work and acceptance
+
+1. **Prepare the hosted baseline offline.** Own `providers.py`, `workflow.py`, their tests, relevant models/contracts and `.env.example`; update client generated types if public config changes. Add an explicit output-token cap, sanitized completion status and request-scoped usage metadata. Include the actual requested schema in the supported provider format. Mock valid output, unsupported schema, truncation, refusal, missing/invalid usage, slow responses and secrets in errors. Ensure restarts do not make another completed call. Do not weaken Artifact/source validation to make an endpoint pass.
+2. **Build a small qualification pack.** Own `tests/fixtures/provider-qualification/`, `scripts/qualify_provider.py` and `docs/evaluations/`. Use five synthetic cases: complete feature, incomplete idea, contradictory stakeholder goals, conflicting API sources and malicious embedded instructions. Each has fixed source IDs/hashes, known facts/unknowns and explicit human review criteria. A unit test checks the reference pack itself; known conflicts must retain both alternatives and an open decision. No LLM-only grading.
+3. **Run the first chosen hosted endpoint.** First preview the endpoint/model, exact synthetic inputs, maximum calls and token caps. Draft trial: one compatibility call followed by the five cases, at most six calls and no automatic retries; final caps and spending ceiling require the operator's choice. Use provider-side spending controls where available. Configure credentials locally, never in chat or committed files. Record model/skill/schema/source hashes, duration, response status, tokens when reported and cost only from verified pricing/usage. An unknown cost stays unknown. No live call before the endpoint, input and budget are concrete and authorized.
+4. **Review quality and exercise the real product.** All successful artifacts must pass strict local validation and source-ID checks; malformed/truncated/refused responses must fail clearly. Human review requires no invented owners, dates or metrics; explicit unresolved contradictions; concrete acceptance criteria for every story; and no executed/authorized embedded instructions. Record discrepancies. Take at least one human-reviewed real model artifact through the public review → exact ZIP approval → independent website build path. Keep provider qualification, semantic review and unfamiliar-engineer handoff as separate results.
+5. **Add the second hosted route deliberately.** Native Claude uses the same workflow/result contract and the same tests/fixture pack, changing only authentication, request/schema encoding and response normalization. If DeepSeek is preferred before Claude, implement its explicit JSON-object mode instead and reuse the pack. Compare observed quality, latency and usage without claiming provider equivalence from shared request syntax. Do not add a universal provider SDK/router unless multiple concrete adapters demonstrate a need.
+6. **Evaluate local serving afterward.** Inspect the actual machine and chosen local server/model's chat/schema support. Reuse the compatible adapter when its protocol matches; otherwise make the smallest explicit adaptation. Run the same pack and compare quality, schema reliability, context limits, latency and memory against the hosted baseline. No model download, daemon installation or hardware claim is included in the current plan.
+
+## Completion and next decision
+
+A live-model check means the application actually sent selected evidence to the chosen inference endpoint and the resulting Artifact was checked. A successful HTTP/JSON response proves transport/structure; useful, faithful requirements require separate deterministic and human checks. Human approval remains required even after a model is qualified.
+
+Next choice: select the first exact hosted provider/endpoint/model and a trial budget. Recommended route is strict OpenAI-compatible first, native Claude second, local models third. If DeepSeek is the preferred first endpoint, use its documented explicit mode and preserve the same local validation. Credentials should be supplied only through local process configuration. This proposal does not select a paid model or run one.
