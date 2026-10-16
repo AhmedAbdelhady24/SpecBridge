@@ -1,6 +1,6 @@
 # Handoff evidence and coverage rules — 2026-10-16
 
-Implemented and verified locally. The user asked to resolve the unsupported story motivation and missing headers requirement link by giving the model clearer rules and structure. No new model call was made for this change; an exact revised-prompt request is prepared for separate authorization.
+Implemented and verified locally. A subsequent authorized [live targeted check](deepseek-handoff-rules-live.md) passed on the CSV case; broader semantic qualification remains open. The user asked to resolve the unsupported story motivation and missing headers requirement link by giving the model clearer rules and structure. The implementation itself made no model call; the later explicitly authorized live check is recorded separately.
 
 ## Root cause and change
 
@@ -41,4 +41,4 @@ Used system skill-creator guidance, TDD, debugging and verification methods. The
 
 Excerpt matching is not semantic entailment: a quote can omit context. Coverage checks validate IDs, not whether a criterion truly implements a requirement. A recommendation may still be weak or unsupported despite its honest label. Prompt examples are not evidence that a fresh generation follows them. Human semantic review remains required.
 
-A revised request is prepared in ignored `.cache/deepseek-handoff-rules-preview.json`: same synthetic brief, DeepSeek `deepseek-flash`, skill 1.1.0/contract injected, thinking disabled, 3072 output tokens and no retries. No new source data, credential or external write is included. A paid model evaluation requires separate authorization because earlier one-call approvals were consumed. Until that run, live effectiveness and the adequacy of the token cap for the revised prompt remain unqualified.
+A revised request is prepared in ignored `.cache/deepseek-handoff-rules-preview.json`: same synthetic brief, DeepSeek `deepseek-flash`, skill 1.1.0/contract injected, thinking disabled, 3072 output tokens and no retries. No new source data, credential or external write is included. The user subsequently authorized this one request, and it completed with 610 output tokens. The [live check](deepseek-handoff-rules-live.md) records that targeted success and its generalization limits. Additional paid evaluation remains separately budgeted.

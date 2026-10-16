@@ -1,0 +1,120 @@
+{
+  "title": "Export Saved Reports as CSV",
+  "purpose": "Enable customers to export saved reports as CSV files with column headers, based on the stated customer need.",
+  "scope": [
+    {
+      "text": "Customers need to export their saved reports as CSV.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Exports must include column headers.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Customers need to export their saved reports as CSV.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "Exports must include column headers.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a customer, I want to export a saved report as CSV with column headers.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1",
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given an existing saved report, when the customer exports it as CSV, then the output is a CSV file containing the report data.",
+        "Given a successful CSV export, when the exported file is opened, then its first row contains column headers."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "Proposed check: behavior when a saved report contains no data rows should produce a CSV file whose first row still contains column headers.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "Owner for this capability is unknown.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "Maximum report size supported by CSV export is unknown.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "Permission rules governing who may export saved reports are unknown.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "Delivery date for this capability is unknown.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Exporting very large saved reports could be constrained by the unknown maximum report size, which is unresolved.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "Proposed verification: a saved report can be exported and the resulting CSV file opens with its first row containing column headers.",
+      "source_ids": [
+        "smoke-source-1"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Who owns this capability?",
+    "What is the delivery date?",
+    "What is the maximum report size that CSV export must support?",
+    "What permission rules govern exporting saved reports, and which roles may export them?"
+  ]
+}

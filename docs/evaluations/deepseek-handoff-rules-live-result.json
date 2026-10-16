@@ -1,0 +1,37 @@
+{
+  "destination": "https://api.deepseek.com",
+  "model": "deepseek-flash",
+  "skill_version": "1.1.0",
+  "skill_digest": "7683e95605edf8d246514f1b7640aae6697e280656384ff58c68b6f9f31125df",
+  "request_body_sha256": "b5bc90c820484c58c4bcc51706b11ece3f9ac5bf33007ea77198671663556f00",
+  "maximum_calls": 1,
+  "attempts": 1,
+  "max_output_tokens": 3072,
+  "reasoning_effort": "none",
+  "automatic_retries": 0,
+  "status": "validated",
+  "source_digests": {
+    "smoke-source-1": "0670889ffe9e931d3fc24441582db69fa2d1ebb17ea8b4ad545d4d392dd52326"
+  },
+  "http_status": 200,
+  "usage": {
+    "prompt_tokens": 2383,
+    "completion_tokens": 610,
+    "total_tokens": 2993
+  },
+  "finish_reason": "stop",
+  "requirements": 2,
+  "stories": 1,
+  "open_questions": 4,
+  "artifact_sha256": "e7f6839091859128b4a23f0d9abaa9eaa1fd326437bb87ce8de0964f27489282",
+  "duration_seconds": 3.02,
+  "targeted_checks": {
+    "shared_handoff_policy": "passed",
+    "headers_explicitly_linked": "passed",
+    "original_unsupported_motivation_absent": "passed",
+    "constructed_stories_labeled_recommendation": "passed",
+    "unknowns_not_requirements": "passed"
+  },
+  "assessment": "Deterministic checks plus lead inspection of one synthetic case. No human acceptance or out-of-sample quality qualification.",
+  "live_calls_total": 3
+}
