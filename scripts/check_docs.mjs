@@ -1,10 +1,36 @@
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { chromium } from '@playwright/test';
 
 const [base, directory] = process.argv.slice(2);
 assert.equal(new URL(base).hostname, '127.0.0.1');
+// Guard the consumer-scoped parser override against CSS nesting regressions.
+const packageRequire = createRequire(join(directory, 'package.json'));
+const postcss = packageRequire('postcss');
+const nested = packageRequire('postcss-nested');
+const cssCases = [
+  {
+    input: ".a { &.active, &:hover { color: red } }",
+    output: ".a.active, .a:hover { color: red }"
+  },
+  {
+    input: ".a, .b { > .child { color: blue } }",
+    output: ".a > .child, .b > .child { color: blue }"
+  },
+  {
+    input: ".a { @media (width > 30em) { &:is(.b, .c) { color: red } } }",
+    output: "@media (width > 30em) { .a:is(.b, .c) { color: red } }"
+  },
+  {
+    input: ".a { .b & { color: red } }",
+    output: ".b .a { color: red }"
+  }
+];
+for (const { input, output } of cssCases) {
+  assert.equal((await postcss([nested()]).process(input, { from: undefined })).css, output);
+}
 const snapshot = JSON.parse(await readFile(join(directory, 'revision.json'), 'utf8'));
 const browser = await chromium.launch({ headless: true });
 try {

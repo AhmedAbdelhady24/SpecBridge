@@ -48,5 +48,5 @@ jobs:
       - run: uv run pip-audit
       - run: npm audit --audit-level=high
       - run: npm --prefix apps/web audit --audit-level=high
-      - run: npm --prefix packages/docs-template audit --audit-level=high
+      - run: npm --prefix packages/docs-template audit --audit-level=moderate
       - run: git show --format= --check HEAD

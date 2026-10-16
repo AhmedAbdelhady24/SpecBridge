@@ -59,3 +59,19 @@ def test_template_symlink_rejected(artifact_dict, template, tmp_path):
     target.symlink_to("/etc/hosts")
     with pytest.raises(ValueError):
         render_package(Artifact.model_validate(artifact_dict), {}, template)
+
+
+def test_exported_template_has_no_vulnerable_selector_parser(artifact_dict):
+    root = Path(__file__).resolve().parents[3] / "packages/docs-template"
+    package = render_package(Artifact.model_validate(artifact_dict), {}, root)
+    with ZipFile(BytesIO(package.zip_bytes)) as archive:
+        lock = json.loads(archive.read("package-lock.json"))
+        parsers = [
+            item["version"]
+            for path, item in lock["packages"].items()
+            if path.endswith("node_modules/postcss-selector-parser")
+        ]
+        assert parsers
+        assert all(
+            tuple(map(int, version.split("."))) >= (7, 1, 6) for version in parsers
+        )
