@@ -1,0 +1,60 @@
+{
+  "title": "Workshop reservation request",
+  "purpose": "Capture the requested ability for visitors to reserve a place in a workshop, together with the related undecided aspects.",
+  "scope": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a visitor, I want to reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given an available workshop, when a visitor submits a reservation for a place in that workshop, then the visitor holds a reserved place in that workshop."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [
+    {
+      "text": "Because payment, account, capacity-limit and cancellation requirements are undecided, implementation choices made before those decisions may not satisfy the eventual reservation design.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [],
+  "open_questions": [
+    "Do reservations require payment?",
+    "Do reservations require an account?",
+    "Is there a capacity limit for reservations?",
+    "Is cancellation part of the reservation behavior?",
+    "Who owns this feature?",
+    "What is the release date?"
+  ]
+}

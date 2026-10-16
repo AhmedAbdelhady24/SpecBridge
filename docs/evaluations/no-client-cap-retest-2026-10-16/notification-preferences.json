@@ -1,0 +1,182 @@
+{
+  "title": "Weekly email digest opt-in preference for members",
+  "purpose": "Capture the requested notification-settings behavior for weekly email digests, its persistence and security-message separation, along with the unresolved owner and delivery date.",
+  "scope": [
+    {
+      "text": "Members can switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "The setting must persist after sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Switching digests off does not disable account-security messages.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "A newly created member starts with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Members can switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "The setting must persist after sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "Switching digests off does not disable account-security messages.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    },
+    {
+      "text": "A newly created member starts with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-4"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a member, I want to switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a member is in notification settings, when the member switches weekly email digests on, then the weekly email digest setting is shown as on.",
+        "Given a member is in notification settings, when the member switches weekly email digests off, then the weekly email digest setting is shown as off."
+      ]
+    },
+    {
+      "text": "As a member, I want my weekly digest preference to still apply after I sign out and sign back in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a member has switched weekly email digests on or off, when the member signs out and signs in again, then the weekly email digest setting reflects the value the member selected before signing out."
+      ]
+    },
+    {
+      "text": "As a member, I want switching weekly digests off to leave my account-security messages enabled.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-3",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Given a member has switched weekly email digests off, when an account-security message is generated, then that account-security message is still sent."
+      ]
+    },
+    {
+      "text": "As a member, I want a newly created account to begin with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-4",
+      "requirement_ids": [
+        "REQ-4"
+      ],
+      "acceptance_criteria": [
+        "Given a newly created member account, when the member opens notification settings, then the weekly email digest setting is shown as off."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [
+    {
+      "text": "Because the setting must persist across sign-out and sign-in, an implementation that stores the preference only in transient client state would fail REQ-2.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "Because switching digests off must not disable account-security messages, an implementation that gates all outbound email on the digest setting would fail REQ-3.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "Proposed verification: toggle the weekly digest setting on and off in notification settings and confirm the displayed state matches the selection.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "Proposed verification: toggle the setting, sign out and sign in, and confirm the previously selected value is retained.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "Proposed verification: with weekly digests off, confirm account-security messages are still sent.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "Proposed verification: create a new member and confirm weekly digests are off by default.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Who is the owner for this feature?",
+    "What is the delivery date for this feature?",
+    "How should account-security messages be distinguished from weekly email digests in the notification system?",
+    "What is the authoritative behavior for a member whose digest preference is changed on one device while another device is signed in?"
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "title": "Uploaded image deletion behavior decision",
+  "purpose": "Document the two competing requests for what happens when a user selects Delete on an uploaded image, and keep both alternatives as unsatisfied candidates pending a human decision.",
+  "scope": [
+    {
+      "text": "Privacy stakeholder requests immediate permanent deletion of an uploaded image when its owner selects Delete.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Support stakeholder requests that the same deleted image remain recoverable by its owner for 30 days after Delete. No stakeholder has authority to choose between these requests yet.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Privacy stakeholder requests immediate permanent deletion of an uploaded image when its owner selects Delete.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "Support stakeholder requests that the same deleted image remain recoverable by its owner for 30 days after Delete.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    }
+  ],
+  "stories": [
+    {
+      "text": "If a human selects the immediate permanent deletion alternative, an image owner will see their uploaded image deleted immediately and permanently when they select Delete.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected the immediate permanent deletion alternative, when the owner of an uploaded image selects Delete, then the image is deleted immediately.",
+        "Given a human has selected the immediate permanent deletion alternative, when the owner of an uploaded image selects Delete, then the image is not recoverable afterwards."
+      ]
+    },
+    {
+      "text": "If a human selects the 30-day recoverable deletion alternative, an image owner will see their uploaded image remain recoverable by them for 30 days after they select Delete.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected the 30-day recoverable deletion alternative, when the owner of an uploaded image selects Delete, then the image remains recoverable by that owner for 30 days after Delete.",
+        "Given a human has selected the 30-day recoverable deletion alternative, when 30 days have elapsed since the owner selected Delete, then the image is no longer required to remain recoverable."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "No stakeholder has authority to choose between these requests yet, so the deletion behavior cannot be finalized.",
+      "source_ids": [
+        "privacy-request",
+        "support-request"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Immediate permanent deletion would fail the support request for 30-day recoverability; 30-day recoverable deletion would fail the privacy request for immediate permanent deletion.",
+      "source_ids": [
+        "privacy-request",
+        "support-request"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [],
+  "open_questions": [
+    "Which alternative should a human select: immediate permanent deletion or 30-day recoverability by the owner?",
+    "Who has authority to choose between the privacy request and the support request?"
+  ]
+}

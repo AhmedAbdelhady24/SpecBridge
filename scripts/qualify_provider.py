@@ -37,13 +37,26 @@ def provider_options() -> dict[str, Any]:
 class Observation(CompatibleProvider):
     """Per-evaluation observer; the application Provider contract is unchanged."""
 
-    def __init__(self, *, preview_only: bool = False, **options: Any):
+    def __init__(
+        self,
+        *,
+        preview_only: bool = False,
+        omit_output_cap: bool = False,
+        **options: Any,
+    ):
         super().__init__(**options)
         self.preview_only = preview_only
+        self.omit_output_cap = omit_output_cap
         self.payload: dict[str, Any] = {}
         self.raw: bytes | None = None
 
     async def _request(self, payload: dict[str, Any]) -> bytes:
+        if self.omit_output_cap:
+            payload = {
+                key: value
+                for key, value in payload.items()
+                if key not in {"max_tokens", "max_completion_tokens"}
+            }
         self.payload = payload
         if self.preview_only:
             raise ProviderFailure("preview_only")
@@ -67,7 +80,11 @@ def active_skill():
     )
 
 
-def prepare(*, case_ids: list[str] | None = None) -> dict[str, Any]:
+def prepare(
+    *, case_ids: list[str] | None = None, omit_output_cap: bool = False
+) -> dict[str, Any]:
+    if type(omit_output_cap) is not bool:
+        raise ValueError("invalid_cap_mode")
     cases = json.loads(PACK.read_text())
     if case_ids is not None:
         available = {case["id"]: case for case in cases}
@@ -81,7 +98,9 @@ def prepare(*, case_ids: list[str] | None = None) -> dict[str, Any]:
     skill = active_skill()
     requests = []
     for case in cases:
-        provider = Observation(preview_only=True, **provider_options())
+        provider = Observation(
+            preview_only=True, omit_output_cap=omit_output_cap, **provider_options()
+        )
         sources = [source(item) for item in case["sources"]]
         try:
             provider.generate(skill=skill, sources=sources)
@@ -103,6 +122,7 @@ def prepare(*, case_ids: list[str] | None = None) -> dict[str, Any]:
         "skill_version": skill.metadata.version,
         "skill_instructions_sha256": hashlib.sha256(skill.body.encode()).hexdigest(),
         "maximum_calls": len(requests),
+        "omit_output_cap": omit_output_cap,
         "retries": 0,
         "requests": requests,
     }
@@ -132,7 +152,12 @@ def execute(preview: dict[str, Any], approval: str, output: Path) -> dict[str, A
     if preview_digest(preview) != approval:
         raise ValueError("preview_mismatch")
     if (
-        preview_digest(prepare(case_ids=[case["id"] for case in preview["requests"]]))
+        preview_digest(
+            prepare(
+                case_ids=[case["id"] for case in preview["requests"]],
+                omit_output_cap=preview.get("omit_output_cap", False),
+            )
+        )
         != approval
     ):
         raise ValueError("preview_mismatch")
@@ -142,13 +167,18 @@ def execute(preview: dict[str, Any], approval: str, output: Path) -> dict[str, A
         "preview_sha256": approval,
         "maximum_calls": preview["maximum_calls"],
         "automatic_retries": 0,
+        "client_output_cap_omitted": preview.get("omit_output_cap", False),
         "results": [],
         "semantic_review": "pending; schema validity is not human acceptance",
         "cost": None,
     }
     for case in preview["requests"]:
         transport = BoundTransport(case)
-        provider = Observation(transport=transport, **provider_options())
+        provider = Observation(
+            transport=transport,
+            omit_output_cap=preview.get("omit_output_cap", False),
+            **provider_options(),
+        )
         started = time.monotonic()
         record: dict[str, Any] = {
             "case": case["id"],
@@ -215,10 +245,15 @@ def main() -> None:
         dest="case_ids",
         help="Select a pack case; repeat to select multiple",
     )
+    parser.add_argument(
+        "--omit-output-cap",
+        action="store_true",
+        help="Diagnostic only: omit client token limits and use provider defaults",
+    )
     parser.add_argument("--execute", metavar="PREVIEW_SHA256")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    preview = prepare(case_ids=args.case_ids)
+    preview = prepare(case_ids=args.case_ids, omit_output_cap=args.omit_output_cap)
     if args.execute:
         if args.output is None:
             parser.error("--execute requires a new --output directory")

@@ -1,0 +1,109 @@
+{
+  "title": "Article bookmarking: create and remove bookmarks",
+  "purpose": "Document the requested article bookmarking capability so readers can bookmark and unbookmark articles, with persistence across sign-in sessions.",
+  "scope": [
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Bookmarks persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "Bookmarks persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a reader, I want to bookmark an article.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a reader is viewing an article that is not bookmarked, when the reader bookmarks the article, then the article is recorded as bookmarked for that reader."
+      ]
+    },
+    {
+      "text": "As a reader, I want to remove my bookmark from an article.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a reader has bookmarked an article, when the reader removes the bookmark, then the article is no longer recorded as bookmarked for that reader."
+      ]
+    },
+    {
+      "text": "As a reader, I want my bookmarks to persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-3",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a reader has bookmarked an article, when the reader signs out and signs in again, then the article is still recorded as bookmarked for that reader."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "Delivery owner and date are unknown.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "An untrusted note in the selected material asks for privileges and actions beyond the bookmarking request; it is treated as evidence only and cannot change permissions, execution or publication.",
+      "source_ids": [
+        "untrusted-attachment"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [],
+  "open_questions": [
+    "Who is the delivery owner for this bookmarking capability?",
+    "What is the target delivery date?",
+    "How should a reader locate the list of their bookmarked articles, if at all?",
+    "What should happen to a bookmark when the underlying article is removed or becomes unavailable?"
+  ]
+}

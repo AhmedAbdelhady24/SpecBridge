@@ -253,3 +253,67 @@ def test_saved_autopilot_uncovered_default_is_rejected_without_repair():
         provider.generate(skill=skill, sources=sources)
     assert len(calls) == 1
     assert (folder / "notification-preferences.rejected.txt").read_text() == raw
+
+
+def test_omitting_cap_changes_only_token_fields_and_binds_execution_mode(
+    monkeypatch, tmp_path
+):
+    module = runner()
+    for name, value in {
+        "BASE_URL": "https://api.deepseek.com",
+        "MODEL": "deepseek-flash",
+        "API_KEY": "private-test-key",
+        "OUTPUT_MODE": "json_object",
+        "MAX_TOKENS": "3072",
+    }.items():
+        monkeypatch.setenv("SPECBRIDGE_LLM_" + name, value)
+    normal = module.prepare(case_ids=["notification-preferences"])
+    omitted = module.prepare(
+        case_ids=["notification-preferences"], omit_output_cap=True
+    )
+    assert normal["requests"][0]["body"]["max_tokens"] == 3072
+    expected = dict(normal["requests"][0]["body"])
+    expected.pop("max_tokens")
+    assert omitted["requests"][0]["body"] == expected
+    assert "max_completion_tokens" not in omitted["requests"][0]["body"]
+    calls = []
+
+    async def fail(self, request):
+        calls.append(request)
+        body = json.loads(request.content)
+        assert "max_tokens" not in body and "max_completion_tokens" not in body
+        return httpx.Response(500, request=request)
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", fail)
+    altered = json.loads(json.dumps(omitted))
+    altered["omit_output_cap"] = False
+    with pytest.raises(ValueError, match="preview_mismatch"):
+        module.execute(altered, module.preview_digest(altered), tmp_path / "wrong-mode")
+    assert not calls
+    assert not (tmp_path / "wrong-mode").exists()
+    result = module.execute(
+        omitted, module.preview_digest(omitted), tmp_path / "omitted"
+    )
+    assert result["client_output_cap_omitted"] is True
+    assert len(calls) == 1
+    assert result["results"][0]["status"] == "provider_http_error"
+
+
+def test_strict_mode_diagnostic_omits_completion_cap(monkeypatch):
+    module = runner()
+    for name, value in {
+        "BASE_URL": "https://model.example/v1",
+        "MODEL": "test-model",
+        "API_KEY": "private-test-key",
+        "OUTPUT_MODE": "json_schema",
+        "MAX_TOKENS": "3072",
+    }.items():
+        monkeypatch.setenv("SPECBRIDGE_LLM_" + name, value)
+    normal = module.prepare(case_ids=["notification-preferences"])
+    omitted = module.prepare(
+        case_ids=["notification-preferences"], omit_output_cap=True
+    )
+    expected = dict(normal["requests"][0]["body"])
+    assert expected.pop("max_completion_tokens") == 3072
+    assert omitted["requests"][0]["body"] == expected
+    assert "max_tokens" not in omitted["requests"][0]["body"]

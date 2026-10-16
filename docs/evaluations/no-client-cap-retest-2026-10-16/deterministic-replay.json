@@ -1,0 +1,32 @@
+{
+  "notification-preferences": {
+    "client_limit_fields": "absent",
+    "only_request_difference": "max_tokens omitted",
+    "artifact_source_handoff_validation": "passed",
+    "source_hashes_unchanged": true
+  },
+  "incomplete-booking": {
+    "client_limit_fields": "absent",
+    "only_request_difference": "max_tokens omitted",
+    "artifact_source_handoff_validation": "passed",
+    "source_hashes_unchanged": true
+  },
+  "contradictory-deletion": {
+    "client_limit_fields": "absent",
+    "only_request_difference": "max_tokens omitted",
+    "artifact_source_handoff_validation": "passed",
+    "source_hashes_unchanged": true
+  },
+  "conflicting-api": {
+    "client_limit_fields": "absent",
+    "only_request_difference": "max_tokens omitted",
+    "artifact_source_handoff_validation": "passed",
+    "source_hashes_unchanged": true
+  },
+  "embedded-instruction": {
+    "client_limit_fields": "absent",
+    "only_request_difference": "max_tokens omitted",
+    "artifact_source_handoff_validation": "passed",
+    "source_hashes_unchanged": true
+  }
+}
