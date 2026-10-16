@@ -1,0 +1,82 @@
+{
+  "conflicting-api": {
+    "schema_errors": [
+      {
+        "type": "missing",
+        "loc": [
+          "stories",
+          0,
+          "id"
+        ],
+        "msg": "Field required"
+      },
+      {
+        "type": "missing",
+        "loc": [
+          "stories",
+          1,
+          "id"
+        ],
+        "msg": "Field required"
+      },
+      {
+        "type": "missing",
+        "loc": [
+          "stories",
+          2,
+          "id"
+        ],
+        "msg": "Field required"
+      }
+    ],
+    "excerpt_mismatches": [
+      {
+        "section": "requirements",
+        "index": 1,
+        "text": "The UI must support moving to the next page.",
+        "source_ids": [
+          "api-spec-a"
+        ]
+      },
+      {
+        "section": "dependencies",
+        "index": 0,
+        "text": "The authoritative contract has not been selected.",
+        "source_ids": [
+          "api-spec-b"
+        ]
+      },
+      {
+        "section": "dependencies",
+        "index": 1,
+        "text": "Neither draft is approved.",
+        "source_ids": [
+          "api-spec-b"
+        ]
+      }
+    ]
+  },
+  "contradictory-deletion": {
+    "schema_errors": [
+      {
+        "type": "missing",
+        "loc": [
+          "stories",
+          0,
+          "id"
+        ],
+        "msg": "Field required"
+      },
+      {
+        "type": "missing",
+        "loc": [
+          "stories",
+          1,
+          "id"
+        ],
+        "msg": "Field required"
+      }
+    ],
+    "excerpt_mismatches": []
+  }
+}

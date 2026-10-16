@@ -1,0 +1,82 @@
+{
+  "title": "Image deletion behavior: unresolved permanent-delete vs. 30-day-owner-recovery",
+  "purpose": "A handoff describing the requested deletion behavior for an uploaded image when its owner selects Delete, with the two conflicting stakeholder requests preserved as an unresolved decision.",
+  "scope": [
+    {
+      "text": "Deletion behavior triggered when the owner of an uploaded image selects Delete.",
+      "source_ids": ["privacy-request", "support-request"],
+      "kind": "recommendation"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Privacy stakeholder requests immediate permanent deletion of an uploaded image when its owner selects Delete.",
+      "source_ids": ["privacy-request"],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "Support stakeholder requests that the same deleted image remain recoverable by its owner for 30 days after Delete.",
+      "source_ids": ["support-request"],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As the owner of an uploaded image, I want to select Delete and have the image immediately permanently deleted.",
+      "source_ids": ["privacy-request"],
+      "kind": "recommendation",
+      "requirement_ids": ["REQ-1"],
+      "acceptance_criteria": [
+        "Given an uploaded image owned by the user, when the owner selects Delete, then the image is permanently deleted without delay."
+      ]
+    },
+    {
+      "text": "As the owner of an uploaded image, I want to select Delete and still be able to recover the image for 30 days afterward.",
+      "source_ids": ["support-request"],
+      "kind": "recommendation",
+      "requirement_ids": ["REQ-2"],
+      "acceptance_criteria": [
+        "Given an uploaded image owned by the user, when the owner selects Delete, then the owner can recover that image at any point within 30 days after Delete."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "The two requests are mutually exclusive as stated: immediate permanent deletion leaves nothing recoverable, while 30-day owner recovery requires the image to remain available.",
+      "source_ids": ["privacy-request", "support-request"],
+      "kind": "recommendation"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "Resolution of the conflicting requests depends on a decision-maker with authority to choose between them; no stakeholder currently holds that authority.",
+      "source_ids": ["privacy-request", "support-request"],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Implementing either request as stated conflicts with the other; no authoritative choice has been made, so building to one may satisfy the other stakeholder's expectation.",
+      "source_ids": ["privacy-request", "support-request"],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "After a decision is made, verification could confirm that Delete produces exactly one of the two requested behaviors in the authenticated owner's session; no numerical baseline or target is supplied by the sources.",
+      "source_ids": ["privacy-request", "support-request"],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Which request should be implemented: immediate permanent deletion (privacy stakeholder) or 30-day owner recovery (support stakeholder)?",
+    "Who holds the authority to decide between the two conflicting requests?",
+    "Does either request apply differently to other users or roles, and is anything beyond the owner's own recovery in scope?",
+    "What triggers the start and end of the 30-day recovery window if the recovery option is chosen?",
+    "What is the expected timeline for this handoff decision and delivery?",
+    "Are there existing deletion, retention, or recovery policies that would constrain the answer?"
+  ]
+}

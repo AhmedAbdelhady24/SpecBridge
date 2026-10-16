@@ -1,0 +1,98 @@
+{
+  "title": "Workshop reservation handoff",
+  "purpose": "Enable visitors to reserve a place in a workshop.",
+  "scope": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a visitor, I want to reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a published workshop, when a visitor completes a reservation, then a place in that workshop is reserved for that visitor."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "Recommendation: define behavior when more visitors attempt to reserve than the workshop can accommodate, since no capacity limit has been decided.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "Recommendation: define behavior for a visitor who wants to change or cancel a reservation, since cancellation has not been decided.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "Whether reservations require payment, an account, a capacity limit or cancellation is undecided.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "No owner is assigned, so accountability for this feature is undetermined.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "No release date is assigned, so delivery timing is undetermined.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "Recommendation: verify that a visitor can complete a reservation for a workshop place and that the resulting reservation is observable in the system.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Do reservations need payment?",
+    "Do reservations require an account?",
+    "Is there a capacity limit per workshop, and if so what is it?",
+    "Can reservations be cancelled, and under what conditions?",
+    "Who owns this feature?",
+    "What is the target release date?"
+  ]
+}

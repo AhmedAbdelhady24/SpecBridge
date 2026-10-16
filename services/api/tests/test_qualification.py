@@ -1,0 +1,170 @@
+"""Safety regressions for the opt-in live evaluation runner."""
+
+import importlib.util
+import json
+from pathlib import Path
+
+import httpx
+import pytest
+
+ROOT = Path(__file__).resolve().parents[3]
+
+
+def runner():
+    path = ROOT / "scripts/qualify_provider.py"
+    assert path.exists(), "The reusable qualification runner is missing"
+    spec = importlib.util.spec_from_file_location("qualification", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_pack_has_distinct_cases_and_explicit_conflict_review():
+    cases = json.loads(
+        (ROOT / "tests/fixtures/provider-qualification/cases.json").read_text()
+    )
+    assert len(cases) == len({c["id"] for c in cases}) == 5
+    assert all(c["sources"] and len(c["review_criteria"]) >= 3 for c in cases)
+    assert len(cases[2]["sources"]) == len(cases[3]["sources"]) == 2
+    assert all("CSV" not in s["text"] for c in cases for s in c["sources"])
+
+
+def test_preview_is_offline_and_changes_bind_authorization(monkeypatch):
+    module = runner()
+    monkeypatch.setenv("SPECBRIDGE_LLM_API_KEY", "private-test-key")
+    monkeypatch.setenv("SPECBRIDGE_LLM_BASE_URL", "https://api.deepseek.com")
+    monkeypatch.setenv("SPECBRIDGE_LLM_MODEL", "deepseek-flash")
+    monkeypatch.setenv("SPECBRIDGE_LLM_OUTPUT_MODE", "json_object")
+    monkeypatch.setenv("SPECBRIDGE_LLM_MAX_TOKENS", "3072")
+
+    async def forbidden(*args, **kwargs):
+        pytest.fail("Preview must not access network")
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", forbidden)
+    preview = module.prepare()
+    assert len(preview["requests"]) == 5
+    assert "private-test-key" not in json.dumps(preview)
+    before = module.preview_digest(preview)
+    monkeypatch.setenv("SPECBRIDGE_LLM_MODEL", "another-model")
+    assert module.preview_digest(module.prepare()) != before
+
+
+def test_mismatched_authorization_does_not_create_output(tmp_path):
+    module = runner()
+    output = tmp_path / "evidence"
+    with pytest.raises(ValueError, match="preview_mismatch"):
+        module.execute({"requests": []}, "wrong", output)
+    assert not output.exists()
+
+
+def test_failure_is_recorded_without_retry(tmp_path, monkeypatch):
+    module = runner()
+    monkeypatch.setenv("SPECBRIDGE_LLM_API_KEY", "private-test-key")
+    monkeypatch.setenv("SPECBRIDGE_LLM_BASE_URL", "https://api.deepseek.com")
+    monkeypatch.setenv("SPECBRIDGE_LLM_MODEL", "deepseek-flash")
+    monkeypatch.setenv("SPECBRIDGE_LLM_OUTPUT_MODE", "json_object")
+    monkeypatch.setenv("SPECBRIDGE_LLM_MAX_TOKENS", "3072")
+    preview = module.prepare()
+    calls = []
+
+    async def fail(self, request):
+        calls.append(request)
+        return httpx.Response(500, request=request, text="private-test-key")
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", fail)
+    output = tmp_path / "evidence"
+    result = module.execute(preview, module.preview_digest(preview), output)
+    assert len(calls) == 5
+    assert len(result["results"]) == 5
+    assert all(r["status"] == "provider_http_error" for r in result["results"])
+    assert "private-test-key" not in (output / "results.json").read_text()
+    with pytest.raises(FileExistsError):
+        module.execute(preview, module.preview_digest(preview), output)
+    assert len(calls) == 5
+
+
+def test_success_and_rejected_draft_keep_usage_and_evidence(
+    tmp_path, monkeypatch, artifact_dict
+):
+    module = runner()
+    for name, value in {
+        "BASE_URL": "https://api.deepseek.com",
+        "MODEL": "deepseek-flash",
+        "API_KEY": "private-test-key",
+        "OUTPUT_MODE": "json_object",
+        "MAX_TOKENS": "3072",
+    }.items():
+        monkeypatch.setenv("SPECBRIDGE_LLM_" + name, value)
+    preview = module.prepare()
+    count = 0
+
+    async def respond(self, request):
+        nonlocal count
+        count += 1
+        # The first artifact is valid; later responses violate requirement coverage.
+        candidate = json.loads(json.dumps(artifact_dict))
+        if count > 1:
+            candidate["stories"] = []
+        return httpx.Response(
+            200,
+            request=request,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": json.dumps(candidate)},
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 100,
+                    "completion_tokens": 200,
+                    "total_tokens": 300,
+                },
+                "id": "private-provider-envelope-id",
+            },
+        )
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", respond)
+    output = tmp_path / "success-and-rejection"
+    result = module.execute(preview, module.preview_digest(preview), output)
+    assert result["results"][0]["status"] == "validated"
+    assert (output / "notification-preferences.json").exists()
+    assert all(r["status"] != "validated" for r in result["results"][1:])
+    assert (output / "incomplete-booking.rejected.txt").exists()
+    assert result["results"][0]["usage"]["total_tokens"] == 300
+    assert "private-provider-envelope-id" not in (output / "results.json").read_text()
+
+
+def test_secret_response_is_not_saved_as_artifact(tmp_path, monkeypatch, artifact_dict):
+    module = runner()
+    for name, value in {
+        "BASE_URL": "https://api.deepseek.com",
+        "MODEL": "deepseek-flash",
+        "API_KEY": "private-test-key",
+        "OUTPUT_MODE": "json_object",
+        "MAX_TOKENS": "3072",
+    }.items():
+        monkeypatch.setenv("SPECBRIDGE_LLM_" + name, value)
+    preview = module.prepare()
+    artifact_dict["purpose"] = "private-test-key"
+
+    async def respond(self, request):
+        return httpx.Response(
+            200,
+            request=request,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": json.dumps(artifact_dict)},
+                    }
+                ]
+            },
+        )
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", respond)
+    output = tmp_path / "secret-response"
+    result = module.execute(preview, module.preview_digest(preview), output)
+    assert all(r["status"] == "secret_in_response" for r in result["results"])
+    assert sorted(p.name for p in output.iterdir()) == ["preview.json", "results.json"]
+    assert "private-test-key" not in (output / "results.json").read_text()
