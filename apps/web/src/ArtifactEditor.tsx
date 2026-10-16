@@ -1,6 +1,13 @@
 import { useId } from "react";
 import type { components } from "./api/schema";
 type Artifact = components["schemas"]["Artifact"];
+type EvidenceKind = components["schemas"]["Statement"]["kind"];
+const evidenceKinds = [
+  "user_provided",
+  "recommendation",
+  "assumption",
+  "unknown",
+] as const;
 const sections = [
   "scope",
   "non_goals",
@@ -45,6 +52,39 @@ export function ArtifactEditor({
       />
     </div>
   );
+  const evidence = (
+    label: string,
+    kind: EvidenceKind,
+    change: (kind: EvidenceKind) => void,
+    requirement = false,
+  ) => {
+    const options = evidenceKinds.filter(
+      (kind) => !requirement || kind !== "unknown",
+    );
+    const selectable = options.some((option) => option === kind);
+    const id = `${editorId}-evidence-${label.replaceAll(" ", "-")}`;
+    return (
+      <div>
+        <label htmlFor={id}>Evidence type for {label}</label>
+        <select
+          id={id}
+          value={selectable ? kind : ""}
+          required
+          disabled={disabled}
+          onChange={(e) => change(e.target.value as EvidenceKind)}
+        >
+          {!selectable && (
+            <option value="" disabled>Choose evidence type</option>
+          )}
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option.replaceAll("_", " ")}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  };
   return (
     <div className="artifact">
       {field("Title", value.title, (title) => onChange({ ...value, title }))}
@@ -64,6 +104,14 @@ export function ArtifactEditor({
                   ...value,
                   [section]: value[section].map((s, j) =>
                     j === i ? { ...s, text } : s,
+                  ),
+                }),
+              )}
+              {evidence(`${names[section]} ${i + 1}`, item.kind, (kind) =>
+                onChange({
+                  ...value,
+                  [section]: value[section].map((s, j) =>
+                    j === i ? { ...s, kind } : s,
                   ),
                 }),
               )}
@@ -90,6 +138,15 @@ export function ArtifactEditor({
                 ),
               }),
             )}
+            {evidence(`Requirement ${i + 1}`, item.kind, (kind) =>
+              onChange({
+                ...value,
+                requirements: value.requirements.map((s, j) =>
+                  j === i ? { ...s, kind } : s,
+                ),
+              }),
+              true,
+            )}
             <p className="provenance">
               {item.kind} · Source IDs:{" "}
               {(item.source_ids ?? []).join(", ") || "none"}
@@ -112,30 +169,72 @@ export function ArtifactEditor({
                 ),
               }),
             )}
+            {evidence(`Story ${i + 1}`, item.kind, (kind) =>
+              onChange({
+                ...value,
+                stories: value.stories.map((s, j) =>
+                  j === i ? { ...s, kind } : s,
+                ),
+              }),
+            )}
             <p className="provenance">
               {item.kind} · Requirements: {item.requirement_ids.join(", ")} ·
               Source IDs: {(item.source_ids ?? []).join(", ") || "none"}
             </p>
-            {item.acceptance_criteria.map((criterion, k) =>
-              field(
-                `Acceptance criterion ${i + 1}.${k + 1}`,
-                criterion,
-                (text) =>
-                  onChange({
+            {item.acceptance_criteria.map((criterion, k) => (
+              <div key={k}>
+                {field(
+                  `Acceptance criterion ${i + 1}.${k + 1}`,
+                  criterion,
+                  (text) =>
+                    onChange({
+                      ...value,
+                      stories: value.stories.map((s, j) =>
+                        j === i
+                          ? {
+                              ...s,
+                              acceptance_criteria: s.acceptance_criteria.map(
+                                (c, n) => (n === k ? text : c),
+                              ),
+                            }
+                          : s,
+                      ),
+                    }),
+                )}
+                <button
+                  type="button"
+                  disabled={disabled || item.acceptance_criteria.length <= 1}
+                  onClick={() => onChange({
                     ...value,
                     stories: value.stories.map((s, j) =>
-                      j === i
-                        ? {
-                            ...s,
-                            acceptance_criteria: s.acceptance_criteria.map(
-                              (c, n) => (n === k ? text : c),
-                            ),
-                          }
-                        : s,
+                      j === i ? {
+                        ...s,
+                        acceptance_criteria: s.acceptance_criteria.filter(
+                          (_, n) => n !== k,
+                        ),
+                      } : s,
                     ),
-                  }),
-              ),
-            )}
+                  })}
+                >
+                  Remove acceptance criterion {i + 1}.{k + 1}
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              disabled={disabled || item.acceptance_criteria.length >= 30}
+              onClick={() => onChange({
+                ...value,
+                stories: value.stories.map((s, j) =>
+                  j === i ? {
+                    ...s,
+                    acceptance_criteria: [...s.acceptance_criteria, ""],
+                  } : s,
+                ),
+              })}
+            >
+              Add acceptance criterion to story {i + 1}
+            </button>
           </div>
         ))}
       </section>
@@ -144,16 +243,38 @@ export function ArtifactEditor({
         {value.open_questions.length === 0 && (
           <p className="muted">None supplied.</p>
         )}
-        {value.open_questions.map((q, i) =>
-          field(`Open question ${i + 1}`, q, (text) =>
-            onChange({
-              ...value,
-              open_questions: value.open_questions.map((s, j) =>
-                j === i ? text : s,
-              ),
-            }),
-          ),
-        )}
+        {value.open_questions.map((q, i) => (
+          <div key={i}>
+            {field(`Open question ${i + 1}`, q, (text) =>
+              onChange({
+                ...value,
+                open_questions: value.open_questions.map((s, j) =>
+                  j === i ? text : s,
+                ),
+              }),
+            )}
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => onChange({
+                ...value,
+                open_questions: value.open_questions.filter((_, j) => j !== i),
+              })}
+            >
+              Remove open question {i + 1}
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          disabled={disabled || value.open_questions.length >= 100}
+          onClick={() => onChange({
+            ...value,
+            open_questions: [...value.open_questions, ""],
+          })}
+        >
+          Add open question
+        </button>
       </section>
     </div>
   );

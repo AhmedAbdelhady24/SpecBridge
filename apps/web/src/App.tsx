@@ -440,20 +440,9 @@ export default function App() {
                           </p>
                         )}
                       </section>
-                      <ArtifactEditor
-                        value={artifact}
-                        disabled={disabled}
-                        onChange={(value) => {
-                          setArtifact(value);
-                          setDirty(true);
-                          setCandidate(undefined);
-                          setReviewed(false);
-                          setReviewStatus("");
-                        }}
-                      />
-                      <button
-                        disabled={disabled || !dirty}
-                        onClick={() =>
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
                           void act(async () => {
                             const saved = await api<Schema["Revision"]>(
                               `${base}/revisions/${revision.id}/edits`,
@@ -465,11 +454,24 @@ export default function App() {
                             setNotice(
                               "New revision saved. Review and approve it again.",
                             );
-                          })
-                        }
+                          });
+                        }}
                       >
-                        Save revision
-                      </button>
+                        <ArtifactEditor
+                          value={artifact}
+                          disabled={disabled}
+                          onChange={(value) => {
+                            setArtifact(value);
+                            setDirty(true);
+                            setCandidate(undefined);
+                            setReviewed(false);
+                            setReviewStatus("");
+                          }}
+                        />
+                        <button type="submit" disabled={disabled || !dirty}>
+                          Save revision
+                        </button>
+                      </form>
                       <details>
                         <summary>Revision provenance</summary>
                         <dl>
