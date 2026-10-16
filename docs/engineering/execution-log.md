@@ -35,3 +35,17 @@ User authorized resolving the retained risk. Latest upstream metadata still requ
 Ruling: supersede the initial retained-advisory decision with a narrowly scoped exact parser override after explicit risk-removal request and compatibility proof — upstream has no compatible-range fix today; actual consumer behavior/builds remain green — cost if wrong: styling/build compatibility regression, requiring removal/reassessment. Keep the override documented until upstream supports a patched range.
 
 User then requested a hosted-first provider plan (OpenAI compatible/DeepSeek or Claude, local later). Reviewed actual provider boundary and official API documentation; [staged qualification proposal](../plans/2026-10-16-hosted-provider-qualification.md) records route differences, missing token/usage controls, human-reviewed fixtures and concrete endpoint/input/budget gate. No provider configuration, credentials, paid calls or local model install occurred.
+
+
+## DeepSeek JSON mode — 2026-10-16
+
+User supplied the local key after selecting DeepSeek. Confirmed nonempty environment value and0600 permissions without printing credentials. Used project-local uv cache after default cache access was refused; no escalation or new dependency needed. Preserved key line byte-for-byte while adding explicit JSON-object mode and4096 output-token cap. Existing strict-schema mode stays default. New transport/config/finish-reason regressions went RED→GREEN; malformed-choice tests additionally exposed/corrected an AttributeError in the new branch. Full suite115 tests plus bootstrap subtests, Ruff lint/format, strict mypy and9/9 browser cases green. Root reviewed the scoped diff; no subagent or public contract changes needed. No LLM call made. [Readiness evidence](../evaluations/deepseek-adapter-readiness.md).
+
+One concrete synthetic CSV-export request was prepared with actual request-construction code and dummy credentials through MockTransport, saved in ignored local cache. Actual selected endpoint/model/outputcap were shown; maximum one call, zero retries. User approval requested before incurring a provider charge under the original consequential-external-action rule. Token/HTTP bounds do not establish a hard dollar ceiling or remote cancellation guarantee. Usage metering, curated quality cases, live-provider qualification and unfamiliar-human acceptance remain open.
+
+
+### First approved DeepSeek call
+
+User approved exactly one smoke request. Actual request was checked against the saved credential-free preview before transmission, with4096 output tokens and transport retries0. HTTP200 after22.55s; usage1471 prompt +4096 completion =5567 total tokens. `finish_reason=length`; provider correctly rejected incomplete output. No Artifact, retry, package approval or publication. This verifies request access, not complete generation or quality. [Sanitized result](../evaluations/deepseek-smoke-2026-10-16.json).
+
+Observed failure: output budget exhausted. Default thinking is documented; its exact token contribution was not measured. Added optional explicit reasoning_effort config (omitted for existing callers) with a RED→GREEN mocked-env/request test, then set `none` locally while preserving the key and4096 cap. Full suite116 tests plus bootstrap subtests green. Second preview is identical to first except `reasoning_effort=none`. Requested separate approval for one additional paid attempt because the prior one-call authorization is consumed. Do not retry or enlarge budgets silently.

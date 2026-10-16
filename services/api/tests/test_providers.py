@@ -33,12 +33,13 @@ def output():
     )
 
 
-def provider(handler):
+def provider(handler, output_mode="json_schema"):
     return CompatibleProvider(
         base_url="https://model.example/v1",
         model="test-model",
         api_key="SECRET",
         transport=httpx.MockTransport(handler),
+        output_mode=output_mode,
     )
 
 
@@ -67,6 +68,9 @@ def test_structured_request_and_response():
         assert body["response_format"]["json_schema"]["strict"] is True
         assert "tools" not in body
         assert body["model"] == "test-model"
+        assert body["max_completion_tokens"] == 4096
+        assert "max_tokens" not in body
+        assert "reasoning_effort" not in body
         return httpx.Response(
             200, json={"choices": [{"message": {"content": json.dumps(output())}}]}
         )
@@ -80,7 +84,8 @@ def test_structured_request_and_response():
 
 
 @pytest.mark.parametrize("status", [302, 400, 401, 429, 500])
-def test_http_failure_no_retry(status):
+@pytest.mark.parametrize("output_mode", ["json_schema", "json_object"])
+def test_http_failure_no_retry(status, output_mode):
     calls = []
 
     def handler(request):
@@ -90,7 +95,7 @@ def test_http_failure_no_retry(status):
         )
 
     with pytest.raises(ProviderFailure) as error:
-        generate(provider(handler))
+        generate(provider(handler, output_mode))
     assert len(calls) == 1
     assert "SECRET" not in str(error.value)
 
@@ -270,3 +275,146 @@ def test_total_deadline_cancels_slow_response(monkeypatch, phase):
     assert time.monotonic() - started < 0.2
     if phase == "body":
         assert closed == [True]
+
+
+def test_json_object_mode_sends_schema_and_token_cap_without_network_retry():
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        body = json.loads(request.content)
+        assert body["response_format"] == {"type": "json_object"}
+        assert body["max_tokens"] == 2048
+        assert "max_completion_tokens" not in body
+        prompt = body["messages"][0]["content"]
+        assert '"requirements"' in prompt and '"acceptance_criteria"' in prompt
+        assert "JSON" in prompt
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": json.dumps(output())},
+                    }
+                ]
+            },
+        )
+
+    instance = CompatibleProvider(
+        base_url="https://api.deepseek.com",
+        model="test-model",
+        api_key="SECRET",
+        output_mode="json_object",
+        max_tokens=2048,
+        transport=httpx.MockTransport(handler),
+    )
+    assert generate(instance).stories
+    assert len(calls) == 1
+    assert str(calls[0].url) == "https://api.deepseek.com/chat/completions"
+
+
+@pytest.mark.parametrize("fault", ["extra", "verified", "foreign-source"])
+def test_json_object_mode_keeps_local_validation(fault):
+    artifact = output()
+    if fault == "extra":
+        artifact["extra"] = True
+    elif fault == "verified":
+        artifact["requirements"][0]["kind"] = "verified"
+    else:
+        artifact["requirements"][0]["source_ids"] = ["foreign"]
+    instance = CompatibleProvider(
+        base_url="https://api.deepseek.com",
+        model="test",
+        api_key="SECRET",
+        output_mode="json_object",
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(
+                200,
+                json={"choices": [{"message": {"content": json.dumps(artifact)}}]},
+            )
+        ),
+    )
+    with pytest.raises(ProviderFailure):
+        generate(instance)
+
+
+@pytest.mark.parametrize("reason", ["length", "content_filter", "tool_calls"])
+def test_incomplete_finish_reason_rejected_even_with_valid_json(reason):
+    instance = provider(
+        lambda request: httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": reason,
+                        "message": {"content": json.dumps(output())},
+                    }
+                ]
+            },
+        )
+    )
+    with pytest.raises(ProviderFailure, match="incomplete_response"):
+        generate(instance)
+
+
+def test_provider_env_output_mode_and_limits(monkeypatch):
+    monkeypatch.setenv("SPECBRIDGE_PROVIDER", "compatible")
+    monkeypatch.setenv("SPECBRIDGE_LLM_BASE_URL", "https://api.deepseek.com")
+    monkeypatch.setenv("SPECBRIDGE_LLM_MODEL", "test")
+    monkeypatch.setenv("SPECBRIDGE_LLM_API_KEY", "SECRET")
+    monkeypatch.setenv("SPECBRIDGE_LLM_OUTPUT_MODE", "json_object")
+    monkeypatch.setenv("SPECBRIDGE_LLM_MAX_TOKENS", "2048")
+    instance = provider_from_env()
+    assert instance.output_mode == "json_object" and instance.max_tokens == 2048
+    for mode, limit in [
+        ("bad", "2048"),
+        ("json_object", "0"),
+        ("json_object", "16385"),
+        ("json_object", "bad"),
+    ]:
+        monkeypatch.setenv("SPECBRIDGE_LLM_OUTPUT_MODE", mode)
+        monkeypatch.setenv("SPECBRIDGE_LLM_MAX_TOKENS", limit)
+        with pytest.raises(ProviderFailure, match="invalid_configuration"):
+            provider_from_env()
+
+
+@pytest.mark.parametrize("choices", [["SECRET"], [None], {"0": "SECRET"}])
+def test_malformed_choices_are_sanitized(choices):
+    with pytest.raises(ProviderFailure, match="invalid_response"):
+        generate(
+            provider(lambda request: httpx.Response(200, json={"choices": choices}))
+        )
+
+
+def test_explicit_reasoning_effort_is_sent_without_raising_output_budget(monkeypatch):
+    monkeypatch.setenv("SPECBRIDGE_PROVIDER", "compatible")
+    monkeypatch.setenv("SPECBRIDGE_LLM_BASE_URL", "https://api.deepseek.com")
+    monkeypatch.setenv("SPECBRIDGE_LLM_MODEL", "test")
+    monkeypatch.setenv("SPECBRIDGE_LLM_API_KEY", "SECRET")
+    monkeypatch.setenv("SPECBRIDGE_LLM_OUTPUT_MODE", "json_object")
+    monkeypatch.setenv("SPECBRIDGE_LLM_MAX_TOKENS", "4096")
+    monkeypatch.setenv("SPECBRIDGE_LLM_REASONING_EFFORT", "none")
+    configured = provider_from_env()
+
+    def handler(request):
+        body = json.loads(request.content)
+        assert body["reasoning_effort"] == "none"
+        assert body["max_tokens"] == 4096
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": json.dumps(output())},
+                    }
+                ]
+            },
+        )
+
+    configured._transport = httpx.MockTransport(handler)
+    assert generate(configured).requirements
+    monkeypatch.setenv("SPECBRIDGE_LLM_REASONING_EFFORT", "invalid")
+    with pytest.raises(ProviderFailure, match="invalid_configuration"):
+        provider_from_env()

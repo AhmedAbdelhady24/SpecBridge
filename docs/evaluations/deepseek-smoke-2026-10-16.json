@@ -1,0 +1,20 @@
+{
+  "provider": "DeepSeek",
+  "destination": "https://api.deepseek.com",
+  "model": "deepseek-flash",
+  "maximum_calls": 1,
+  "attempts": 1,
+  "max_output_tokens": 4096,
+  "automatic_retries": 0,
+  "source_kind": "synthetic",
+  "status": "failed",
+  "http_status": 200,
+  "usage": {
+    "prompt_tokens": 1471,
+    "completion_tokens": 4096,
+    "total_tokens": 5567
+  },
+  "finish_reason": "length",
+  "error": "incomplete_response",
+  "duration_seconds": 22.55
+}
