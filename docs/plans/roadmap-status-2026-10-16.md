@@ -4,6 +4,8 @@ Milestone 0 is delivered locally. Milestone 1's technical vertical slice is impl
 
 This checkpoint is based on a fresh read-only audit of source, not directory names alone. See the [original roadmap](bootstrap-and-first-slice.md) for scope and the [latest provider comparison](2026-10-16-reasoning-comparison.md) for current evidence. That five-case reasoning-enabled run passed 5/5 backend and 2/5 semantic checks; the M1 gate remains open.
 
+Subsequent [review correction verification](../evaluations/review-correction.md) closes the editor blocker: reviewers can add missing questions/criteria and explicitly classify changed statements, with fresh revision review and exact package approval. All 14 browser cases pass. No new model calls or unfamiliar-human acceptance were performed; milestone counts and generator qualification are unchanged.
+
 | Phase | Verified or existing foundation | Remaining deliverables |
 | --- | --- | --- |
 | 0 — Codex readiness | Local environment audit, source/license research, skills inventory, accepted architecture, AGENTS/plans, locked tools and automated CI/test definitions. | Delivered locally. Hosted CI execution and remote protections are not established. |

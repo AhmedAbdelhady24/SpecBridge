@@ -21,3 +21,5 @@ Latest provider checkpoint: [autonomous qualification](../plans/2026-10-16-autop
 Subsequent authorized [no-client-cap retest](../plans/2026-10-16-no-client-cap-retest.md) completed five calls; schema passed but semantic acceptance did not. Its single-round authorization is consumed.
 
 Current continuation: [reasoning-enabled comparison](../plans/2026-10-16-reasoning-comparison.md); [phase checkpoint](../plans/roadmap-status-2026-10-16.md) distinguishes delivered foundations from remaining milestones. Historical no-live statements are not current qualification status.
+
+Latest completed scope: [human review correction](../plans/2026-10-16-review-correction.md), verified with browser/backend/static and standalone-package checks. Next resumable work is unfamiliar-engineer correction/handoff acceptance and separate generation/decision-consistency design; current live-semantic acceptance remains open.
