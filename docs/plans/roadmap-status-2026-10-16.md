@@ -6,6 +6,8 @@ This checkpoint is based on a fresh read-only audit of source, not directory nam
 
 Subsequent [review correction verification](../evaluations/review-correction.md) closes the editor blocker: reviewers can add missing questions/criteria and explicitly classify changed statements, with fresh revision review and exact package approval. All 14 browser cases pass. No new model calls or unfamiliar-human acceptance were performed; milestone counts and generator qualification are unchanged.
 
+The [2026-10-17 offline consistency probe](../evaluations/decision-consistency-probe.md) found that valid explicit decision/criterion graphs can still contain all three known semantic failures. Production schema expansion was not promoted; the M1 gate remains unchanged.
+
 | Phase | Verified or existing foundation | Remaining deliverables |
 | --- | --- | --- |
 | 0 — Codex readiness | Local environment audit, source/license research, skills inventory, accepted architecture, AGENTS/plans, locked tools and automated CI/test definitions. | Delivered locally. Hosted CI execution and remote protections are not established. |

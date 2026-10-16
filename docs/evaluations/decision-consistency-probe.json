@@ -1,0 +1,42 @@
+{
+  "scope": "offline declared-link falsification only",
+  "network_calls": 0,
+  "production_adoption": "not_justified_by_this_probe",
+  "counterexamples": [
+    {
+      "case": "notification-preferences",
+      "declared_graph": "valid",
+      "semantic_result": "fail",
+      "findings": [
+        "Toggle/default/persistence criteria check settings shown on/off rather than actual digest delivery/suppression. Source traceability and security exception preserved."
+      ]
+    },
+    {
+      "case": "contradictory-deletion",
+      "declared_graph": "valid",
+      "semantic_result": "fail",
+      "findings": [
+        "Alternatives, conditional criteria and risk direction correct; no invented purge/endpoint rule.",
+        "Exact temporal basis/boundary/post-window questions missing; only selection/authority asked."
+      ]
+    },
+    {
+      "case": "conflicting-api",
+      "declared_graph": "valid",
+      "semantic_result": "fail",
+      "findings": [
+        "Draft-A subsequent-request mechanics and applicability of its UI obligation under draft B remain unasked.",
+        "Page transition is supported is circular rather than an observable subsequent result.",
+        "A question about the final page where next_cursor is absent or empty embeds an unsupported termination premise; it is not an implemented rule."
+      ]
+    }
+  ],
+  "evidence_sha256": {
+    "docs/evaluations/reasoning-low-comparison-2026-10-16/semantic-review.json": "1b7818bba5566d572299fcae885568b2fda4a17a72f65dd3c085ba2ec63d08b2",
+    "tests/fixtures/provider-qualification/cases.json": "09872b36f6c95270184bdeb0f18d92a7afba37a6bac2519503839aa0531f5dfc",
+    "tests/fixtures/provider-qualification/acceptance.json": "4518b228d88431c8d6d074a367146f457fef2067638830ef13991b40f8e997cf",
+    "docs/evaluations/reasoning-low-comparison-2026-10-16/notification-preferences.json": "304e79f94af955696e00c8cb7e56539510429bc5e21a35b3cd49939d1f305d29",
+    "docs/evaluations/reasoning-low-comparison-2026-10-16/contradictory-deletion.json": "fe30bdf531ec274f34eb0c6e7f7dd0aa123b41261186a2c7dc2130b8ef137f57",
+    "docs/evaluations/reasoning-low-comparison-2026-10-16/conflicting-api.json": "f6ec4519be07aa275d5c51a48960c27c18f81385fa3c57e5aca1a7253a48e5ae"
+  }
+}

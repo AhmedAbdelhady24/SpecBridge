@@ -23,3 +23,5 @@ Subsequent authorized [no-client-cap retest](../plans/2026-10-16-no-client-cap-r
 Current continuation: [reasoning-enabled comparison](../plans/2026-10-16-reasoning-comparison.md); [phase checkpoint](../plans/roadmap-status-2026-10-16.md) distinguishes delivered foundations from remaining milestones. Historical no-live statements are not current qualification status.
 
 Latest completed scope: [human review correction](../plans/2026-10-16-review-correction.md), verified with browser/backend/static and standalone-package checks. Next resumable work is unfamiliar-engineer correction/handoff acceptance and separate generation/decision-consistency design; current live-semantic acceptance remains open.
+
+Subsequent [offline decision-consistency probe](../plans/2026-10-17-consistency-probe.md) demonstrated that the three preserved semantic failures survive valid declared graphs. Do not adopt a production decision schema as a quality fix on this evidence. Next is an explicitly scoped generation comparison and actual unfamiliar-human acceptance; no additional paid calls are authorized by the probe.
