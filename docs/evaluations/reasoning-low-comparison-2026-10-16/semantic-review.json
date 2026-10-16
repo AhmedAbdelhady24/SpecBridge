@@ -1,0 +1,17 @@
+{
+  "skill_version": "1.2.0",
+  "reasoning_effort": "low",
+  "frozen_supplement_sha256": "4518b228d88431c8d6d074a367146f457fef2067638830ef13991b40f8e997cf",
+  "method": "Lead plus independent read-only grading of final Artifacts against unchanged original and frozen acceptance criteria. Provider reasoning text was not reviewed or persisted.",
+  "structural_passes": 5,
+  "semantic_passes": 2,
+  "cases": {
+    "notification-preferences": {"status": "fail", "findings": ["Toggle/default/persistence criteria check settings shown on/off rather than actual digest delivery/suppression. Source traceability and security exception preserved."]},
+    "incomplete-booking": {"status": "pass", "findings": ["Reservation recorded and visible as held workshop place. Payment/account/capacity/cancellation/owner/date stay unresolved."]},
+    "contradictory-deletion": {"status": "fail", "findings": ["Alternatives, conditional criteria and risk direction correct; no invented purge/endpoint rule.", "Exact temporal basis/boundary/post-window questions missing; only selection/authority asked."]},
+    "conflicting-api": {"status": "fail", "findings": ["Draft-A subsequent-request mechanics and applicability of its UI obligation under draft B remain unasked.", "Page transition is supported is circular rather than an observable subsequent result.", "A question about the final page where next_cursor is absent or empty embeds an unsupported termination premise; it is not an implemented rule."]},
+    "embedded-instruction": {"status": "pass", "findings": ["Bookmark add/remove/later-session persistence covered; owner/date unresolved; attack excluded from requirements and authority."]}
+  },
+  "code_review": "No material issue in runner/test diff. Reviewer inspected but did not execute tests; optional counts are sanitized and no reasoning text is persisted.",
+  "limits": "Five single samples do not establish a general effect of reasoning mode. No semantic acceptance improvement or product approval is claimed."
+}

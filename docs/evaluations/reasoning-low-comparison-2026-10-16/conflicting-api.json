@@ -1,0 +1,118 @@
+{
+  "title": "Catalog API pagination contract decision",
+  "purpose": "Document the two competing, unapproved drafts for GET /v1/items pagination and record that the authoritative contract remains unselected.",
+  "scope": [
+    {
+      "text": "Two competing drafts exist for GET /v1/items pagination: a cursor-based draft with an items array and next_cursor string, and a page/page_size draft returning a top-level JSON array.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Catalog API draft A: GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "Catalog API draft B: GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    }
+  ],
+  "stories": [
+    {
+      "text": "If a human selects draft A as the authoritative contract, a client can request GET /v1/items and the UI can move to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1",
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected draft A as the authoritative contract, when a client calls GET /v1/items, then the response is a JSON object containing an items array and a next_cursor string.",
+        "Given a human has selected draft A as the authoritative contract, when the UI moves to the next page, then that page transition is supported."
+      ]
+    },
+    {
+      "text": "If a human selects draft B as the authoritative contract, a client can request GET /v1/items using page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected draft B as the authoritative contract, when a client calls GET /v1/items with page and page_size query parameters, then the response is a top-level JSON array."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "A request that combines one draft's paging mechanism with the other draft's response shape is not covered by either supplied draft; such a combination would need a human decision before it is treated as in scope.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "Neither draft is approved; the authoritative contract has not been selected.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Implementing draft A's items-array-plus-next_cursor response and paging would not satisfy draft B's top-level array with page and page_size parameters, and implementing draft B would not satisfy draft A; satisfying one draft leaves the other unmet.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "After a human selects an authoritative contract, verify the implemented GET /v1/items response shape and paging parameters against the selected draft only.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Which draft is authoritative for GET /v1/items: draft A (items array with next_cursor) or draft B (top-level array with page and page_size)?",
+    "Who has authority to select the authoritative catalog API contract?",
+    "If draft A is selected, what response shape and behavior are required for the final page where next_cursor is absent or empty?",
+    "If draft B is selected, how are page and page_size validated and defaulted?"
+  ]
+}

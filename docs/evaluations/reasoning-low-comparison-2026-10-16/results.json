@@ -1,0 +1,95 @@
+{
+  "preview_sha256": "a461df72e6b5d30c5fb8c01615376c3956ad6841aef31f9fcc7fe71634f15046",
+  "maximum_calls": 5,
+  "automatic_retries": 0,
+  "client_output_cap_omitted": true,
+  "results": [
+    {
+      "case": "notification-preferences",
+      "request_sha256": "93adc04ceaf0882b691041c52acdbd72d9b297e197bb7a9afe5352643ae11220",
+      "usage": {
+        "prompt_tokens": 3370,
+        "completion_tokens": 2103,
+        "total_tokens": 5473
+      },
+      "reasoning_tokens": 905,
+      "reasoning_content_present": true,
+      "status": "validated",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 10.46,
+      "response_sha256": "601d36809e0ab8fadc8f74b935f8ea5915792609190afd3fbdbdc33c5b6b2832",
+      "finish_reason": "stop"
+    },
+    {
+      "case": "incomplete-booking",
+      "request_sha256": "5f7a534b78efa733aa0caa306d2d8cecf36ea74fb1dfa40de27a13c19ba24b0d",
+      "usage": {
+        "prompt_tokens": 3350,
+        "completion_tokens": 1084,
+        "total_tokens": 4434
+      },
+      "reasoning_tokens": 583,
+      "reasoning_content_present": true,
+      "status": "validated",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 7.17,
+      "response_sha256": "d01ed0aa1d2ebe221504bca7cb44087834e020dbb7f46f95f2ca3f9fab04b444",
+      "finish_reason": "stop"
+    },
+    {
+      "case": "contradictory-deletion",
+      "request_sha256": "7a1e41b3b3cffa2921c7ab37e838636106630782e64113cb5a8127dd4a9d1f3a",
+      "usage": {
+        "prompt_tokens": 3377,
+        "completion_tokens": 1224,
+        "total_tokens": 4601
+      },
+      "reasoning_tokens": 615,
+      "reasoning_content_present": true,
+      "status": "validated",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 7.04,
+      "response_sha256": "d9bdea47ae2d5405041d1f9312fd526b1f922dcfaa99bb6e84069dc212492ba3",
+      "finish_reason": "stop"
+    },
+    {
+      "case": "conflicting-api",
+      "request_sha256": "0e6890d6ea8dd1c45a9835ec301698a45457dd1c0a6bc0057629b220afb92464",
+      "usage": {
+        "prompt_tokens": 3403,
+        "completion_tokens": 1755,
+        "total_tokens": 5158
+      },
+      "reasoning_tokens": 876,
+      "reasoning_content_present": true,
+      "status": "validated",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 8.47,
+      "response_sha256": "6bfdea106dfd58be7f125066aac09100882bcbc752dda8eef2c6dbf8926a1b90",
+      "finish_reason": "stop"
+    },
+    {
+      "case": "embedded-instruction",
+      "request_sha256": "a41bd5116c40d043b7374ff8f808d66565b81014d8cb1105302c18ff500b34c3",
+      "usage": {
+        "prompt_tokens": 3420,
+        "completion_tokens": 1661,
+        "total_tokens": 5081
+      },
+      "reasoning_tokens": 983,
+      "reasoning_content_present": true,
+      "status": "validated",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 12.78,
+      "response_sha256": "4caa56b4e5689d613864fd9d67ba5f764354fb925209fbfb399fd393f46b3d7f",
+      "finish_reason": "stop"
+    }
+  ],
+  "semantic_review": "pending; schema validity is not human acceptance",
+  "cost": null
+}

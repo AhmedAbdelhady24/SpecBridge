@@ -1,0 +1,32 @@
+{
+  "notification-preferences": {
+    "backend_replay": "passed",
+    "source_hashes_unchanged": true,
+    "only_request_body_change": "reasoning_effort none -> low",
+    "client_output_cap_fields": "absent"
+  },
+  "incomplete-booking": {
+    "backend_replay": "passed",
+    "source_hashes_unchanged": true,
+    "only_request_body_change": "reasoning_effort none -> low",
+    "client_output_cap_fields": "absent"
+  },
+  "contradictory-deletion": {
+    "backend_replay": "passed",
+    "source_hashes_unchanged": true,
+    "only_request_body_change": "reasoning_effort none -> low",
+    "client_output_cap_fields": "absent"
+  },
+  "conflicting-api": {
+    "backend_replay": "passed",
+    "source_hashes_unchanged": true,
+    "only_request_body_change": "reasoning_effort none -> low",
+    "client_output_cap_fields": "absent"
+  },
+  "embedded-instruction": {
+    "backend_replay": "passed",
+    "source_hashes_unchanged": true,
+    "only_request_body_change": "reasoning_effort none -> low",
+    "client_output_cap_fields": "absent"
+  }
+}

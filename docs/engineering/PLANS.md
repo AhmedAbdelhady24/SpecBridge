@@ -19,3 +19,5 @@ Keep plans near the size of the work. Add detailed implementation tasks after th
 Latest provider checkpoint: [autonomous qualification](../plans/2026-10-16-autopilot-qualification.md) completed its bounded tests without achieving full live-semantic acceptance. Keep failed evidence and the recorded live-call limit when resuming; do not treat the earlier targeted retest as full qualification.
 
 Subsequent authorized [no-client-cap retest](../plans/2026-10-16-no-client-cap-retest.md) completed five calls; schema passed but semantic acceptance did not. Its single-round authorization is consumed.
+
+Current continuation: [reasoning-enabled comparison](../plans/2026-10-16-reasoning-comparison.md); [phase checkpoint](../plans/roadmap-status-2026-10-16.md) distinguishes delivered foundations from remaining milestones. Historical no-live statements are not current qualification status.

@@ -2,6 +2,8 @@
 
 Subsequent security update: the retained parser advisory described in this original verification record has been fixed. See [the parser security-fix report](parser-security-fix.md) for current dependency checks and new export evidence. Original hashes/results below are retained as historical evidence.
 
+Provider-status update: this is the historical fixture verification record. Later [live qualification](autopilot-qualification.md) and [cap-omission testing](no-client-cap-retest.md) establish real provider calls but not full semantic acceptance. Use the [current phase checkpoint](../plans/roadmap-status-2026-10-16.md) for remaining milestones; statements below about no live calls describe this original verification scope.
+
 The technical vertical slice works locally: feature evidence → runtime skill → structured DEMO draft → persisted requirements/stories → human review → exact package approval → standalone documentation website. **Milestone 1 product qualification remains pending**: no live model generation or unfamiliar-human engineering handoff was performed. The fixture produces generic illustrative recommendations, not source-specific AI analysis. No remote publication occurred.
 
 ## Implementation and boundaries

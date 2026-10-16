@@ -184,6 +184,8 @@ def execute(preview: dict[str, Any], approval: str, output: Path) -> dict[str, A
             "case": case["id"],
             "request_sha256": preview_digest(case["body"]),
             "usage": None,
+            "reasoning_tokens": None,
+            "reasoning_content_present": None,
         }
         try:
             artifact = provider.generate(
@@ -217,7 +219,17 @@ def execute(preview: dict[str, Any], approval: str, output: Path) -> dict[str, A
                         )
                         if type(value := usage.get(key)) is int and value >= 0
                     } or None
+                    details = usage.get("completion_tokens_details")
+                    if isinstance(details, dict):
+                        count = details.get("reasoning_tokens")
+                        if type(count) is int and count >= 0:
+                            record["reasoning_tokens"] = count
                     choice = envelope["choices"][0]
+                    message = choice.get("message", {})
+                    reasoning = message.get("reasoning_content")
+                    record["reasoning_content_present"] = isinstance(
+                        reasoning, str
+                    ) and bool(reasoning)
                     finish = choice.get("finish_reason")
                     record["finish_reason"] = (
                         finish

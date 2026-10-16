@@ -1,0 +1,92 @@
+{
+  "title": "Workshop place reservation",
+  "purpose": "Describe a candidate feature that lets visitors reserve a place in a workshop, with undecided policies recorded as open questions.",
+  "scope": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a visitor, I want to reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a visitor and a workshop, when the visitor submits a reservation for that workshop, then the reservation is recorded for that visitor and workshop.",
+        "Given a submitted reservation, when the visitor checks the reservation, then the visitor is shown as holding a place in that workshop."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "Proposed check: whether a workshop has remaining places, and what a visitor sees when it does not, is undecided.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "We have not decided whether reservations need payment, an account, a capacity limit or cancellation.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "No owner or release date is assigned.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Building the reservation flow before the payment, account, capacity-limit and cancellation decisions are made may require rework, because each undecided policy changes what a reservation must do.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "Proposed verification: confirm that a visitor can submit a reservation for a workshop and that the reservation is recorded for that visitor and workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Do reservations need payment?",
+    "Do reservations require an account?",
+    "Is there a capacity limit on reservations?",
+    "Is cancellation of a reservation supported?",
+    "Who owns this feature?",
+    "What is the release date?"
+  ]
+}

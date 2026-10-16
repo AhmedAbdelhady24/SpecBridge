@@ -1,12 +1,12 @@
 # Bootstrap and first-slice roadmap
 
-Status — 2026-10-16: technical first-slice implementation delivered following design and plan authorization. Local fixture/browser and standalone-package verification exist; final combined-check reporting is lead-owned. Full Milestone 1 semantic, live-provider and unfamiliar-human acceptance remains pending. See [results and limits](../evaluations/first-slice-results.md). See the [detailed implementation plan](2026-10-15-first-slice-implementation.md).
+Status — 2026-10-16: Milestone 0 delivered locally; technical first slice verified. Full Milestone 1 product acceptance remains open. Actual hosted DeepSeek trials exist, but both the no-client-cap and latest reasoning-low trial passed only 2/5 frozen semantic cases; the current task is generation/decision-consistency design review. Five later milestones (2–6) remain, with persistence/UI/security foundations already present. See the [current phase checkpoint](roadmap-status-2026-10-16.md), [qualification evidence](../evaluations/no-client-cap-retest.md), and [detailed first-slice implementation](2026-10-15-first-slice-implementation.md).
 
 ## Outcome and existing state
 
 Start from an empty local directory, build an independent local product, and prove feature idea → PM skill → PRD/stories → human review → portable documentation → local website. See [design](../architecture/first-slice.md), [ADR](../decisions/0001-local-modular-monolith.md), [audit](../engineering/environment-audit.md), and [acceptance](../evaluations/acceptance.md).
 
-The repository now includes FastAPI/SQLite services, generated OpenAPI types, a React/Vite UI, an original runtime handoff skill, and a fixed Astro/Starlight package renderer/template. Python and Node dependencies are locked. The fixture provider is generic deterministic DEMO output; compatible-provider transport is mock-tested, with no live-model quality claim. No real integration write or hosted deployment has been performed. The original environment audit remains historical; recheck Docker availability before any later container work. Upstream noncommercial/unlicensed source remains excluded.
+The repository now includes FastAPI/SQLite services, generated OpenAPI types, a React/Vite UI, an original runtime handoff skill, and a fixed Astro/Starlight package renderer/template. Python and Node dependencies are locked. The fixture provider is generic deterministic DEMO output; compatible-provider transport has mock and live DeepSeek evidence, while full semantic qualification remains open. No real integration write or hosted deployment has been performed. The original environment audit remains historical; recheck Docker availability before any later container work. Upstream noncommercial/unlicensed source remains excluded.
 
 ## Milestones and gates
 
@@ -20,7 +20,7 @@ The repository now includes FastAPI/SQLite services, generated OpenAPI types, a 
 - [x] Obtain implementation-plan authorization; preserve the user's bounded-delegation execution method.
 - [x] Resolve/lock product dependencies and exercise local compatibility checks; consult the results report for audit limitations and final readiness evidence.
 - [x] Implement the technical local handoff slice and fixture-backed automated verification.
-- [ ] Milestone 1 acceptance: validate semantic output, an explicitly authorized live provider, and an unfamiliar-human handoff. Final technical reporting/review is complete.
+- [ ] Milestone 1 acceptance: pass semantic qualification and unfamiliar-human handoff. Authorized live transport checks have run; final technical reporting/review is complete.
 - [ ] Milestone 2: extend persistent project knowledge, retrieval, decisions and artifact versioning beyond the first slice.
 - [ ] Milestone 3: reviewable Git changesets, repository/PR previews, conflict detection and authorized destination support.
 - [ ] Milestone 4: meeting actions, deterministic prioritization, source-grounded status and Jira adapter.
@@ -53,4 +53,4 @@ Use temporary databases/output directories in tests; never delete user projects 
 
 ## Resume here
 
-Finish lead-owned final-review fixes and combined-check reporting, then run the explicitly scoped semantic/live-provider and unfamiliar-human acceptance exercises. Do not request existing design/plan approval again, repeat implemented work, restart research, or reinstall skills. Do not claim full Milestone 1, hosted CI or later milestones from fixture/browser evidence alone.
+Use the [controlled reasoning results](2026-10-16-reasoning-comparison.md) to review generation/decision consistency before another concrete experiment, then perform reviewed-artifact and unfamiliar-human handoff acceptance. Technical final-review fixes and combined reporting are already complete. Do not request existing design/plan approval again, repeat implemented work, restart research, or reinstall skills. Do not claim full Milestone 1, hosted CI or later milestones from fixture/browser evidence alone.

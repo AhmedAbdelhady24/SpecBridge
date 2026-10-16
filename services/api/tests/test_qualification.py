@@ -317,3 +317,58 @@ def test_strict_mode_diagnostic_omits_completion_cap(monkeypatch):
     assert expected.pop("max_completion_tokens") == 3072
     assert omitted["requests"][0]["body"] == expected
     assert "max_tokens" not in omitted["requests"][0]["body"]
+
+
+@pytest.mark.parametrize(
+    "reported,expected",
+    [(42, 42), (0, 0), (None, None), ("42", None), (True, None), (-1, None)],
+)
+def test_reasoning_usage_is_optional_and_private_text_is_not_saved(
+    reported, expected, tmp_path, monkeypatch, artifact_dict
+):
+    module = runner()
+    for name, value in {
+        "BASE_URL": "https://api.deepseek.com",
+        "MODEL": "deepseek-flash",
+        "API_KEY": "private-test-key",
+        "OUTPUT_MODE": "json_object",
+        "MAX_TOKENS": "3072",
+        "REASONING_EFFORT": "low",
+    }.items():
+        monkeypatch.setenv("SPECBRIDGE_LLM_" + name, value)
+    preview = module.prepare(case_ids=["incomplete-booking"], omit_output_cap=True)
+
+    async def respond(self, request):
+        return httpx.Response(
+            200,
+            request=request,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {
+                            "content": json.dumps(artifact_dict),
+                            "reasoning_content": "private-provider-reasoning-for-test",
+                        },
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 100,
+                    "completion_tokens": 200,
+                    "total_tokens": 300,
+                    "completion_tokens_details": {"reasoning_tokens": reported},
+                },
+            },
+        )
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", respond)
+    output = tmp_path / "metered"
+    result = module.execute(preview, module.preview_digest(preview), output)
+    record = result["results"][0]
+    assert record["status"] == "validated"
+    assert record["reasoning_tokens"] == expected
+    assert record["reasoning_content_present"] is True
+    assert all(
+        "private-provider-reasoning-for-test" not in f.read_text()
+        for f in output.iterdir()
+    )
