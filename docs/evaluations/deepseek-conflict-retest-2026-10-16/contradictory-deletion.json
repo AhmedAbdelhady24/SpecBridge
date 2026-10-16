@@ -1,0 +1,105 @@
+{
+  "title": "Deletion behavior for uploaded images (unresolved)",
+  "purpose": "Document two competing stakeholder requests concerning what happens to an uploaded image after its owner selects Delete, without selecting an authoritative policy.",
+  "scope": [
+    {
+      "text": "Privacy stakeholder requests immediate permanent deletion of an uploaded image when its owner selects Delete.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Support stakeholder requests that the same deleted image remain recoverable by its owner for 30 days after Delete. No stakeholder has authority to choose between these requests yet.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Two incompatible deletion behaviors have been requested for the same Delete action and neither has been selected as authoritative.",
+      "source_ids": [
+        "privacy-request",
+        "support-request"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Privacy stakeholder requests immediate permanent deletion of an uploaded image when its owner selects Delete.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "Support stakeholder requests that the same deleted image remain recoverable by its owner for 30 days after Delete.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    }
+  ],
+  "stories": [
+    {
+      "text": "If a human selects the immediate permanent deletion policy, an image owner can select Delete and have the uploaded image permanently deleted immediately.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected the immediate permanent deletion policy, when the image owner selects Delete, then the uploaded image is permanently deleted immediately.",
+        "Given a human has selected the immediate permanent deletion policy, when the image owner subsequently attempts to recover the deleted image, then no recovery path is available."
+      ]
+    },
+    {
+      "text": "If a human selects the recoverability policy, an image owner can select Delete and subsequently recover the uploaded image for 30 days after Delete.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected the recoverability policy, when the image owner selects Delete, then the uploaded image remains recoverable by that owner.",
+        "Given a human has selected the recoverability policy, when the image owner attempts recovery within 30 days after Delete, then the uploaded image can be recovered by that owner."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "The deletion behavior to apply when an owner selects Delete is unresolved; no stakeholder has authority to choose between the requests yet.",
+      "source_ids": [
+        "privacy-request",
+        "support-request"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Implementing immediate permanent deletion would fail the request that the deleted image remain recoverable by its owner for 30 days, while implementing recoverability would fail the request for immediate permanent deletion.",
+      "source_ids": [
+        "privacy-request",
+        "support-request"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [],
+  "open_questions": [
+    "Which deletion behavior should a human select: immediate permanent deletion, or recovery by the owner for 30 days after Delete?",
+    "Who has authority to choose between these requests?"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "preview_sha256": "df83d196ef9bc72bfb94782f15fb4172586942c9df2c2892e7915f3e1a6cfbb3",
+  "maximum_calls": 2,
+  "automatic_retries": 0,
+  "results": [
+    {
+      "case": "contradictory-deletion",
+      "request_sha256": "73ee56ff7c2319c2ea8f05f24e3159bcafe402803b53417e625c1b53de4c68c7",
+      "usage": {
+        "prompt_tokens": 3352,
+        "completion_tokens": 715,
+        "total_tokens": 4067
+      },
+      "status": "validated",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 4.44,
+      "response_sha256": "edb6568ee07fb408252ffdfa92b28b0c69451f9ca35e42767d421449df80ad62",
+      "finish_reason": "stop"
+    },
+    {
+      "case": "conflicting-api",
+      "request_sha256": "62cc4517f62924e6b45fceef7da572899b752de056e141deabe6dece6102f481",
+      "usage": {
+        "prompt_tokens": 3378,
+        "completion_tokens": 1069,
+        "total_tokens": 4447
+      },
+      "status": "validated",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 6.64,
+      "response_sha256": "026d4b2b50616902087b18461852410827031c9599ac1ab98d9af525b81db68f",
+      "finish_reason": "stop"
+    }
+  ],
+  "semantic_review": "pending; schema validity is not human acceptance",
+  "cost": null
+}

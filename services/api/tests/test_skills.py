@@ -73,7 +73,7 @@ def test_reject_bad_metadata(tmp_path, mutation, operation):
         "yaml": ("name: feature-handoff", "name: [broken"),
         "large": ("# Feature handoff", "x" * 131073),
         "name": ("name: feature-handoff", "name: other"),
-        "version": ('version: "1.1.0"', 'version: "9.0.0"'),
+        "version": ('version: "1.2.0"', 'version: "9.0.0"'),
     }
     path.write_text(text.replace(*replacements[mutation]))
     rehash(root)

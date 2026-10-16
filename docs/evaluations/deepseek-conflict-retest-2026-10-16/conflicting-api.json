@@ -1,0 +1,140 @@
+{
+  "title": "Catalog list pagination API decision",
+  "purpose": "Document the unresolved choice between two Catalog API drafts for listing items and the pagination behavior the UI must support, so a human can select the authoritative contract.",
+  "scope": [
+    {
+      "text": "Catalog API draft A: GET /v1/items returns a JSON object with an items array and next_cursor string. UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Catalog API draft B: GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    }
+  ],
+  "stories": [
+    {
+      "text": "If a human selects Catalog API draft A, a client can retrieve a catalog page as a JSON object containing an items array and a next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected Catalog API draft A, when a client sends GET /v1/items, then the response body is a JSON object.",
+        "Given a human has selected Catalog API draft A, when a client sends GET /v1/items, then the response body contains an items array.",
+        "Given a human has selected Catalog API draft A, when a client sends GET /v1/items, then the response body contains a next_cursor string."
+      ]
+    },
+    {
+      "text": "If a human selects Catalog API draft A, a user can move from the current catalog page to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected Catalog API draft A, when the response contains a next_cursor value for the current page, then the interface provides a control to move to the next page.",
+        "Given a human has selected Catalog API draft A, when the user activates the control to move to the next page, then the interface issues a follow-up GET /v1/items request that advances past the current page as specified by the selected draft A contract."
+      ]
+    },
+    {
+      "text": "If a human selects Catalog API draft B, a client can retrieve a catalog page as a top-level JSON array using page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-3",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected Catalog API draft B, when a client sends GET /v1/items with page and page_size query parameters, then the response body is a top-level JSON array.",
+        "Given a human has selected Catalog API draft B, when a client sends GET /v1/items, then the request accepts page and page_size query parameters."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "Requesting a next_cursor value that the selected contract does not recognize is a proposed error-handling case that the selected draft does not define.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "Neither draft is approved; the authoritative contract has not been selected.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Selecting Catalog API draft A would leave the top-level JSON array plus page and page_size request unmet; selecting Catalog API draft B would leave the items array with next_cursor response unmet.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "Proposed verification: inspect a GET /v1/items response against whichever draft a human selects and confirm the response shape and parameters match that selected contract.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Which Catalog API draft should a human select as the authoritative contract, draft A or draft B?",
+    "Who has authority to select the authoritative contract?",
+    "Does the UI requirement to move to the next page also apply if Catalog API draft B is selected, and if so how is next-page navigation expressed under draft B?"
+  ]
+}

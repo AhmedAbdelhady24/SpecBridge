@@ -518,3 +518,94 @@ def test_request_schema_excludes_self_verification_and_unknown_requirements():
         )
 
     assert generate(provider(handler)).requirements
+
+
+@pytest.mark.parametrize("mode", ["json_schema", "json_object"])
+def test_request_contains_valid_decision_conditional_conflict_example(mode):
+    import re
+
+    from specbridge.models import Artifact, validate_handoff
+
+    def handler(request):
+        instructions = json.loads(request.content)["messages"][0]["content"]
+        examples = [
+            json.loads(block)
+            for block in re.findall(r"```json\n(.*?)\n```", instructions, re.DOTALL)
+        ]
+        artifacts = [value for value in examples if "requirements" in value]
+        assert len(artifacts) == 1, (
+            "A complete conflict Artifact example must be injected"
+        )
+        example = Artifact.model_validate(artifacts[0])
+        sources = [
+            Source(
+                id="example-immediate",
+                project_id="example",
+                text="Settings changes take effect immediately.",
+                digest="example",
+            ),
+            Source(
+                id="example-approval",
+                project_id="example",
+                text="Settings changes take effect only after an administrator approves them.",
+                digest="example",
+            ),
+        ]
+        validate_handoff(example, sources)
+        assert len(example.requirements) == len(example.stories) == 2
+        assert all(story.kind == "recommendation" for story in example.stories)
+        assert all(
+            "selected" in criterion
+            for story in example.stories
+            for criterion in story.acceptance_criteria
+        )
+        return httpx.Response(
+            200, json={"choices": [{"message": {"content": json.dumps(output())}}]}
+        )
+
+    assert generate(provider(handler, output_mode=mode)).requirements
+
+
+@pytest.mark.parametrize("case_id", ["contradictory-deletion", "conflicting-api"])
+def test_saved_conflict_failures_remain_rejected_and_explicit_corrections_pass(case_id):
+    from pydantic import ValidationError
+    from specbridge.models import Artifact, validate_handoff
+
+    root = Path(__file__).resolve().parents[3]
+    cases = json.loads(
+        (root / "tests/fixtures/provider-qualification/cases.json").read_text()
+    )
+    case = next(c for c in cases if c["id"] == case_id)
+    sources = [
+        Source(**s, project_id="synthetic", digest="synthetic") for s in case["sources"]
+    ]
+    path = (
+        root
+        / "docs/evaluations/deepseek-out-of-sample-2026-10-16"
+        / (case_id + ".rejected.txt")
+    )
+    original = path.read_bytes()
+    candidate = json.loads(original)
+    with pytest.raises(ValidationError) as error:
+        Artifact.model_validate(candidate)
+    assert all(
+        e["type"] == "missing" and e["loc"][0] == "stories" and e["loc"][-1] == "id"
+        for e in error.value.errors()
+    )
+
+    # Explicit, lead-authored in-memory correction, never a silent provider repair.
+    for i, story in enumerate(candidate["stories"], start=1):
+        story["id"] = f"STORY-{i}"
+    with_ids = Artifact.model_validate(candidate)
+    if case_id == "conflicting-api":
+        with pytest.raises(ValueError, match="excerpt"):
+            validate_handoff(with_ids, sources)
+        candidate["requirements"][1]["text"] = (
+            "UI must support moving to the next page."
+        )
+        candidate["dependencies"][0]["text"] = (
+            "the authoritative contract has not been selected."
+        )
+        candidate["dependencies"][1]["text"] = "Neither draft is approved;"
+    validate_handoff(Artifact.model_validate(candidate), sources)
+    assert path.read_bytes() == original

@@ -1,0 +1,21 @@
+{
+  "checks": {
+    "contradictory-deletion": {
+      "artifact_and_handoff_policy": "passed",
+      "source_hashes_unchanged": true,
+      "story_ids_present_and_unique": true,
+      "every_requirement_linked": true,
+      "all_alternative_criteria_have_explicit_selection_precondition": true,
+      "lead_and_independent_review": "original narrow criteria appear satisfied; handoff ambiguities remain"
+    },
+    "conflicting-api": {
+      "artifact_and_handoff_policy": "passed",
+      "source_hashes_unchanged": true,
+      "story_ids_present_and_unique": true,
+      "every_requirement_linked": true,
+      "all_alternative_criteria_have_explicit_selection_precondition": true,
+      "lead_and_independent_review": "original narrow criteria appear satisfied; handoff ambiguities remain"
+    }
+  },
+  "limits": "Checks are specific to the saved samples, not a semantic validator or human acceptance. No paid calls during this replay."
+}

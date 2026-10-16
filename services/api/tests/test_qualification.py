@@ -168,3 +168,46 @@ def test_secret_response_is_not_saved_as_artifact(tmp_path, monkeypatch, artifac
     assert all(r["status"] == "secret_in_response" for r in result["results"])
     assert sorted(p.name for p in output.iterdir()) == ["preview.json", "results.json"]
     assert "private-test-key" not in (output / "results.json").read_text()
+
+
+def test_selected_cases_bound_live_calls_and_reject_changed_selection(
+    tmp_path, monkeypatch
+):
+    module = runner()
+    for name, value in {
+        "BASE_URL": "https://api.deepseek.com",
+        "MODEL": "deepseek-flash",
+        "API_KEY": "private-test-key",
+        "OUTPUT_MODE": "json_object",
+        "MAX_TOKENS": "3072",
+    }.items():
+        monkeypatch.setenv("SPECBRIDGE_LLM_" + name, value)
+    selected = ["contradictory-deletion", "conflicting-api"]
+    preview = module.prepare(case_ids=selected)
+    assert [c["id"] for c in preview["requests"]] == selected
+    assert preview["maximum_calls"] == 2
+    calls = []
+
+    async def fail(self, request):
+        calls.append(request)
+        return httpx.Response(500, request=request)
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", fail)
+    module.execute(preview, module.preview_digest(preview), tmp_path / "selected")
+    assert len(calls) == 2
+    changed = module.prepare(case_ids=["notification-preferences"])
+    with pytest.raises(ValueError, match="preview_mismatch"):
+        module.execute(changed, module.preview_digest(preview), tmp_path / "changed")
+    assert len(calls) == 2
+
+
+@pytest.mark.parametrize(
+    "selection", [[], ["missing"], ["conflicting-api", "conflicting-api"]]
+)
+def test_invalid_case_selection_is_rejected_before_provider_configuration(
+    selection, monkeypatch
+):
+    module = runner()
+    monkeypatch.delenv("SPECBRIDGE_LLM_API_KEY", raising=False)
+    with pytest.raises(ValueError, match="invalid_case_selection"):
+        module.prepare(case_ids=selection)

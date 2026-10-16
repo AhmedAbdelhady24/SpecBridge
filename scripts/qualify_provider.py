@@ -67,10 +67,20 @@ def active_skill():
     )
 
 
-def prepare() -> dict[str, Any]:
+def prepare(*, case_ids: list[str] | None = None) -> dict[str, Any]:
+    cases = json.loads(PACK.read_text())
+    if case_ids is not None:
+        available = {case["id"]: case for case in cases}
+        if (
+            not case_ids
+            or len(set(case_ids)) != len(case_ids)
+            or any(case_id not in available for case_id in case_ids)
+        ):
+            raise ValueError("invalid_case_selection")
+        cases = [available[case_id] for case_id in case_ids]
     skill = active_skill()
     requests = []
-    for case in json.loads(PACK.read_text()):
+    for case in cases:
         provider = Observation(preview_only=True, **provider_options())
         sources = [source(item) for item in case["sources"]]
         try:
@@ -121,7 +131,10 @@ class BoundTransport(httpx.AsyncHTTPTransport):
 def execute(preview: dict[str, Any], approval: str, output: Path) -> dict[str, Any]:
     if preview_digest(preview) != approval:
         raise ValueError("preview_mismatch")
-    if preview_digest(prepare()) != approval:
+    if (
+        preview_digest(prepare(case_ids=[case["id"] for case in preview["requests"]]))
+        != approval
+    ):
         raise ValueError("preview_mismatch")
     output.mkdir(parents=True, exist_ok=False)
     (output / "preview.json").write_text(json.dumps(preview, indent=2) + "\n")
@@ -196,10 +209,16 @@ def execute(preview: dict[str, Any], approval: str, output: Path) -> dict[str, A
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--case",
+        action="append",
+        dest="case_ids",
+        help="Select a pack case; repeat to select multiple",
+    )
     parser.add_argument("--execute", metavar="PREVIEW_SHA256")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    preview = prepare()
+    preview = prepare(case_ids=args.case_ids)
     if args.execute:
         if args.output is None:
             parser.error("--execute requires a new --output directory")
