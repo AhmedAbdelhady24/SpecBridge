@@ -1,0 +1,107 @@
+{
+  "title": "Workshop reservation by visitors",
+  "purpose": "Document the request to let visitors reserve a place in a workshop, along with the unresolved policy decisions that block a complete handoff.",
+  "scope": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Whether reservations require payment, an account, a capacity limit or cancellation handling is not yet decided, so these remain candidate decisions rather than settled scope.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a visitor, I want to reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given an existing workshop, when a visitor completes a reservation for a place in that workshop, then that reservation is recorded as a place held in that workshop for that visitor.",
+        "Given an existing workshop, when a visitor views that workshop after reserving, then the visitor can see that they hold a reserved place in it."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "Whether a reservation must be refused when a workshop has no remaining places depends on the undecided capacity limit.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "Whether a reserved place can be cancelled, and by whom, depends on the undecided cancellation policy.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "Reservations must be tied to a specific workshop offering, but no workshop catalogue or scheduling source has been given.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "No owner or release date is assigned.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Payment, account, capacity and cancellation policies are all undecided; implementing reservations without them may require rework once those decisions are made.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "Verify that a visitor who completes a reservation for a workshop place subsequently appears as holding a reserved place in that workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Do reservations require payment, and if so, when is payment taken?",
+    "Do reservations require a visitor account, or can anonymous visitors reserve?",
+    "Is there a capacity limit per workshop, and what should happen when it is reached?",
+    "Can a reservation be cancelled, and if so, who may cancel it and by when?",
+    "Which workshop offerings are reservable, and where does workshop data come from?",
+    "Who owns this feature, and what release date applies?",
+    "Does a reservation need confirmation or notification to the visitor?"
+  ]
+}

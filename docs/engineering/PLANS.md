@@ -15,3 +15,5 @@ Each plan records:
 Use `proposed`, `approved`, `in progress`, `verified`, or `blocked by <specific decision>` precisely. Never check off an implementation milestone because files exist. Record human approvals with their scope; an architectural approval is not authorization for an external write.
 
 Keep plans near the size of the work. Add detailed implementation tasks after the design is approved; do not invent line numbers in nonexistent files. Update the same plan when scope changes and rewrite stale instructions. Every handoff must be reproducible without this conversation.
+
+Latest provider checkpoint: [autonomous qualification](../plans/2026-10-16-autopilot-qualification.md) completed its bounded tests without achieving full live-semantic acceptance. Keep failed evidence and the recorded live-call limit when resuming; do not treat the earlier targeted retest as full qualification.

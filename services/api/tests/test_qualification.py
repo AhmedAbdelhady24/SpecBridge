@@ -211,3 +211,45 @@ def test_invalid_case_selection_is_rejected_before_provider_configuration(
     monkeypatch.delenv("SPECBRIDGE_LLM_API_KEY", raising=False)
     with pytest.raises(ValueError, match="invalid_case_selection"):
         module.prepare(case_ids=selection)
+
+
+def test_saved_autopilot_uncovered_default_is_rejected_without_repair():
+    from specbridge.models import Artifact, Source, validate_handoff
+    from specbridge.providers import CompatibleProvider, ProviderFailure
+    from specbridge.skills import SkillRegistry
+
+    folder = ROOT / "docs/evaluations/autopilot-qualification-2026-10-16/round-3"
+    raw = (folder / "notification-preferences.rejected.txt").read_text()
+    preview = json.loads((folder / "preview.json").read_text())
+    case = next(c for c in preview["requests"] if c["id"] == "notification-preferences")
+    sources = [
+        Source(**s, project_id="synthetic", digest="synthetic") for s in case["sources"]
+    ]
+    artifact = Artifact.model_validate_json(raw)
+    assert {r.id for r in artifact.requirements} - {
+        r for story in artifact.stories for r in story.requirement_ids
+    } == {"REQ-4"}
+    with pytest.raises(ValueError, match="explicit story link"):
+        validate_handoff(artifact, sources)
+    calls = []
+
+    def respond(request):
+        calls.append(request)
+        return httpx.Response(
+            200,
+            json={"choices": [{"finish_reason": "stop", "message": {"content": raw}}]},
+        )
+
+    provider = CompatibleProvider(
+        base_url="https://model.example/v1",
+        model="test",
+        api_key="SECRET",
+        transport=httpx.MockTransport(respond),
+    )
+    skill = SkillRegistry(ROOT / "skills/runtime").load(
+        "feature-handoff", with_output_contract=True
+    )
+    with pytest.raises(ProviderFailure, match="invalid_artifact"):
+        provider.generate(skill=skill, sources=sources)
+    assert len(calls) == 1
+    assert (folder / "notification-preferences.rejected.txt").read_text() == raw

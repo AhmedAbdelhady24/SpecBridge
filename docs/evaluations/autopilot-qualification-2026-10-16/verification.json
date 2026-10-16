@@ -1,0 +1,83 @@
+{
+  "status": "repository_checks_passed; live_semantic_acceptance_failed",
+  "backend": {
+    "command": ".venv/bin/python -m pytest -q",
+    "tests_passed": 145,
+    "subtests_passed": 144,
+    "duration_seconds": 1.22
+  },
+  "ruff_lint": "passed",
+  "ruff_format": {
+    "status": "passed",
+    "files": 25
+  },
+  "mypy": {
+    "status": "passed",
+    "files": 10
+  },
+  "active_skill": {
+    "version": "1.2.0",
+    "validation": "Skill is valid!",
+    "status": "restored committed snapshot; not full-pack qualified"
+  },
+  "contracts": {
+    "export_openapi": "passed",
+    "generate_types": "passed",
+    "generated_diff": "none"
+  },
+  "web": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "unit_tests_passed": 2,
+    "build": "passed",
+    "vite_modules": 18,
+    "node": "22.23.1"
+  },
+  "fixture_e2e": {
+    "status": "passed",
+    "tests": 9,
+    "duration_seconds": 5.3,
+    "initial_sandbox_bind": "EPERM; approved escalated rerun passed"
+  },
+  "standalone_fixture_handoff": {
+    "status": "passed",
+    "duration_seconds": 15.99,
+    "locked_install": "passed",
+    "build": "passed",
+    "dev": "passed",
+    "preview": "passed",
+    "browser_navigation": "passed",
+    "remote_requests": 0,
+    "unfamiliar_human_acceptance": "not performed"
+  },
+  "audits": {
+    "python": {
+      "dependencies": 57,
+      "known_vulnerabilities": 0
+    },
+    "npm_root": {
+      "advisories": 0
+    },
+    "npm_web": {
+      "advisories": 0
+    },
+    "npm_docs": {
+      "advisories": 0
+    }
+  },
+  "live_calls": {
+    "this_run": 15,
+    "project_total": 25,
+    "automatic_retries": 0,
+    "max_output_tokens_each": 3072,
+    "input_tokens": 54805,
+    "output_tokens": 11710,
+    "total_tokens": 66515,
+    "summed_duration_seconds": 59.95,
+    "cost": null
+  },
+  "live_qualification": "failed; no complete passing round; no further live call made",
+  "artifact_approval": "none",
+  "remote_publication": "none",
+  "source_or_output_overwrite": "none"
+}

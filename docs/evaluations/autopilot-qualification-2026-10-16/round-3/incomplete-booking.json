@@ -1,0 +1,60 @@
+{
+  "title": "Workshop reservation capability",
+  "purpose": "Document a proposed capability for visitors to reserve a place in a workshop, together with the decisions still unresolved in the supplied source.",
+  "scope": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a visitor, I want to reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given an existing workshop, when a visitor completes a reservation for that workshop, then a place in that workshop is reserved for that visitor."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "We have not decided whether reservations need payment, an account, a capacity limit or cancellation.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [],
+  "success_metrics": [],
+  "open_questions": [
+    "Do reservations require payment?",
+    "Do reservations require an account?",
+    "Is there a capacity limit on workshop reservations, and if so what is it and how is it enforced?",
+    "Are reservations cancellable, and if so under what conditions?",
+    "Who is the owner of this feature?",
+    "What is the release date for this feature?"
+  ]
+}

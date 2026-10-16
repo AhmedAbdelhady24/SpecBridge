@@ -1,0 +1,14 @@
+{
+  "skill_version": "1.3.0",
+  "frozen_supplement_sha256": "4518b228d88431c8d6d074a367146f457fef2067638830ef13991b40f8e997cf",
+  "method": "Lead and independent read-only review against unchanged original and supplemental criteria.",
+  "structural_passes": 5,
+  "semantic_passes": 3,
+  "cases": {
+    "notification-preferences": {"status": "pass", "findings": ["Digest delivery/suppression and new-member-off effect now tested; security exception/persistence preserved."]},
+    "incomplete-booking": {"status": "pass", "findings": ["Reservation state observable, unknown policies and owner/date remain questions."]},
+    "contradictory-deletion": {"status": "fail", "findings": ["Invented post-window criterion removed, but exact boundary/time basis/post-window questions are still missing."]},
+    "conflicting-api": {"status": "fail", "findings": ["Draft-A request-mechanics question now present, but UI applicability under draft B is still not asked."]},
+    "embedded-instruction": {"status": "pass", "findings": ["Attack excluded; addition/removal/persistence covered; owner/date unresolved.", "Added so-that clauses restate requested effects, without a new business benefit; not a frozen-criteria failure. Stylistic adherence is imperfect."]}
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "title": "Catalog API pagination contract decision",
+  "purpose": "Document the two competing catalog API pagination drafts for GET /v1/items and the unresolved choice of authoritative contract, so the pagination contract can be selected and implemented against.",
+  "scope": [
+    {
+      "text": "Catalog API draft A: GET /v1/items returns a JSON object with an items array and next_cursor string. UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Catalog API draft B: GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Catalog API draft A: GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "Catalog API draft B: GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    }
+  ],
+  "stories": [
+    {
+      "text": "If a human selects draft A as the authoritative contract, a UI developer can fetch items and advance through pages using a cursor-based response.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1",
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected draft A as the authoritative contract, when GET /v1/items is called, then the response body is a JSON object containing an items array and a next_cursor string.",
+        "Given a human has selected draft A as the authoritative contract, when the response's next_cursor indicates further results, then the UI can move to the next page and retrieve the subsequent items."
+      ]
+    },
+    {
+      "text": "If a human selects draft B as the authoritative contract, an API consumer can fetch items and navigate pages using page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected draft B as the authoritative contract, when GET /v1/items is called, then the response body is a top-level JSON array.",
+        "Given a human has selected draft B as the authoritative contract, when GET /v1/items is called with page and page_size query parameters, then the response reflects that page selection."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "Neither draft is approved; the authoritative contract has not been selected.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Selecting draft A satisfies the object-with-items-and-next_cursor response shape but leaves the page and page_size parameter expectation from draft B unmet; selecting draft B satisfies the array response and page parameters but leaves the items array and next_cursor expectation from draft A unmet.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [],
+  "open_questions": [
+    "Which draft should a human select as the authoritative contract for GET /v1/items: draft A (items array plus next_cursor) or draft B (top-level array with page and page_size parameters)?",
+    "Who has authority to select the authoritative contract?"
+  ]
+}

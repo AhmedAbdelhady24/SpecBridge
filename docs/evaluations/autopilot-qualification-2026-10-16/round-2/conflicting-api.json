@@ -1,0 +1,101 @@
+{
+  "title": "Catalog API pagination contract",
+  "purpose": "Document the two competing catalog API pagination drafts and the resulting unresolved contract so a human can select the authoritative version before implementation.",
+  "scope": [
+    {
+      "text": "The catalog API has two competing pagination drafts, and the authoritative contract has not been selected.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    }
+  ],
+  "stories": [
+    {
+      "text": "If a human selects draft A as the authoritative catalog API contract, a UI consumer can request the first items page and then move to the next page using the returned next_cursor.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1",
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected draft A as the authoritative contract, when a UI consumer calls GET /v1/items, then the response is a JSON object whose items array contains catalog items and whose next_cursor value is a string.",
+        "Given a human has selected draft A as the authoritative contract and the response provides a next_cursor value, when the UI consumer moves to the next page, then the UI requests and presents the subsequent page of catalog items."
+      ]
+    },
+    {
+      "text": "If a human selects draft B as the authoritative catalog API contract, a UI consumer can request catalog items by page using page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected draft B as the authoritative contract, when a UI consumer calls GET /v1/items with page and page_size query parameters, then the response is a top-level JSON array of catalog items corresponding to the requested page."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "The authoritative catalog API contract has not been selected between draft A and draft B.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Implementing draft A's object-with-next_cursor response would not satisfy draft B's top-level array and page/page_size request shape, and implementing draft B would not satisfy draft A's response shape and next_cursor-based paging.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [],
+  "open_questions": [
+    "Which catalog API draft is authoritative: draft A or draft B?",
+    "Who has authority to select the authoritative catalog API contract?",
+    "If draft A is selected, how does a client make the subsequent request after receiving a next_cursor value?",
+    "If draft B is selected, what are the default and maximum values for page and page_size?",
+    "If draft A is selected, does the request carry any pagination parameter, or is the first request issued without one?"
+  ]
+}

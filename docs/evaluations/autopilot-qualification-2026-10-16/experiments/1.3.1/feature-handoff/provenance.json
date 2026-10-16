@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "version": "1.3.1",
+  "authorship": "Original SpecBridge runtime guidance authored for this project. No third-party skill text or code copied.",
+  "license_observation": "Original project content; no separate distribution license is asserted. Upstream reference skills were reviewed only, not imported.",
+  "rationale": "Reviewed reusable skills did not fit the strict Artifact output, source traceability and data-only runtime distribution boundaries.",
+  "tool_allowlist": [],
+  "files": {
+    "SKILL.md": "44a7718038c337aff8c4a888455d708018ba3f6d1bdf7f1ac91f0681291569cc",
+    "references/output-contract.md": "e5a38d883112fd24eeb4fa942d5d75086bcab3f21167f737a0b853ad00a9b18b"
+  }
+}

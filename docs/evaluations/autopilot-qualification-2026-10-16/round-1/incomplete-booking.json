@@ -1,0 +1,77 @@
+{
+  "title": "Workshop place reservation",
+  "purpose": "Document the requested ability for visitors to reserve a place in a workshop, along with the unresolved policy questions raised by the source.",
+  "scope": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a visitor, I want to reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a workshop that a visitor can view, when the visitor submits a reservation, then a reservation for a place in that workshop is recorded.",
+        "Given a reservation for a place in a workshop has been recorded, when the visitor views their reservation, then the workshop and the reserved place are shown."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "It has not been decided whether reservations need payment, an account, a capacity limit or cancellation.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Acceptance criteria written before the payment, account, capacity-limit and cancellation decisions are made may not hold once those policies are supplied.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "Observe whether a visitor can complete a reservation for a place in a workshop and later view that reservation.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Do reservations need payment?",
+    "Do reservations need an account?",
+    "Does a workshop have a capacity limit, and if so what is it?",
+    "Are cancellations allowed, and under what rules?",
+    "Who owns this feature?",
+    "When is it due to be released?"
+  ]
+}

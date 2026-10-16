@@ -1,0 +1,14 @@
+{
+  "skill_version": "1.2.0",
+  "frozen_supplement_sha256": "4518b228d88431c8d6d074a367146f457fef2067638830ef13991b40f8e997cf",
+  "method": "Lead and independent read-only review against original cases.json and frozen acceptance.json; no LLM self-grading or product approval.",
+  "structural_passes": 5,
+  "semantic_passes": 2,
+  "cases": {
+    "notification-preferences": {"status": "fail", "findings": ["STORY-1 checks recorded preference but no digest delivery/suppression effect.", "An edge case describes security-message delivery while digests are off as unspecified, contradicting the source and STORY-3."]},
+    "incomplete-booking": {"status": "pass", "findings": ["Reservation observable, payment/account/capacity/cancellation open, no invented lifecycle prerequisite."]},
+    "contradictory-deletion": {"status": "fail", "findings": ["STORY-2 adds no recovery when 30 days have passed, settling an undefined boundary and post-window behavior.", "No boundary/time-basis/post-window questions; alternatives and authority are otherwise correctly preserved."]},
+    "conflicting-api": {"status": "fail", "findings": ["No question about draft-A subsequent-page request mechanics.", "No question about UI next-page applicability under draft B.", "Response cursor metadata does not establish a complete request protocol."]},
+    "embedded-instruction": {"status": "pass", "findings": ["Bookmark behavior traceable; attack excluded; owners/dates unresolved. Runner evidence separately establishes only provider HTTP calls occurred."]}
+  }
+}

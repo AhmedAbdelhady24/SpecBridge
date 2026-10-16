@@ -1,0 +1,162 @@
+{
+  "title": "Catalog API contract decision for paginated item retrieval",
+  "purpose": "Document the two competing Catalog API pagination drafts, the resulting unresolved contract decision, and the proposed handoff stories so a human can choose an authoritative contract before implementation.",
+  "scope": [
+    {
+      "text": "The feature under consideration is retrieval of catalog items from GET /v1/items.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "Two draft response shapes are in evidence: a draft returning a JSON object with an items array and next_cursor string, and a draft returning a top-level JSON array with page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "Neither draft is approved; the authoritative contract has not been selected.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    }
+  ],
+  "stories": [
+    {
+      "text": "If a human selects draft A as the authoritative contract, a UI consumer can request GET /v1/items and move to the next page using the returned cursor.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1",
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected draft A as the authoritative contract, when GET /v1/items is called, then the response body is a JSON object containing an items array.",
+        "Given a human has selected draft A as the authoritative contract, when GET /v1/items is called, then the response body contains a next_cursor string.",
+        "Given a human has selected draft A as the authoritative contract, when the UI has a non-empty next cursor and the user moves to the next page, then the UI requests the page identified by that cursor and displays the returned items."
+      ]
+    },
+    {
+      "text": "If a human selects draft B as the authoritative contract, an API consumer can request GET /v1/items with page and page_size and receive the requested page of catalog items.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected draft B as the authoritative contract, when GET /v1/items is called, then the response body is a top-level JSON array.",
+        "Given a human has selected draft B as the authoritative contract, when GET /v1/items is called with page and page_size query parameters, then the returned items correspond to the requested page at the requested page size."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "Draft A returns a next_cursor string while draft B returns a top-level JSON array; a client cannot satisfy both response shapes simultaneously.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "A next page may or may not exist; whether an end-of-results condition is represented, and how, is not supplied.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "Whether a first page or default page size is required for draft B, and what a caller sends to obtain it, is not supplied.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "Implementation depends on a human selecting which draft is the authoritative contract.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "assumption"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Selecting draft A would fail the draft B response shape and query parameter request; selecting draft B would fail the draft A response shape and next-page cursor request.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "Implementing against an unselected draft risks rework once the authoritative contract is chosen.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "Verification could check that, for the selected contract, a request to GET /v1/items returns the selected draft's response shape and that following the selected draft's pagination mechanism yields the next set of catalog items.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Which draft is the authoritative contract for GET /v1/items: draft A or draft B?",
+    "Who has authority to select the authoritative contract?",
+    "If draft A is selected, does the draft B obligation to accept page and page_size query parameters still apply?",
+    "If draft B is selected, does the draft A obligation for the UI to support moving to the next page still apply?",
+    "If draft A is selected, how does a client supply the value of next_cursor from a previous response in the next request?",
+    "If draft A is selected, how is the end of results indicated when no next page exists, and what does next_cursor contain in that case?",
+    "If draft A is selected, is the cursor an opaque value, and does the contract define its validity window or ordering basis?",
+    "If draft B is selected, are page and page_size required or optional, what are their defaults, what is the numbering basis of page (for example zero- or one-based), and how does a caller detect that no further pages exist?"
+  ]
+}

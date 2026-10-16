@@ -1,0 +1,95 @@
+{
+  "title": "Deleted image retention decision",
+  "purpose": "Document the unresolved conflict over what happens to an uploaded image after its owner selects Delete, and capture the mechanics that remain undecided.",
+  "scope": [
+    {
+      "text": "Two competing requests exist for the behavior after an owner selects Delete on an uploaded image: immediate permanent deletion, or retention with 30-day owner recovery. No stakeholder has authority to choose between these requests yet.",
+      "source_ids": [
+        "privacy-request",
+        "support-request"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Privacy stakeholder requests immediate permanent deletion of an uploaded image when its owner selects Delete.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "Support stakeholder requests that the same deleted image remain recoverable by its owner for 30 days after Delete.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    }
+  ],
+  "stories": [
+    {
+      "text": "If a human selects the immediate-deletion policy, an image owner can delete an uploaded image so that it is permanently deleted immediately.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected the immediate-deletion policy, when an owner selects Delete on an uploaded image, then the image is permanently deleted immediately.",
+        "Given a human has selected the immediate-deletion policy, when an owner selects Delete on an uploaded image, then the image is not recoverable by its owner afterward."
+      ]
+    },
+    {
+      "text": "If a human selects the 30-day recovery policy, an image owner can delete an uploaded image while retaining the ability to recover it for 30 days after Delete.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected the 30-day recovery policy, when an owner selects Delete on an uploaded image, then the image remains recoverable by its owner for 30 days after Delete.",
+        "Given a human has selected the 30-day recovery policy, when the owner requests recovery of the image 30 days after Delete, then the image is returned to the owner."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "Which policy applies to an image after its owner selects Delete is unresolved, and no stakeholder has authority to choose between these requests yet.",
+      "source_ids": [
+        "privacy-request",
+        "support-request"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Immediate permanent deletion would fail the support request that the image remain recoverable by its owner for 30 days; 30-day owner recovery would fail the privacy request for immediate permanent deletion.",
+      "source_ids": [
+        "privacy-request",
+        "support-request"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [],
+  "open_questions": [
+    "Which policy should a human select: immediate permanent deletion or 30-day owner recovery after Delete?",
+    "Who has authority to select the policy between these requests?",
+    "Is the 30-day recovery period measured from the moment Delete is selected, and what is the exact time basis (for example, calendar days or 24-hour periods)?",
+    "Is the endpoint of the 30-day recovery period inclusive or exclusive?",
+    "What behavior is required for the image after the 30-day recovery period ends (for example, permanent deletion), given that neither request specifies it?",
+    "Does the immediate-deletion request's obligation still apply if the 30-day recovery request is selected, and does the 30-day recovery obligation still apply if the immediate-deletion request is selected?"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "notification-preferences": {
+    "backend_replay": "validated",
+    "uncovered_requirement_ids": []
+  },
+  "incomplete-booking": {
+    "backend_replay": "validated",
+    "uncovered_requirement_ids": []
+  },
+  "contradictory-deletion": {
+    "backend_replay": "validated",
+    "uncovered_requirement_ids": []
+  },
+  "conflicting-api": {
+    "backend_replay": "validated",
+    "uncovered_requirement_ids": []
+  },
+  "embedded-instruction": {
+    "backend_replay": "validated",
+    "uncovered_requirement_ids": []
+  }
+}

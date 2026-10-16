@@ -1,0 +1,188 @@
+{
+  "title": "Weekly email digest notification setting",
+  "purpose": "Document the requested behavior for a member-controlled weekly email digest setting, including its persistence and its relationship to account-security messages.",
+  "scope": [
+    {
+      "text": "Members can switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "The setting must persist after sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Switching digests off does not disable account-security messages.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "A newly created member starts with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Members can switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "The setting must persist after sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "Switching digests off does not disable account-security messages.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    },
+    {
+      "text": "A newly created member starts with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-4"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a member, I want to switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a member is in notification settings, when the member switches weekly email digests on, then the weekly digest setting shows as on.",
+        "Given a member has switched weekly email digests on, when a weekly digest cycle occurs, then the member receives the weekly email digest.",
+        "Given a member is in notification settings, when the member switches weekly email digests off, then the weekly digest setting shows as off.",
+        "Given a member has switched weekly email digests off, when a weekly digest cycle occurs, then the member does not receive the weekly email digest."
+      ]
+    },
+    {
+      "text": "As a member, I want my weekly digest preference to remain in effect across sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a member has switched weekly email digests on and then signs out, when the member signs in again, then weekly email digests are still on.",
+        "Given a member has switched weekly email digests off and then signs out, when the member signs in again, then weekly email digests are still off."
+      ]
+    },
+    {
+      "text": "As a member, I want switching weekly digests off to leave account-security messages enabled.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-3",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Given a member has switched weekly email digests off, when an account-security message is generated, then that account-security message is still sent to the member."
+      ]
+    },
+    {
+      "text": "As a new member, I want my account to start with weekly email digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-4",
+      "requirement_ids": [
+        "REQ-4"
+      ],
+      "acceptance_criteria": [
+        "Given a newly created member account, when the member views notification settings before making any change, then weekly email digests show as off.",
+        "Given a newly created member account that has not switched weekly email digests on, when a weekly digest cycle occurs, then the member does not receive the weekly email digest."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "Verify that switching weekly email digests off does not disable account-security messages.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "Verify that the weekly digest preference survives sign-out and sign-in in both the on and off states.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "Owner and delivery date are unknown.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "If account-security messages are tied to the same switch as weekly digests, switching weekly digests off could suppress account-security messages, which would contradict the supplied exception.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "Proposed verification: after signing in and out, the stored weekly digest setting matches the member's most recent on or off selection.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "Proposed verification: account-security messages are still delivered for a member whose weekly email digests are off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "What storage and synchronization mechanism should hold the setting so that it persists after sign-out and sign-in?",
+    "What exactly qualifies as an account-security message for the purposes of the exception, and is it governed by the same notification settings screen?",
+    "Which notification settings surface shows the weekly digest switch, and does any other setting interact with it?",
+    "Who owns this feature and what is its delivery date?"
+  ]
+}
