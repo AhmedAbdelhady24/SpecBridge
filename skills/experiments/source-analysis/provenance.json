@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "version": "0.1.0",
+  "authorship": "Original SpecBridge evaluation guidance. No third-party skill text copied.",
+  "license_observation": "Original project content; no separate distribution license asserted.",
+  "rationale": "Experimental intermediate source analysis is separate from the active runtime skill and requires explicit evaluation selection.",
+  "tool_allowlist": [],
+  "files": {
+    "SKILL.md": "4e7908a594583d7a2b96e4dfdb485a0fc02c6585754faa75d0e16e3fb50f83a5"
+  }
+}
