@@ -1,0 +1,118 @@
+{
+  "title": "Image deletion policy conflict",
+  "purpose": "Document two unresolved deletion requests for an uploaded image after its owner selects Delete.",
+  "scope": [
+    {
+      "text": "immediate permanent deletion of an uploaded image when its owner selects Delete",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "the same deleted image remain recoverable by its owner for 30 days after Delete",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "immediate permanent deletion of an uploaded image when its owner selects Delete",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "the same deleted image remain recoverable by its owner for 30 days after Delete",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    }
+  ],
+  "stories": [
+    {
+      "text": "If a human selects the immediate permanent deletion policy, an image owner can delete an uploaded image permanently.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected the immediate permanent deletion policy, when the owner selects Delete on an uploaded image, then the image is permanently deleted immediately."
+      ]
+    },
+    {
+      "text": "If a human selects the 30-day recoverable deletion policy, an image owner can recover a deleted image within 30 days after Delete.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected the 30-day recoverable deletion policy, when the owner selects Delete on an uploaded image, then that same deleted image remains recoverable by the owner for 30 days after Delete."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "No stakeholder has authority to choose between these requests yet.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "A human must select one of the two deletion policies as authoritative before an implementation can satisfy both requests without violating the other.",
+      "source_ids": [
+        "privacy-request",
+        "support-request"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Immediate permanent deletion would fail the 30-day recoverability request; 30-day recoverability would fail the immediate permanent deletion request.",
+      "source_ids": [
+        "privacy-request",
+        "support-request"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "If a human selects immediate deletion, verification can observe that a deleted image is not recoverable immediately after Delete.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "recommendation"
+    },
+    {
+      "text": "If a human selects 30-day recoverability, verification can observe that a deleted image remains recoverable by its owner within 30 days after Delete.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Which deletion policy should a human select: immediate permanent deletion or 30-day recoverability after Delete?",
+    "Who has authority to select the policy?",
+    "What happens after the 30-day recovery period under the recoverability alternative?"
+  ]
+}

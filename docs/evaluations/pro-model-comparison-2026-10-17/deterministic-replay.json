@@ -1,0 +1,42 @@
+{
+  "only_client_body_change": "model deepseek-flash -> deepseek-v4-pro",
+  "preview_sha256": "11154ee258d2e26a51f643cebea1d6962f9f218db63db57a77926fd5759a6341",
+  "replay": [
+    {
+      "case": "notification-preferences",
+      "recorded_status": "provider_timeout",
+      "replay": "not_replayable_no_final_content",
+      "validation_error": null
+    },
+    {
+      "case": "incomplete-booking",
+      "recorded_status": "validated",
+      "replay": "validated",
+      "validation_error": null
+    },
+    {
+      "case": "contradictory-deletion",
+      "recorded_status": "validated",
+      "replay": "validated",
+      "validation_error": null
+    },
+    {
+      "case": "conflicting-api",
+      "recorded_status": "validated",
+      "replay": "validated",
+      "validation_error": null
+    },
+    {
+      "case": "embedded-instruction",
+      "recorded_status": "provider_timeout",
+      "replay": "not_replayable_no_final_content",
+      "validation_error": null
+    }
+  ],
+  "frozen_acceptance_sha256": "4518b228d88431c8d6d074a367146f457fef2067638830ef13991b40f8e997cf",
+  "results_with_usage": 3,
+  "known_input_tokens": 10283,
+  "known_completion_tokens": 14767,
+  "known_reasoning_tokens": 12201,
+  "duration_seconds_sum": 264.02
+}

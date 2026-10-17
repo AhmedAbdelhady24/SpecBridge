@@ -1,0 +1,83 @@
+{
+  "preview_sha256": "11154ee258d2e26a51f643cebea1d6962f9f218db63db57a77926fd5759a6341",
+  "maximum_calls": 5,
+  "automatic_retries": 0,
+  "client_output_cap_omitted": true,
+  "results": [
+    {
+      "case": "notification-preferences",
+      "request_sha256": "39bb612b1c12156d71af10f79323c5b099441770afb035185b76b835ddbae899",
+      "usage": null,
+      "reasoning_tokens": null,
+      "reasoning_content_present": null,
+      "status": "provider_timeout",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 60.01
+    },
+    {
+      "case": "incomplete-booking",
+      "request_sha256": "ce12148bf715c753f004659cad40e4155e1684aa7221a43448534bef17e8f982",
+      "usage": {
+        "prompt_tokens": 3401,
+        "completion_tokens": 3701,
+        "total_tokens": 7102
+      },
+      "reasoning_tokens": 3149,
+      "reasoning_content_present": true,
+      "status": "validated",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 38.48,
+      "response_sha256": "7ca2aa55c8302bcd119ea2a5ab41cf198eaaabf88aba63fe08d697661889c70f",
+      "finish_reason": "stop"
+    },
+    {
+      "case": "contradictory-deletion",
+      "request_sha256": "ea5a533d1bbee96b70db0856b7768a6677810cca57af6e458b5dbf7fbfd3705e",
+      "usage": {
+        "prompt_tokens": 3428,
+        "completion_tokens": 5320,
+        "total_tokens": 8748
+      },
+      "reasoning_tokens": 4452,
+      "reasoning_content_present": true,
+      "status": "validated",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 50.7,
+      "response_sha256": "0df42887672e014dbc44308e0f08dd95dff68bf6e20ffe2af95183892871ed0c",
+      "finish_reason": "stop"
+    },
+    {
+      "case": "conflicting-api",
+      "request_sha256": "0537e6184678de621ed7da209d0a7f120079aaa05b84dadebe6e09f176fac92b",
+      "usage": {
+        "prompt_tokens": 3454,
+        "completion_tokens": 5746,
+        "total_tokens": 9200
+      },
+      "reasoning_tokens": 4600,
+      "reasoning_content_present": true,
+      "status": "validated",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 54.82,
+      "response_sha256": "ae3ef758cc8dfacc66579c6e5e045f353a60dde3c6406c893e498c74fd613d14",
+      "finish_reason": "stop"
+    },
+    {
+      "case": "embedded-instruction",
+      "request_sha256": "67192459cde85359e8db484502b87af437abf106a735cf43e2bf334ae1ffb8a1",
+      "usage": null,
+      "reasoning_tokens": null,
+      "reasoning_content_present": null,
+      "status": "provider_timeout",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 60.01
+    }
+  ],
+  "semantic_review": "pending; schema validity is not human acceptance",
+  "cost": null
+}

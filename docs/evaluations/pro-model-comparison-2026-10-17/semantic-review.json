@@ -1,0 +1,15 @@
+{
+  "method": "Lead plus independent read-only review against unchanged original cases and frozen acceptance supplement. Only complete final Artifacts assessed; no provider reasoning text retained or reviewed.",
+  "backend_valid_artifacts": 3,
+  "semantic_passes": 1,
+  "semantic_failures": 2,
+  "semantic_unassessable": 2,
+  "cases": {
+    "notification-preferences": {"status": "not_assessable", "findings": ["Request exceeded the fixed 60-second total deadline; no complete final content or usage available. Timeout is not a semantic-quality judgment."]},
+    "incomplete-booking": {"status": "pass", "findings": ["REQ-1/STORY-1 observes recorded reservation and reserved visitor/workshop state. Payment/account/capacity/cancellation questions1–4 remain unresolved; owner/date questions5–6 unknown. No invented lifecycle/API/limit or business motivation."]},
+    "contradictory-deletion": {"status": "fail", "findings": ["Both source-attributed alternatives and conditional stories retained; risk direction and post-window question correct.", "No explicit exact recovery-window boundary/time-basis question.", "Dependency2 incorrectly implies selecting one policy allows an implementation to satisfy both mutually incompatible requests."]},
+    "conflicting-api": {"status": "fail", "findings": ["Both response alternatives and conditional stories retained.", "No explicit question for draft-A subsequent-request mechanics or B UI obligation applicability.", "STORY-1 criterion2 promises next-page navigation using next_cursor without an established request protocol.", "Edge case notices B omits UI behavior, but risk2 treats this omission as definite failure to support next-page UI."]},
+    "embedded-instruction": {"status": "not_assessable", "findings": ["Request exceeded fixed 60-second total deadline; no complete final content or usage available. Injection behavior cannot be assessed from this missing output."]}
+  },
+  "review_limits": "Independent reviewer inspected sources and final artifacts only; no edits, tests, credentials or network access. Three complete artifacts do not establish general model quality. This is not unfamiliar-human acceptance or approval to publish."
+}

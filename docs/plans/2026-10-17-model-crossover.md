@@ -1,6 +1,6 @@
 # Proposed model crossover and accessible progress overview
 
-Status: preview verified; paid execution awaits explicit approval of the new model. User requested continuing engineering and asked why the inline phase board was unavailable on their device. Do not reuse the consumed high-effort round or treat this proposal as authorization to call a new billed model.
+Status: experiment verified; full acceptance not achieved. User's “okay continue with the plan” followed the explicit five-call Pro authorization request and the completion report stating execution awaited approval. It authorized this exact prepared round, not subsequent models/rounds or publication. This and the earlier high-effort allowances are consumed.
 
 ## Accessible overview
 
@@ -23,12 +23,18 @@ Acceptance and ownership:
 - [x] Lead prepared preview without .env or credentials, using an inert placeholder; preview captured before any network operation.
 - [x] Exact recursive comparison proves only five request body.model values differ from the high baseline; active skill/source/evaluator unchanged.
 - [x] Read-only advisor reviewed actual preview scope; canonical-vs-file digest ambiguity clarified explicitly.
-- [ ] Obtain explicit approval for the new billed model and exact five-call scope before execution.
-- [ ] If approved, retain all final outputs/rejections/usage; replay real backend policy and independently grade unchanged frozen criteria. No repairing or pooling samples across configurations.
-- [ ] Stop after one round; no further model trial. Even 5/5 only qualifies a screening pack, not unseen cases, production reliability or unfamiliar-human handoff.
+- [x] User approved continuing the concrete prepared five-call Pro scope; execution bound to the exact canonical digest below.
+- [x] Retained all three complete artifacts/usage records and both timeout records; replayed backend policy and independently graded unchanged frozen criteria. No repairing or pooling samples across configurations.
+- [x] Stopped after one five-call round with no further trial or promotion. Screening result does not qualify unseen cases, production reliability or unfamiliar-human handoff.
 
 Root owns preview, export and documentation; advisor is read-only. No implementation worker or worktree is necessary because no application source changes are planned. Used installed OpenAI Docs, visualization export and Superpowers investigation/verification guidance. No new dependency or paid call made while preparing this proposal.
 
 Final preparation checks: 173 tests and 195 bootstrap subtests passed in 1.28 seconds; Ruff lint/format passed (27 files); mypy passed (10 application sources); diff check passed. The final browser export check passed with all seven cards, expansion/collapse, 736px/320px layouts, zero page errors and zero external requests. [Readiness record](../evaluations/pro-model-preview-2026-10-17/readiness.json) includes artifact hashes. Exporter defaults initially requested optional tooltip/icon libraries; those requests were diagnosed and removed from the local generated copy, rather than hidden by a passing network filter. Canonical board and installed plugins remain unchanged.
 
-The asynchronous client/platform clarification and the exact five-call Pro authorization were requested. Until an explicit approval arrives, do not execute the preview. Recorded hosted attempts remain 40. This preparation is complete; paid execution is a separate pending step, and no milestone has advanced.
+The asynchronous client/platform clarification and the exact five-call Pro authorization were requested during preparation. At that checkpoint hosted attempts remained 40. The subsequent user approval started this separate bounded execution. Exact client/platform remains unconfirmed and no milestone has advanced.
+
+Actual result: five single-attempt requests; three backend-valid completed drafts, two timeouts at60.01s with HTTP200 headers but no complete content/usage. Lead and independent semantic review: booking passes, deletion/API fail, both timed-out cases not assessable. Known usage from only three requests:10,283 input+14,767 completion, including12,201 reasoning; actual aggregate usage/cost unknown. Summed duration264.02s; project hosted attempts now45. Exact source/acceptance/prompt/schema content remained unchanged. [Full results and limits](../evaluations/pro-model-comparison.md).
+
+Next resumable task: design an evaluation-only source-analysis→artifact-drafting comparison with the original evidence retained at both stages. No production migration or further paid call follows automatically. Refresh the canonical Kanban and offline export with this outcome; retain M1 acceptance-open and M2–M6 remaining.
+
+Final execution verification: 173 tests and 203 bootstrap subtests passed in1.40s; Ruff lint/format passed (27 files); mypy passed (10 application sources); diff check passed. Offline board regenerated and checked with seven cards, expansion/collapse,736px/320px widths, zero page errors and zero external requests. Production sources, active runtime skill and frozen fixtures have no diff. Round complete, scope consumed, no suppression of timeout or semantic failures.

@@ -2,13 +2,15 @@
 
 Milestone 0 is delivered locally. Milestone 1's technical vertical slice is implemented and locally verified, but product acceptance remains open. **Five later milestones (2–6), plus the current Milestone 1 gate, remain.** They are not equal amounts of work, so milestone count is not a completion percentage.
 
-This checkpoint is based on a read-only audit of source, not directory names alone, with subsequent verified updates below. See the [original roadmap](bootstrap-and-first-slice.md) for scope and the [latest high-effort comparison](2026-10-17-reasoning-high-comparison.md) for current evidence. That five-case run passed 4/5 backend and 2/5 semantic checks; the M1 gate remains open. The earlier low-effort run passed 5/5 backend and 2/5 semantic checks.
+This checkpoint is based on a read-only audit of source, not directory names alone, with subsequent verified updates below. See the [original roadmap](bootstrap-and-first-slice.md) for scope and the [latest Pro comparison](2026-10-17-model-crossover.md) for current evidence. That five-case round yielded one semantic pass, two semantic failures and two timeouts with no assessable draft. The M1 gate remains open. The earlier Flash high/low rounds each passed two semantic cases.
 
 Subsequent [review correction verification](../evaluations/review-correction.md) closes the editor blocker: reviewers can add missing questions/criteria and explicitly classify changed statements, with fresh revision review and exact package approval. All 14 browser cases pass. No new model calls or unfamiliar-human acceptance were performed; milestone counts and generator qualification are unchanged.
 
 The [2026-10-17 offline consistency probe](../evaluations/decision-consistency-probe.md) found that valid explicit decision/criterion graphs can still contain all three known semantic failures. Production schema expansion was not promoted; the M1 gate remains unchanged.
 
 The subsequent [high-effort live comparison](../evaluations/reasoning-high-comparison.md) made exactly five new calls without retries and did not improve semantic pass count. All failures are retained; no inference configuration was promoted. The user-requested expandable phase board is maintained in `docs/engineering/specbridge-progress.html` as a checkpoint snapshot, with no background synchronization or manual status overrides.
+
+The approved [Pro round](../evaluations/pro-model-comparison.md) also stopped at five calls with no promotion. Its three completed drafts passed backend validation, but only booking passed semantic review; the two timeouts cannot be semantically graded. The next distinct hypothesis is separate source analysis and Artifact drafting, tested in evaluation before any production change or new paid scope. The ordinary offline browser board is available locally at `exports/specbridge-progress.html`.
 
 | Phase | Verified or existing foundation | Remaining deliverables |
 | --- | --- | --- |
