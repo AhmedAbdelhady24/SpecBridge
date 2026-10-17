@@ -223,17 +223,15 @@ def test_deep_json_is_sanitized():
 
 
 @pytest.mark.parametrize("phase", ["headers", "body"])
-def test_total_deadline_cancels_slow_response(monkeypatch, phase):
+def test_total_deadline_cancels_slow_response(phase):
     import asyncio
     import time
 
-    from specbridge import providers
-
-    monkeypatch.setattr(providers, "TOTAL_TIMEOUT", 0.05, raising=False)
     payload = json.dumps(
         {"choices": [{"message": {"content": json.dumps(output())}}]}
     ).encode()
     closed = []
+    calls = []
 
     class Drip(httpx.SyncByteStream, httpx.AsyncByteStream):
         def __iter__(self):
@@ -259,6 +257,7 @@ def test_total_deadline_cancels_slow_response(monkeypatch, phase):
             return httpx.Response(200, stream=Drip())
 
         async def handle_async_request(self, request):
+            calls.append(request)
             if phase == "headers":
                 await asyncio.sleep(0.2)
             return httpx.Response(200, stream=Drip())
@@ -268,11 +267,13 @@ def test_total_deadline_cancels_slow_response(monkeypatch, phase):
         model="x",
         api_key="SECRET",
         transport=SlowTransport(),
+        timeout_seconds=0.05,
     )
     started = time.monotonic()
     with pytest.raises(ProviderFailure, match="provider_timeout"):
         generate(instance)
     assert time.monotonic() - started < 0.2
+    assert len(calls) == 1
     if phase == "body":
         assert closed == [True]
 
@@ -609,3 +610,168 @@ def test_saved_conflict_failures_remain_rejected_and_explicit_corrections_pass(c
         candidate["dependencies"][1]["text"] = "Neither draft is approved;"
     validate_handoff(Artifact.model_validate(candidate), sources)
     assert path.read_bytes() == original
+
+
+@pytest.mark.parametrize("phase", ["headers", "body"])
+def test_unlimited_wait_accepts_delayed_headers_and_body(monkeypatch, phase):
+    import asyncio
+
+    from specbridge import providers
+
+    monkeypatch.setattr(providers, "TOTAL_TIMEOUT", 0.01)
+    payload = json.dumps(
+        {"choices": [{"message": {"content": json.dumps(output())}}]}
+    ).encode()
+    calls = []
+    closed = []
+
+    class DelayedBody(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            if phase == "body":
+                await asyncio.sleep(0.03)
+            yield payload
+
+        async def aclose(self):
+            closed.append(True)
+
+    async def handler(request):
+        calls.append(request)
+        assert request.extensions["timeout"] == {
+            "connect": 30.0,
+            "read": None,
+            "write": None,
+            "pool": None,
+        }
+        if phase == "headers":
+            await asyncio.sleep(0.03)
+        return httpx.Response(200, stream=DelayedBody())
+
+    instance = CompatibleProvider(
+        base_url="https://model.example/v1",
+        model="test",
+        api_key="SECRET",
+        transport=httpx.MockTransport(handler),
+        timeout_seconds=None,
+    )
+    assert generate(instance).requirements
+    assert len(calls) == 1
+    assert closed == [True]
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        True,
+        False,
+        0,
+        -1,
+        float("nan"),
+        float("inf"),
+        -float("inf"),
+        "none",
+        "10",
+        10**400,
+    ],
+)
+def test_invalid_constructor_timeout_is_sanitized(value):
+    with pytest.raises(ProviderFailure, match="^invalid_configuration$"):
+        CompatibleProvider(
+            base_url="https://model.example/v1",
+            model="test",
+            api_key="SECRET",
+            timeout_seconds=value,
+        )
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (None, 60.0),
+        ("none", None),
+        ("  NoNe  ", None),
+        ("0.25", 0.25),
+        (" 1200 ", 1200.0),
+        ("1e3", 1000.0),
+    ],
+)
+def test_timeout_environment_parsing(monkeypatch, value, expected):
+    from specbridge.providers import timeout_from_env
+
+    if value is None:
+        monkeypatch.delenv("SPECBRIDGE_LLM_TIMEOUT_SECONDS", raising=False)
+    else:
+        monkeypatch.setenv("SPECBRIDGE_LLM_TIMEOUT_SECONDS", value)
+    assert timeout_from_env() == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["", " ", "0", "-1", "NaN", "inf", "-inf", "1e400", "true", "unlimited", "SECRET"],
+)
+def test_invalid_environment_timeout_is_sanitized(monkeypatch, value):
+    from specbridge.providers import timeout_from_env
+
+    monkeypatch.setenv("SPECBRIDGE_LLM_TIMEOUT_SECONDS", value)
+    with pytest.raises(ProviderFailure, match="^invalid_configuration$"):
+        timeout_from_env()
+
+
+def test_provider_environment_applies_unlimited_wait(monkeypatch):
+    monkeypatch.setenv("SPECBRIDGE_PROVIDER", "compatible")
+    monkeypatch.setenv("SPECBRIDGE_LLM_BASE_URL", "https://model.example/v1")
+    monkeypatch.setenv("SPECBRIDGE_LLM_MODEL", "test")
+    monkeypatch.setenv("SPECBRIDGE_LLM_API_KEY", "SECRET")
+    monkeypatch.setenv("SPECBRIDGE_LLM_TIMEOUT_SECONDS", "none")
+    instance = provider_from_env()
+
+    def handler(request):
+        assert request.extensions["timeout"]["read"] is None
+        return httpx.Response(
+            200, json={"choices": [{"message": {"content": json.dumps(output())}}]}
+        )
+
+    instance._transport = httpx.MockTransport(handler)
+    assert generate(instance).requirements
+
+
+@pytest.mark.parametrize("timeout_seconds", [None, 0.5])
+def test_wait_configuration_keeps_size_limit_and_no_retries(timeout_seconds):
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(200, content=b"x" * 262145)
+
+    instance = CompatibleProvider(
+        base_url="https://model.example/v1",
+        model="test",
+        api_key="SECRET",
+        transport=httpx.MockTransport(handler),
+        timeout_seconds=timeout_seconds,
+    )
+    with pytest.raises(ProviderFailure, match="^response_too_large$"):
+        generate(instance)
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize("timeout_seconds", [0.25, 1200])
+def test_finite_timeout_reaches_http_boundary(timeout_seconds):
+    def handler(request):
+        assert request.extensions["timeout"] == {
+            "connect": min(30.0, timeout_seconds),
+            "read": timeout_seconds,
+            "write": timeout_seconds,
+            "pool": timeout_seconds,
+        }
+        return httpx.Response(
+            200, json={"choices": [{"message": {"content": json.dumps(output())}}]}
+        )
+
+    instance = CompatibleProvider(
+        base_url="https://model.example/v1",
+        model="test",
+        api_key="SECRET",
+        transport=httpx.MockTransport(handler),
+        timeout_seconds=timeout_seconds,
+    )
+    assert generate(instance).requirements

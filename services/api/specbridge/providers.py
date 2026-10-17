@@ -3,7 +3,9 @@
 import asyncio
 import ipaddress
 import json
+import math
 import os
+from numbers import Real
 from typing import Any, Protocol
 from urllib.parse import urlsplit
 
@@ -14,7 +16,7 @@ from specbridge.models import Artifact, Source, validate_handoff
 from specbridge.skills import Skill
 
 RESPONSE_LIMIT = 256 * 1024
-TOTAL_TIMEOUT = 60  # Whole request deadline, shorter than the workflow execution lease.
+TOTAL_TIMEOUT = 60  # Default whole-request deadline; None explicitly allows long work.
 
 
 def strict_artifact_schema() -> dict[str, Any]:
@@ -45,6 +47,32 @@ class ProviderFailure(ValueError):
     def __init__(self, code: str):
         self.code = code
         super().__init__(code)
+
+
+def _validate_timeout(value: float | None) -> float | None:
+    if value is None:
+        return None
+    try:
+        if isinstance(value, bool) or not isinstance(value, Real):
+            raise TypeError()
+        seconds = float(value)
+        if not math.isfinite(seconds) or seconds <= 0:
+            raise ValueError()
+    except (TypeError, ValueError, OverflowError):
+        raise ProviderFailure("invalid_configuration") from None
+    return seconds
+
+
+def timeout_from_env() -> float | None:
+    """Parse the explicit operator wait policy without exposing invalid values."""
+    raw = os.environ.get("SPECBRIDGE_LLM_TIMEOUT_SECONDS", str(TOTAL_TIMEOUT)).strip()
+    if raw.lower() == "none":
+        return None
+    try:
+        seconds = float(raw)
+    except ValueError:
+        raise ProviderFailure("invalid_configuration") from None
+    return _validate_timeout(seconds)
 
 
 class Provider(Protocol):
@@ -162,6 +190,7 @@ class CompatibleProvider:
         output_mode: str = "json_schema",
         max_tokens: int = 4096,
         reasoning_effort: str | None = None,
+        timeout_seconds: float | None = TOTAL_TIMEOUT,
     ):
         try:
             url = urlsplit(base_url)
@@ -192,6 +221,7 @@ class CompatibleProvider:
             _ = url.port
         except ValueError:
             raise ProviderFailure("invalid_configuration") from None
+        self.timeout_seconds = _validate_timeout(timeout_seconds)
         self.destination = base_url.rstrip("/")
         self.model = model
         self.output_mode = output_mode
@@ -278,11 +308,16 @@ class CompatibleProvider:
             raise ProviderFailure("invalid_response") from None
 
     async def _request(self, payload: dict[str, Any]) -> bytes:
-        async with asyncio.timeout(TOTAL_TIMEOUT):
+        async with asyncio.timeout(self.timeout_seconds):
             async with (
                 httpx.AsyncClient(
                     transport=self._transport,
-                    timeout=TOTAL_TIMEOUT,
+                    timeout=httpx.Timeout(
+                        self.timeout_seconds,
+                        connect=min(30.0, self.timeout_seconds)
+                        if self.timeout_seconds is not None
+                        else 30.0,
+                    ),
                     follow_redirects=False,
                     trust_env=False,
                 ) as client,
@@ -317,6 +352,7 @@ def provider_from_env() -> Provider:
         output_mode=os.environ.get("SPECBRIDGE_LLM_OUTPUT_MODE", "json_schema"),
         reasoning_effort=os.environ.get("SPECBRIDGE_LLM_REASONING_EFFORT") or None,
         max_tokens=max_tokens,
+        timeout_seconds=timeout_from_env(),
         base_url=os.environ.get("SPECBRIDGE_LLM_BASE_URL", ""),
         model=os.environ.get("SPECBRIDGE_LLM_MODEL", ""),
         api_key=os.environ.get("SPECBRIDGE_LLM_API_KEY", ""),
