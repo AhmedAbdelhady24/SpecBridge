@@ -1,0 +1,36 @@
+{
+  "only_wire_change": "reasoning_effort low -> high",
+  "preview_sha256": "fd2069a71f85f7c9cdaebde9049d31fc855aefaa623c8ee9811a821c8f6e8756",
+  "replay": [
+    {
+      "case": "notification-preferences",
+      "replay": "validated",
+      "validation_error": null
+    },
+    {
+      "case": "incomplete-booking",
+      "replay": "validated",
+      "validation_error": null
+    },
+    {
+      "case": "contradictory-deletion",
+      "replay": "invalid_artifact",
+      "validation_error": "User-provided statements must be exact excerpts in every cited source"
+    },
+    {
+      "case": "conflicting-api",
+      "replay": "validated",
+      "validation_error": null
+    },
+    {
+      "case": "embedded-instruction",
+      "replay": "validated",
+      "validation_error": null
+    }
+  ],
+  "frozen_acceptance_sha256": "4518b228d88431c8d6d074a367146f457fef2067638830ef13991b40f8e997cf",
+  "total_input_tokens": 16920,
+  "total_completion_tokens": 20533,
+  "reported_reasoning_tokens": 15832,
+  "duration_seconds_sum": 89.56
+}

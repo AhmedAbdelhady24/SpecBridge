@@ -1,0 +1,24 @@
+# Single-variable high-effort generation comparison
+
+Status: experiment verified; full semantic acceptance not achieved. User's latest “continue” follows the explicit next scoped-generation-comparison recommendation and earlier autonomous synthetic testing instruction. This is a new bounded scope, not reuse of consumed earlier call allowances. No approval/publication of generated artifacts or real project data is authorized.
+
+Question: does increasing reasoning effort improve the frozen five-case result without changing the generation schema, instructions or source facts? The previous low run passed 2/5 semantic cases. The offline graph probe did not justify production schema expansion. Choose the smallest supported configuration comparison before adding a decomposition or another prompt checklist.
+
+Official source checked: [DeepSeek Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/) documents low/high/max as enabling thinking and supports high with the current model. Current official thinking-mode examples also use deepseek-flash/high. Existing adapter already accepts high; no new SDK/provider/dependency is needed.
+
+Scope: at most five paid calls, one per unchanged synthetic case, existing https://api.deepseek.com and deepseek-flash, JSON-object output, active runtime skill 1.2.0. Omit both client output-token fields as requested previously. Provider defaults apply; dollar cost is unknown. Change only reasoning_effort low→high in the evaluation process after private .env loading; do not edit .env or normal application settings. Existing 60-second total deadline and 256KiB response limit remain. Zero retries, repair calls or additional rounds. Preserve failed responses; never persist provider reasoning text, credentials or envelopes. No runtime code, public contract, skill or schema change.
+
+Lead owns request comparison, execution, replay, grading and evidence. A separate read-only semantic reviewer grades actual saved outputs against the original frozen criteria. No implementation worker or worktree is needed because this task only records an experiment.
+
+- [x] Preview proves only reasoning_effort changes relative to the saved low request; source and acceptance hashes unchanged. Fail closed if private config selects a different endpoint/model.
+- [x] Executed one five-call round, retained every result, usage and failure, with no retries or configuration promotion.
+- [x] Replayed backend validation and compared lead/independent semantic grading against frozen cases and acceptance supplement.
+- [x] Verified applicable local checks, recorded actual results and updated roadmap. No milestone advancement based on structural validity.
+
+Reproduce: use existing scripts/qualify_provider.py prepare/execute with omit_output_cap=True and process-local SPECBRIDGE_LLM_REASONING_EFFORT=high. Verify all exact request bodies equal the saved low bodies except the effort field, bind preview_digest to execute, use a new docs/evaluations/reasoning-high-comparison-2026-10-17 directory. Current five-case round is the maximum authorization scope for this task. Next action depends on actual failure analysis; no further paid call follows automatically.
+
+Actual result: five HTTP200/stop replies, one attempt each; 4/5 backend-valid, 2/5 semantic passes. Deletion rejected an exact-excerpt citation to a source lacking that sentence; other failures remain downstream effect and missing continuation mechanics. Totals 16,920 input + 20,533 completion, including 15,832 reported reasoning tokens; summed 89.56s, dollar cost unknown. This brings recorded project hosted attempts to 40. [Results and independent review](../evaluations/reasoning-high-comparison.md). No settings promoted.
+
+User additionally requested a high-level live Kanban overview during execution. Added an interactive reporting snapshot at docs/engineering/specbridge-progress.html, with seven expandable milestone cards and explicit checkpoint/no-background-sync labeling. Root owns the visualization and roadmap; no production app feature added. Refresh it at future verified checkpoints. Chromium checks cover card expansion/collapse and 736px/320px overflow/page errors. M0 locally delivered, M1 acceptance open and M2–M6 remain.
+
+Final verification: 173 tests and 190 bootstrap subtests passed in 1.40 seconds; Ruff lint/format passed (27 files); mypy passed (10 application sources); diff check passed. Board browser check passed: seven cards, expansion/collapse, 736px/320px without overflow, zero page errors; final desktop screenshot visually inspected. The disposable preview initially refused overwrite and was refreshed explicitly; no product test failure suppressed. All five recorded statuses replayed exactly. No additional paid call or configuration promotion.

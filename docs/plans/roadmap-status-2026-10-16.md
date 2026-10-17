@@ -2,11 +2,13 @@
 
 Milestone 0 is delivered locally. Milestone 1's technical vertical slice is implemented and locally verified, but product acceptance remains open. **Five later milestones (2–6), plus the current Milestone 1 gate, remain.** They are not equal amounts of work, so milestone count is not a completion percentage.
 
-This checkpoint is based on a fresh read-only audit of source, not directory names alone. See the [original roadmap](bootstrap-and-first-slice.md) for scope and the [latest provider comparison](2026-10-16-reasoning-comparison.md) for current evidence. That five-case reasoning-enabled run passed 5/5 backend and 2/5 semantic checks; the M1 gate remains open.
+This checkpoint is based on a read-only audit of source, not directory names alone, with subsequent verified updates below. See the [original roadmap](bootstrap-and-first-slice.md) for scope and the [latest high-effort comparison](2026-10-17-reasoning-high-comparison.md) for current evidence. That five-case run passed 4/5 backend and 2/5 semantic checks; the M1 gate remains open. The earlier low-effort run passed 5/5 backend and 2/5 semantic checks.
 
 Subsequent [review correction verification](../evaluations/review-correction.md) closes the editor blocker: reviewers can add missing questions/criteria and explicitly classify changed statements, with fresh revision review and exact package approval. All 14 browser cases pass. No new model calls or unfamiliar-human acceptance were performed; milestone counts and generator qualification are unchanged.
 
 The [2026-10-17 offline consistency probe](../evaluations/decision-consistency-probe.md) found that valid explicit decision/criterion graphs can still contain all three known semantic failures. Production schema expansion was not promoted; the M1 gate remains unchanged.
+
+The subsequent [high-effort live comparison](../evaluations/reasoning-high-comparison.md) made exactly five new calls without retries and did not improve semantic pass count. All failures are retained; no inference configuration was promoted. The user-requested expandable phase board is maintained in `docs/engineering/specbridge-progress.html` as a checkpoint snapshot, with no background synchronization or manual status overrides.
 
 | Phase | Verified or existing foundation | Remaining deliverables |
 | --- | --- | --- |

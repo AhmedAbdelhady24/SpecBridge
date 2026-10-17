@@ -1,0 +1,75 @@
+<div id="specbridge-phase-board">
+  <style>
+    #specbridge-phase-board .phase-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+    #specbridge-phase-board .phase-lane { min-width: 0; }
+    #specbridge-phase-board .phase-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    #specbridge-phase-board .phase-stack { display: grid; gap: 12px; }
+    #specbridge-phase-board summary { overflow-wrap: anywhere; }
+    #specbridge-phase-board .phase-label { display: block; margin-bottom: 6px; }
+    #specbridge-phase-board .phase-name { display: block; font-weight: 500; }
+    #specbridge-phase-board .phase-state { display: block; margin-top: 6px; }
+    #specbridge-phase-board ul { padding-inline-start: 18px; }
+    #specbridge-phase-board li { margin-bottom: 6px; }
+    #specbridge-phase-board .phase-meta { margin-bottom: 20px; }
+    @media (max-width: 620px) {
+      #specbridge-phase-board .phase-board { grid-template-columns: 1fr; }
+      #specbridge-phase-board [aria-labelledby="sb-progress"] { order: -2; }
+      #specbridge-phase-board [aria-labelledby="sb-verified"] { order: -1; }
+    }
+  </style>
+  <h2>SpecBridge phase board</h2>
+  <div class="phase-meta text-small text-muted">17 October 2026 · Verified checkpoint · Expand a phase for details</div>
+  <div class="phase-board" aria-label="SpecBridge milestone Kanban board">
+    <section class="phase-lane" aria-labelledby="sb-planned">
+      <div class="phase-heading"><h3 id="sb-planned">Planned</h3><span class="viz-badge" aria-label="5 milestones planned">5</span></div>
+      <div class="phase-stack">
+        <details class="card">
+          <summary><span class="phase-label text-small text-muted">M2 · Next after acceptance</span><span class="phase-name">Persistent knowledge</span><span class="phase-state text-small">Persistence foundation exists</span></summary>
+          <h4>Already present</h4><ul><li>SQLite projects, sources and immutable revisions</li><li>Source traceability and workflow checkpoints</li></ul>
+          <h4>Remaining</h4><ul><li>Goals, stakeholders, decisions and risks</li><li>Context retrieval and revision navigation</li><li>Backup and migration verification</li></ul>
+        </details>
+        <details class="card">
+          <summary><span class="phase-label text-small text-muted">M3</span><span class="phase-name">Git collaboration</span><span class="phase-state text-small">Portable export foundation exists</span></summary>
+          <h4>Already present</h4><ul><li>Standalone documentation ZIP and file hashes</li><li>Exact package approval</li></ul>
+          <h4>Remaining</h4><ul><li>Repository changesets and pull request previews</li><li>Safe regeneration and developer-edit conflicts</li><li>Approved, retry-safe external writes</li></ul>
+        </details>
+        <details class="card">
+          <summary><span class="phase-label text-small text-muted">M4</span><span class="phase-name">Delivery automation</span><span class="phase-state text-small">Workflow foundation exists</span></summary>
+          <h4>Remaining</h4><ul><li>Meeting notes to action items</li><li>Deterministic prioritization</li><li>Source-grounded delivery reports</li><li>Mock adapters, then Jira integration</li></ul>
+        </details>
+        <details class="card">
+          <summary><span class="phase-label text-small text-muted">M5</span><span class="phase-name">Full product interface</span><span class="phase-state text-small">Review interface foundation exists</span></summary>
+          <h4>Already present</h4><ul><li>Project selection, intake and artifact editor</li><li>Review, approval and package download</li></ul>
+          <h4>Remaining</h4><ul><li>Dashboard and conversational workspace</li><li>Skill explorer and artifact history</li><li>Consolidated approval center</li></ul>
+        </details>
+        <details class="card">
+          <summary><span class="phase-label text-small text-muted">M6</span><span class="phase-name">Production hardening</span><span class="phase-state text-small">Local security and test foundation exists</span></summary>
+          <h4>Already present</h4><ul><li>Security regressions, browser checks and static analysis</li><li>CI definition and local onboarding</li></ul>
+          <h4>Remaining</h4><ul><li>Containers and deployment operations</li><li>Real authentication and project authorization</li><li>Backup/recovery and hosted CI evidence</li><li>Performance, cost and broader acceptance</li></ul>
+        </details>
+      </div>
+    </section>
+    <section class="phase-lane" aria-labelledby="sb-progress">
+      <div class="phase-heading"><h3 id="sb-progress">In progress</h3><span class="viz-badge" aria-label="1 milestone in progress">1</span></div>
+      <div class="phase-stack">
+        <details class="card">
+          <summary><span class="phase-label text-small text-muted">M1 · Current focus</span><span class="phase-name">First complete vertical slice</span><span class="phase-state text-small">Technical slice verified · latest model 2/5 · acceptance open</span></summary>
+          <h4>Verified locally</h4><ul><li>Idea → skill → PRD and linked stories</li><li>Persistent revisions and source references</li><li>Human corrections and fresh review</li><li>Exact package approval</li><li>Independent Starlight website</li><li>14 browser checks pass</li></ul>
+          <h4>Acceptance gates</h4><ul><li>All five frozen model-quality cases passing on one configuration</li><li>Actual unfamiliar-engineer handoff</li></ul>
+          <h4>Latest investigation</h4><ul><li>Explicit links alone do not establish semantic quality</li><li>High-effort model comparison: 2/5 semantic passes; 4/5 backend-valid drafts</li></ul>
+        </details>
+      </div>
+    </section>
+    <section class="phase-lane" aria-labelledby="sb-verified">
+      <div class="phase-heading"><h3 id="sb-verified">Verified</h3><span class="viz-badge" aria-label="1 milestone delivered locally">1</span></div>
+      <div class="phase-stack">
+        <details class="card">
+          <summary><span class="phase-label text-small text-muted">M0 · Delivered locally</span><span class="phase-name">Codex readiness</span><span class="phase-state text-small">Environment and engineering baseline</span></summary>
+          <h4>Completed</h4><ul><li>Environment audit and skill inventory</li><li>Reference source and license research</li><li>Accepted modular-monolith architecture</li><li>Repository instructions and execution plans</li><li>Locked tooling and test/CI baseline</li></ul>
+          <h4>Boundary</h4><ul><li>Hosted CI execution and remote protections remain unverified</li></ul>
+        </details>
+      </div>
+    </section>
+  </div>
+  <p class="text-small text-muted">Phase counts indicate status, not a completion percentage. Updated at engineering checkpoints; no background synchronization.</p>
+</div>

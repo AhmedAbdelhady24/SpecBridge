@@ -22,6 +22,8 @@ Inspect source and callers before edits. Use installed Superpowers skills progre
 
 Write substantial plans according to `docs/engineering/PLANS.md`. Preserve accepted design boundaries; resolve new design gates before expanding product scope. Delegate only independent work with explicit ownership and acceptance checks; implementation agents use isolated Git worktrees. Do not overwrite others' work. Preserve failed work and logs; redact secrets.
 
+Keep `docs/engineering/specbridge-progress.html` synchronized with verified phase checkpoints in `docs/plans/roadmap-status-2026-10-16.md` when progress changes. It is an interactive reporting snapshot, not background synchronization or authority to mark acceptance complete.
+
 ## Approved boundaries
 
 One backend owns workflow transitions, artifacts, approvals, skill access, and persistence. The frontend renders state and submits user intent; it cannot grant publication authority to generated content. Runtime PM skills are data, separate from development skills, with no shell or unrestricted filesystem access. Inject the active output contract through the registry, never by asking the model to read a local file. Handoff policy checks apply to generation, revision writes and publication; keep historical snapshots readable rather than silently rewriting them. Generated documentation is a standalone static project.
