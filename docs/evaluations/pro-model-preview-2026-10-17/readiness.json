@@ -1,0 +1,31 @@
+{
+  "scope": "offline browser fallback and unexecuted model preview",
+  "paid_calls": 0,
+  "board": {
+    "cards": 7,
+    "expand_collapse": "passed",
+    "widths_checked": [
+      736,
+      320
+    ],
+    "page_errors": 0,
+    "external_requests": 0,
+    "source_sha256": "894866c6c88f83844dabb745c8d31d0c4ef7447033e2d778305a43a01b4a6147",
+    "local_export_sha256": "d360f5cd3de4fe951f5ff2dd791d96d9da9fd25565032adbcd75e106f719d074",
+    "export_is_ignored": true,
+    "limitations": "Local file, not remote hosting or background synchronization; exact chat client unconfirmed."
+  },
+  "preview": {
+    "status": "preview_only_awaiting_model_authorization",
+    "preview_sha256": "11154ee258d2e26a51f643cebea1d6962f9f218db63db57a77926fd5759a6341",
+    "maximum_calls": 5,
+    "retries": 0,
+    "only_client_body_change": "model deepseek-flash -> deepseek-v4-pro",
+    "network_calls": 0,
+    "runtime_configuration_changed": false,
+    "warning": "Provider-side version drift and stochastic variation prevent causal claims from five samples.",
+    "preview_digest_algorithm": "SHA256 of UTF-8 JSON with sorted keys, compact separators and default ensure_ascii=True; used by qualify_provider.preview_digest",
+    "preview_file_sha256": "cffc707b5de195770fdb809f35f4f2cb017bce043f400f3a8fe352a0880c52c1"
+  },
+  "review": "Independent read-only exact diff review found only five model values changed; canonical-vs-byte hashing documented."
+}

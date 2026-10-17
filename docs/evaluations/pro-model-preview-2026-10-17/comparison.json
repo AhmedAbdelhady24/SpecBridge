@@ -1,0 +1,12 @@
+{
+  "status": "preview_only_awaiting_model_authorization",
+  "preview_sha256": "11154ee258d2e26a51f643cebea1d6962f9f218db63db57a77926fd5759a6341",
+  "maximum_calls": 5,
+  "retries": 0,
+  "only_client_body_change": "model deepseek-flash -> deepseek-v4-pro",
+  "network_calls": 0,
+  "runtime_configuration_changed": false,
+  "warning": "Provider-side version drift and stochastic variation prevent causal claims from five samples.",
+  "preview_digest_algorithm": "SHA256 of UTF-8 JSON with sorted keys, compact separators and default ensure_ascii=True; used by qualify_provider.preview_digest",
+  "preview_file_sha256": "cffc707b5de195770fdb809f35f4f2cb017bce043f400f3a8fe352a0880c52c1"
+}
