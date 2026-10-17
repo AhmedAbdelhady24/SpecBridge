@@ -30,7 +30,7 @@ class Store:
         path.parent.mkdir(parents=True, exist_ok=True)
         with self.transaction() as db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version not in (0, 1):
+            if version not in (0, 1, 2):
                 raise ValueError(
                     "Unsupported database schema; database was not changed"
                 )
@@ -61,7 +61,13 @@ class Store:
             db.execute(
                 "CREATE TABLE IF NOT EXISTS audit (id INTEGER PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id), action TEXT NOT NULL, subject TEXT NOT NULL, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
             )
-            db.execute("PRAGMA user_version=1")
+            db.execute(
+                "CREATE TABLE IF NOT EXISTS knowledge (id TEXT NOT NULL, project_id TEXT NOT NULL REFERENCES projects(id), version INTEGER NOT NULL, digest TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id,version))"
+            )
+            db.execute(
+                "CREATE INDEX IF NOT EXISTS knowledge_project ON knowledge(project_id,id,version)"
+            )
+            db.execute("PRAGMA user_version=2")
 
     @contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:

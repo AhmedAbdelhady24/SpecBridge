@@ -87,12 +87,16 @@ class Source(Model):
     project_id: str
     text: str
     digest: str
-    kind: Literal["user_provided"] = "user_provided"
+    kind: Literal[
+        "user_provided", "verified", "recommendation", "assumption", "unknown"
+    ] = "user_provided"
+    knowledge_ref: str | None = None
 
 
 def validate_handoff(artifact: Artifact, sources: list[Source]) -> None:
     """Enforce current eligibility without changing historical snapshot schemas."""
     source_texts = {source.id: source.text for source in sources}
+    source_kinds = {source.id: source.kind for source in sources}
     if (
         len(source_texts) > 20
         or sum(len(text.encode()) for text in source_texts.values()) > 65536
@@ -112,7 +116,9 @@ def validate_handoff(artifact: Artifact, sources: list[Source]) -> None:
         if statement.kind == "user_provided" and (
             not statement.source_ids
             or any(
-                statement.text not in source_texts[key] for key in statement.source_ids
+                statement.text not in source_texts[key]
+                or source_kinds[key] != "user_provided"
+                for key in statement.source_ids
             )
         ):
             raise ValueError(

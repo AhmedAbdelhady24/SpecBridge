@@ -12,6 +12,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
 
+from .knowledge import register_knowledge_routes
 from .models import (
     AdvanceRequest,
     ApprovalCreate,
@@ -94,6 +95,7 @@ def create_app(
     )
     store = Store(data_dir / "specbridge.db")
     app.state.store = store
+    register_knowledge_routes(app, store)
     configured_provider = provider or FixtureProvider()
     registry = SkillRegistry(skill_root or ROOT / "skills/runtime")
     workflow = Workflow(store, registry, configured_provider)

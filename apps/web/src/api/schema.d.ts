@@ -90,6 +90,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{project_id}/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Context */
+        get: operations["context_api_projects__project_id__context_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/knowledge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Entries */
+        get: operations["entries_api_projects__project_id__knowledge_get"];
+        put?: never;
+        /** Create */
+        post: operations["create_api_projects__project_id__knowledge_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/knowledge/{entry_id}/edits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Edit */
+        post: operations["edit_api_projects__project_id__knowledge__entry_id__edits_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/knowledge/{entry_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** History */
+        get: operations["history_api_projects__project_id__knowledge__entry_id__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/knowledge/{entry_id}/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Snapshot */
+        post: operations["snapshot_api_projects__project_id__knowledge__entry_id__sources_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/knowledge/{entry_id}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify */
+        post: operations["verify_api_projects__project_id__knowledge__entry_id__verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Revisions */
+        get: operations["revisions_api_projects__project_id__revisions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects/{project_id}/revisions/{revision_id}": {
         parameters: {
             query?: never;
@@ -326,6 +446,33 @@ export interface components {
             /** Template Digest */
             template_digest: string;
         };
+        /** ContextItem */
+        ContextItem: {
+            /** Digest */
+            digest: string;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "user_provided" | "verified" | "recommendation" | "assumption" | "unknown";
+            /**
+             * Resource Type
+             * @enum {string}
+             */
+            resource_type: "knowledge" | "source";
+            /** Score */
+            score: number;
+            /** Source Ids */
+            source_ids: string[];
+            /** Text */
+            text: string;
+            /** Title */
+            title: string;
+            /** Version */
+            version: number | null;
+        };
         /** Finding */
         Finding: {
             /** Code */
@@ -343,6 +490,68 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** KnowledgeEdit */
+        KnowledgeEdit: {
+            entry: components["schemas"]["KnowledgeInput"];
+            /** Expected Digest */
+            expected_digest: string;
+        };
+        /** KnowledgeEntry */
+        KnowledgeEntry: {
+            /** Archived */
+            archived: boolean;
+            /** Digest */
+            digest: string;
+            /**
+             * Entity Type
+             * @enum {string}
+             */
+            entity_type: "goal" | "stakeholder" | "decision" | "risk" | "dependency" | "api_reference" | "conversation";
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "user_provided" | "verified" | "recommendation" | "assumption" | "unknown";
+            /** Project Id */
+            project_id: string;
+            /** Source Ids */
+            source_ids: string[];
+            /** Text */
+            text: string;
+            /** Title */
+            title: string;
+            /** Verification Note */
+            verification_note?: string | null;
+            /** Version */
+            version: number;
+        };
+        /** KnowledgeInput */
+        KnowledgeInput: {
+            /**
+             * Archived
+             * @default false
+             */
+            archived: boolean;
+            /**
+             * Entity Type
+             * @enum {string}
+             */
+            entity_type: "goal" | "stakeholder" | "decision" | "risk" | "dependency" | "api_reference" | "conversation";
+            /**
+             * Kind
+             * @default user_provided
+             * @enum {string}
+             */
+            kind: "user_provided" | "recommendation" | "assumption" | "unknown";
+            /** Source Ids */
+            source_ids?: string[];
+            /** Text */
+            text: string;
+            /** Title */
+            title: string;
         };
         /** Project */
         Project: {
@@ -433,6 +642,17 @@ export interface components {
             /** Expected Digest */
             expected_digest: string;
         };
+        /** RevisionSummary */
+        RevisionSummary: {
+            /** Digest */
+            digest: string;
+            /** Id */
+            id: string;
+            /** Number */
+            number: number;
+            /** Title */
+            title: string;
+        };
         /** Run */
         Run: {
             /**
@@ -493,6 +713,13 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** SnapshotRequest */
+        SnapshotRequest: {
+            /** Expected Digest */
+            expected_digest: string;
+            /** Version */
+            version: number;
+        };
         /** Source */
         Source: {
             /** Digest */
@@ -502,9 +729,11 @@ export interface components {
             /**
              * Kind
              * @default user_provided
-             * @constant
+             * @enum {string}
              */
-            kind: "user_provided";
+            kind: "user_provided" | "verified" | "recommendation" | "assumption" | "unknown";
+            /** Knowledge Ref */
+            knowledge_ref?: string | null;
             /** Project Id */
             project_id: string;
             /** Text */
@@ -559,6 +788,17 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** VerifyKnowledge */
+        VerifyKnowledge: {
+            /** Confirm */
+            confirm: boolean;
+            /** Expected Digest */
+            expected_digest: string;
+            /** Note */
+            note: string;
+            /** Source Ids */
+            source_ids: string[];
         };
     };
     responses: never;
@@ -720,6 +960,289 @@ export interface operations {
                 content: {
                     "application/json": unknown;
                     "application/zip": string;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    context_api_projects__project_id__context_get: {
+        parameters: {
+            query?: {
+                query?: string;
+                limit?: number;
+                budget_bytes?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContextItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    entries_api_projects__project_id__knowledge_get: {
+        parameters: {
+            query?: {
+                query?: string;
+                entity_type?: ("goal" | "stakeholder" | "decision" | "risk" | "dependency" | "api_reference" | "conversation") | null;
+                include_archived?: boolean;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeEntry"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_api_projects__project_id__knowledge_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KnowledgeInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeEntry"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_api_projects__project_id__knowledge__entry_id__edits_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KnowledgeEdit"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeEntry"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    history_api_projects__project_id__knowledge__entry_id__history_get: {
+        parameters: {
+            query?: {
+                before?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeEntry"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    snapshot_api_projects__project_id__knowledge__entry_id__sources_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SnapshotRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Source"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_api_projects__project_id__knowledge__entry_id__verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyKnowledge"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeEntry"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revisions_api_projects__project_id__revisions_get: {
+        parameters: {
+            query?: {
+                before?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RevisionSummary"][];
                 };
             };
             /** @description Validation Error */
