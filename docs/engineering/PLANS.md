@@ -1,6 +1,6 @@
 # Engineering plans
 
-Substantial changes have one self-contained plan in `docs/plans/`. The active implementation plan is [2026-10-15-first-slice-implementation.md](../plans/2026-10-15-first-slice-implementation.md); the [roadmap](../plans/bootstrap-and-first-slice.md) tracks milestone status. The first-slice design and implementation plan were approved on 2026-10-15. Technical execution is verified; see the [results](../evaluations/first-slice-results.md) for remaining qualification.
+Substantial changes have one self-contained plan in `docs/plans/`. The current execution record is [Milestone 2](../plans/2026-10-17-milestone-2.md); the [first-slice implementation plan](../plans/2026-10-15-first-slice-implementation.md) is historical; the [roadmap](../plans/bootstrap-and-first-slice.md) tracks milestone status. The first-slice design and implementation plan were approved on 2026-10-15. Technical execution is verified; see the [results](../evaluations/first-slice-results.md) for remaining qualification.
 
 Each plan records:
 
@@ -29,3 +29,5 @@ Subsequent [offline decision-consistency probe](../plans/2026-10-17-consistency-
 Latest completed comparison: [high effort](../plans/2026-10-17-reasoning-high-comparison.md), five new calls with 4/5 backend and 2/5 semantic passes. Scope consumed; configuration not promoted. Maintain the requested interactive Kanban checkpoint in `docs/engineering/specbridge-progress.html` alongside roadmap evidence. Next generation hypothesis must address the recorded behavioral/decision failures; unfamiliar-human acceptance remains open.
 
 Latest completed scope: [approved model crossover and accessible board](../plans/2026-10-17-model-crossover.md). Five Pro calls yielded one semantic pass, two semantic failures and two timeouts without assessable drafts. Approval consumed; no configuration promoted. The next task is an evaluation-only source-analysis→Artifact-drafting design with original evidence retained; do not add further paid calls or production orchestration automatically. Keep the canonical phase board and local offline browser export synchronized with this result.
+
+Latest user-authorized continuation: [Milestone2 persistent knowledge](../plans/2026-10-17-milestone-2.md), allowed to proceed while M1 remains open. Local implementation and recovery evidence are in [the M2 report](../evaluations/milestone-2.md). The [compiled handoff candidate](../plans/2026-10-17-compiled-handoff.md) has24passing component checks; its five-call paid preview remains pending. No extra model round or external write is implied by M2 authorization.

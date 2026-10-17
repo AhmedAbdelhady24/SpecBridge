@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "backup_cli": "passed",
+  "restore_cli": "passed",
+  "knowledge_types": 7,
+  "immutable_goal_versions": 2,
+  "selected_context_kind": "recommendation",
+  "restored_checkpoint_resumed_to": "human_review",
+  "new_artifact_revision": 1,
+  "private_backup_mode": "0o600",
+  "provider": "fixture; no network/model calls"
+}

@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "scope": "Milestone2 local fixture/business-rule acceptance; M1 semantic/human gates remain open",
+  "backend": {
+    "tests": 299,
+    "bootstrap_subtests": 232,
+    "duration_seconds": 2.05
+  },
+  "browser": {
+    "tests": 18,
+    "duration_seconds": 14.4,
+    "narrow_context_width": 360
+  },
+  "web": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "client_tests": 2,
+    "build": "passed"
+  },
+  "python": {
+    "ruff_check": "passed",
+    "ruff_format_files": 38,
+    "mypy_sources": 11
+  },
+  "docs": {
+    "standalone_handoff": "passed",
+    "duration_seconds": 15.17,
+    "openapi_types_drift": "none",
+    "markdown_links": "passed"
+  },
+  "audits": {
+    "python": "no known vulnerabilities",
+    "root_npm": 0,
+    "web_npm": 0,
+    "docs_npm": 0
+  },
+  "backup_restore": "passed; see milestone-2-recovery.json",
+  "independent_review": "Important displayed-vs-saved verification issue fixed RED-to-GREEN; migration evidence gap closed; no material M2 finding remains",
+  "offline_kanban": {
+    "cards": 7,
+    "widths": [
+      736,
+      320
+    ],
+    "expand_collapse": "passed",
+    "page_errors": 0,
+    "external_requests": 0
+  },
+  "additional_paid_calls": 0,
+  "hosted_project_attempts": 60,
+  "runtime_skill": "feature-handoff1.2.0 unchanged",
+  "remaining": "M1 typed-plan paid five-call check awaiting explicit approval; unfamiliar-human acceptance; M3-M6 planned"
+}

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { components } from "./api/schema";
 import { ApiError, request } from "./api/client";
+import { KnowledgePanel } from "./KnowledgePanel";
 import { ArtifactEditor } from "./ArtifactEditor";
 type Schema = components["schemas"];
 export default function App() {
@@ -8,7 +9,9 @@ export default function App() {
   const [config, setConfig] = useState<Schema["ProviderInfo"]>();
   const [projects, setProjects] = useState<Schema["Project"][]>([]);
   const [project, setProject] = useState("");
+  const projectRef = useRef("");
   const [name, setName] = useState("");
+  const [contextSources, setContextSources] = useState<Schema["Source"][]>([]);
   const [idea, setIdea] = useState("");
   const [ack, setAck] = useState(false);
   const [retry, setRetry] = useState(false);
@@ -67,7 +70,9 @@ export default function App() {
     setArtifact(value.artifact);
   }
   async function chooseProject(id: string) {
+    projectRef.current = id;
     setProject(id);
+    setContextSources([]);
     setRun(undefined);
     setRuns([]);
     setSelectedRun("");
@@ -104,22 +109,21 @@ export default function App() {
     if (current.revision_id) await loadRevision(current.revision_id);
   }
   async function generate() {
-    const source = await api<Schema["Source"]>(`${base}/sources`, {
-      text: idea,
-    });
+    const sources = [...contextSources];
+    if (idea.trim()) sources.push(await api<Schema["Source"]>(`${base}/sources`, { text: idea }));
     const skills = await api<Schema["SkillMetadata"][]>(
       `/skills?intent=${encodeURIComponent("feature handoff")}`,
     );
     if (!skills.length) throw new Error("No runtime skill is available.");
     const created = await api<Schema["Run"]>(`${base}/runs`, {
-      source_ids: [source.id],
+      source_ids: sources.map(s => s.id),
       skill_id: skills[0].name,
       intent: "feature handoff",
       acknowledged_destination: config!.destination,
     });
     clearRevision();
     setRun(created);
-    setSelectedSources([source]);
+    setSelectedSources(sources);
     setRuns((current) => [...current, created]);
     setSelectedRun(created.id);
     await progress(created);
@@ -278,7 +282,7 @@ export default function App() {
                         onChange={(e) => setIdea(e.target.value)}
                         maxLength={32768}
                         rows={6}
-                        required
+                        required={!contextSources.length}
                         placeholder="What should someone be able to do, and why?"
                       />
                     </label>
@@ -301,7 +305,11 @@ export default function App() {
                       />
                       I acknowledge generation uses this destination
                     </label>
-                    <button disabled={!ack || !idea.trim()}>
+                    {contextSources.map(source => <div key={source.id}>
+                      <details><summary>Selected context · {source.kind}</summary><p>{source.text}</p></details>
+                      <button type="button" className="secondary" onClick={() => setContextSources(contextSources.filter(s => s.id !== source.id))}>Remove context</button>
+                    </div>)}
+                    <button disabled={!ack || (!idea.trim() && !contextSources.length)}>
                       Generate draft
                     </button>
                   </fieldset>
@@ -351,6 +359,7 @@ export default function App() {
                 )}
               </aside>
               <div className="review-column">
+                {project && <KnowledgePanel key={project} token={token} project={project} disabled={disabled} onSelect={source => { if (source.project_id === projectRef.current) setContextSources(current => current.some(s => s.id === source.id) ? current : [...current, source]); }} />}
                 <section className="panel">
                   <p className="step">02 / INSPECT & REFINE</p>
                   <h2>Draft review</h2>

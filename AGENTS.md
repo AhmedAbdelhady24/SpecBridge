@@ -1,3 +1,7 @@
+<!-- codebase-memory-mcp:start -->
+For structural codebase exploration, use the installed `codebase-memory` skill.
+<!-- codebase-memory-mcp:end -->
+
 # SpecBridge engineering
 
 Purpose: turn product ideas and project evidence into validated requirements, reviewed backlog proposals, and Git-backed documentation that developers can use independently.
@@ -5,7 +9,8 @@ Purpose: turn product ideas and project evidence into validated requirements, re
 ## Current state and paths
 
 - Technical first slice implemented: local FastAPI/SQLite workflow, React review UI and standalone Starlight export. Fixture/browser verification is separate from pending semantic, live-provider and unfamiliar-human acceptance. See `docs/evaluations/first-slice-results.md` for current evidence and limits.
-- `services/api/specbridge/`: backend security, contracts, persistence, skills, providers, workflow and publication.
+- `services/api/specbridge/`: backend security, contracts, persistence, knowledge, skills, providers, workflow and publication.
+- Milestone2 knowledge/versioning/context and backup recovery are implemented; see `docs/evaluations/milestone-2.md`. M1 live-semantic/unfamiliar-human gates remain open; do not infer acceptance from component checks.
 - `apps/web/`: React/Vite UI and generated OpenAPI types; `packages/contracts/openapi.json` is generated from the backend.
 - `packages/docs-template/`: fixed independently runnable documentation template.
 - `skills/runtime/feature-handoff/`: original data-only runtime guidance and hashed provenance.
@@ -43,6 +48,7 @@ npm --prefix apps/web test
 npm --prefix apps/web run build
 npm run test:e2e
 uv run python scripts/verify_handoff.py --output /tmp/specbridge-handoff-check
+uv run python scripts/verify_workspace_recovery.py
 git diff --check
 ```
 

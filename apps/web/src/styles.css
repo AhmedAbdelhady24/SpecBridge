@@ -472,3 +472,9 @@ footer {
   border: 1px solid var(--border);
   background: #f5f5ee;
 }
+
+.knowledge-panel article { margin-block: 1rem; padding-block: 0.5rem; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.knowledge-panel p { white-space: pre-wrap; }
+.knowledge-panel summary { font-weight: 600; }
+
+.intake p { overflow-wrap: anywhere; }
