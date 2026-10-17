@@ -1,0 +1,44 @@
+{
+  "preview_sha256": "ac18069cb607ce946d44613d09df2df95d58d3eb6ebcb11fcb43ee6ae5902e8f",
+  "calls": 10,
+  "retries": 0,
+  "generation_timeout_seconds": null,
+  "replay": [
+    {
+      "case": "notification-preferences",
+      "analysis": "validated",
+      "draft": "validated"
+    },
+    {
+      "case": "incomplete-booking",
+      "analysis": "validated",
+      "draft": "validated"
+    },
+    {
+      "case": "contradictory-deletion",
+      "analysis": "validated",
+      "draft": "validated"
+    },
+    {
+      "case": "conflicting-api",
+      "analysis": "validated",
+      "draft": "validated"
+    },
+    {
+      "case": "embedded-instruction",
+      "analysis": "validated",
+      "draft": "validated"
+    }
+  ],
+  "input_tokens": 25622,
+  "completion_tokens": 47335,
+  "reported_total_tokens": 72957,
+  "usage_available_for_all_calls": true,
+  "summed_call_duration_seconds": 518.18,
+  "calls_above_old_60s_deadline": 4,
+  "cost": "unknown",
+  "hosted_project_attempts": 60,
+  "source_pack_unchanged": true,
+  "stage2_requests_equal_approved_template_plus_validated_ledger": true,
+  "frozen_acceptance_sha256": "4518b228d88431c8d6d074a367146f457fef2067638830ef13991b40f8e997cf"
+}

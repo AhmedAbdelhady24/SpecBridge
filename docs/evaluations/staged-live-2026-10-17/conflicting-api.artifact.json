@@ -1,0 +1,134 @@
+{
+  "title": "Catalog API Response and Pagination Alternatives",
+  "purpose": "Describe the two competing Catalog API drafts and their required client behaviors without selecting an authoritative contract.",
+  "scope": [
+    {
+      "text": "The handoff covers draft A's GET /v1/items response as a JSON object with an items array and next_cursor string, draft A's next-page UI support, and draft B's GET /v1/items top-level JSON array with page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "GET /v1/items returns a top-level JSON array",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    },
+    {
+      "text": "uses page and page_size query parameters",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-4"
+    }
+  ],
+  "stories": [
+    {
+      "text": "If a human selects draft A, a catalog page can load the JSON object response and move to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1",
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected draft A, when a catalog request is made, then the response is a JSON object containing an items array and a next_cursor string.",
+        "Given a human has selected draft A, when the user initiates moving to the next page, then the UI advances to the next page instead of remaining on the current page."
+      ]
+    },
+    {
+      "text": "If a human selects draft B, a catalog request returns a top-level JSON array and honors page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-3",
+        "REQ-4"
+      ],
+      "acceptance_criteria": [
+        "Given a human has selected draft B, when a catalog request is made, then the response is a top-level JSON array.",
+        "Given a human has selected draft B, when the request includes page and page_size query parameters, then the endpoint returns items according to those parameters."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "The exact user action and visual change for moving to the next page are not specified in draft A.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "unknown"
+    },
+    {
+      "text": "The behavior for missing, invalid, or out-of-range page and page_size values is not specified in draft B.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "Neither draft is approved; the authoritative contract has not been selected.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Selecting draft A would leave draft B's top-level JSON array and page/page_size contract unfulfilled; selecting draft B would leave draft A's JSON object with items array and next_cursor contract unfulfilled.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "For whichever draft a human selects, a catalog request returns a response shape and pagination fields matching that selected draft.",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Which catalog API response shape and pagination mechanism should be treated as the authoritative contract: draft A (JSON object with items array and next_cursor), draft B (top-level JSON array with page and page_size), or a newly selected contract?",
+    "What exact user action triggers moving to the next page in draft A?",
+    "How should the API handle missing, invalid, or out-of-range page and page_size values in draft B?",
+    "Who has authority to select the authoritative contract?"
+  ]
+}

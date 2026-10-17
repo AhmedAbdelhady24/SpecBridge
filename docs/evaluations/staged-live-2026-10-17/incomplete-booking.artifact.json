@@ -1,0 +1,84 @@
+{
+  "title": "Workshop reservation",
+  "purpose": "Document the requested workshop reservation behavior and list undecided decisions for human resolution.",
+  "scope": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a visitor, I want to reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a visitor has chosen a workshop, when the visitor completes the reservation action, then the system records a reservation for that visitor and that workshop."
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "text": "When a reservation is attempted before payment, account, capacity, cancellation, owner, or release-date decisions are made, the system should not assume any of those policies.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "dependencies": [
+    {
+      "text": "Payment, account, capacity limit, cancellation, owner, and release date are not decided.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Building the reservation flow before those decisions are made may require rework when a human selects the policies.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "A tester can observe that completing a workshop reservation results in a recorded reservation.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Is payment required for a visitor to reserve a place in a workshop?",
+    "Is a user account required for a visitor to reserve a place in a workshop?",
+    "Is there a capacity limit on workshop reservations?",
+    "Can a visitor cancel a reservation after making it?",
+    "Who is the owner of the workshop reservation feature?",
+    "When will the workshop reservation feature be released?"
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "kind": "recommendation",
+  "behaviors": [
+    {
+      "id": "BEH-workshop-reservation",
+      "source_ids": [
+        "booking-note"
+      ],
+      "source_excerpt": "Let visitors reserve a place in a workshop.",
+      "proposed_observable_outcome": "After a visitor completes the reservation action for a workshop, the system records a reservation for that visitor and that workshop."
+    }
+  ],
+  "open_decisions": [
+    {
+      "question": "Is payment required for a visitor to reserve a place in a workshop?",
+      "source_ids": [
+        "booking-note"
+      ],
+      "affected_behavior_ids": [
+        "BEH-workshop-reservation"
+      ],
+      "alternatives": [
+        "Payment is required before the reservation is recorded.",
+        "No payment is required to reserve a place.",
+        "Payment may be required for some workshops but not others."
+      ]
+    },
+    {
+      "question": "Is a user account required for a visitor to reserve a place in a workshop?",
+      "source_ids": [
+        "booking-note"
+      ],
+      "affected_behavior_ids": [
+        "BEH-workshop-reservation"
+      ],
+      "alternatives": [
+        "An account is required before a reservation can be made.",
+        "No account is required; visitors can reserve without signing in.",
+        "An account is optional, with additional benefits for account holders."
+      ]
+    },
+    {
+      "question": "Is there a capacity limit on workshop reservations?",
+      "source_ids": [
+        "booking-note"
+      ],
+      "affected_behavior_ids": [
+        "BEH-workshop-reservation"
+      ],
+      "alternatives": [
+        "Each workshop has a maximum number of available reservations.",
+        "No capacity limit is enforced.",
+        "Capacity limits vary by workshop or event configuration."
+      ]
+    },
+    {
+      "question": "Can a visitor cancel a reservation after making it?",
+      "source_ids": [
+        "booking-note"
+      ],
+      "affected_behavior_ids": [
+        "BEH-workshop-reservation"
+      ],
+      "alternatives": [
+        "Visitors can cancel their reservation after making it.",
+        "Cancellation is not supported.",
+        "Cancellation is supported only within a limited time window or under specific conditions."
+      ]
+    },
+    {
+      "question": "When will visitors be able to use the workshop reservation feature?",
+      "source_ids": [
+        "booking-note"
+      ],
+      "affected_behavior_ids": [
+        "BEH-workshop-reservation"
+      ],
+      "alternatives": [
+        "The feature is available to visitors immediately.",
+        "The feature becomes available on a future release date that has not yet been assigned.",
+        "The feature is not available until a release date is assigned."
+      ]
+    }
+  ]
+}

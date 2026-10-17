@@ -1,0 +1,71 @@
+{
+  "kind": "recommendation",
+  "behaviors": [
+    {
+      "id": "BEH-1",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "source_excerpt": "Members can switch weekly email digests on or off in notification settings.",
+      "proposed_observable_outcome": "When a member toggles the weekly email digest option in notification settings, the system sends or stops sending the weekly email digest according to the selected setting."
+    },
+    {
+      "id": "BEH-2",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "source_excerpt": "The setting must persist after sign-out and sign-in.",
+      "proposed_observable_outcome": "After a member changes the weekly email digest setting and signs out, then signs back in, the notification settings still display the same digest preference they saved before signing out."
+    },
+    {
+      "id": "BEH-3",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "source_excerpt": "Switching digests off does not disable account-security messages.",
+      "proposed_observable_outcome": "When a member turns weekly email digests off, account-security messages continue to be sent to that member."
+    },
+    {
+      "id": "BEH-4",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "source_excerpt": "A newly created member starts with weekly digests off.",
+      "proposed_observable_outcome": "When a new member account is created, the member is not subscribed to weekly email digests unless and until the member enables that setting."
+    }
+  ],
+  "open_decisions": [
+    {
+      "question": "What is the delivery date for the weekly email digest preference behaviors?",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "affected_behavior_ids": [
+        "BEH-1",
+        "BEH-2",
+        "BEH-3",
+        "BEH-4"
+      ],
+      "alternatives": [
+        "The delivery date is not specified in the source and remains unknown.",
+        "The delivery date may be determined later after further planning."
+      ]
+    },
+    {
+      "question": "Who owns the weekly email digest preference feature?",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "affected_behavior_ids": [
+        "BEH-1",
+        "BEH-2",
+        "BEH-3",
+        "BEH-4"
+      ],
+      "alternatives": [
+        "The source does not identify an owner, so ownership remains unresolved.",
+        "Ownership may be assigned later by the organization."
+      ]
+    }
+  ]
+}

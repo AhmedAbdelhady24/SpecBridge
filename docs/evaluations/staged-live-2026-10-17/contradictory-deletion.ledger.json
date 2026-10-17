@@ -1,0 +1,94 @@
+{
+  "kind": "recommendation",
+  "behaviors": [
+    {
+      "id": "BEH-privacy-delete-immediate",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "source_excerpt": "Privacy stakeholder requests immediate permanent deletion of an uploaded image when its owner selects Delete.",
+      "proposed_observable_outcome": "After the owner selects Delete on an uploaded image, the system immediately removes the image from storage and makes it non-recoverable; subsequent attempts by the owner to view, restore, or retrieve that image return no accessible image and no recovery period is offered."
+    },
+    {
+      "id": "BEH-support-delete-recover-30d",
+      "source_ids": [
+        "support-request"
+      ],
+      "source_excerpt": "Support stakeholder requests that the same deleted image remain recoverable by its owner for 30 days after Delete. No stakeholder has authority to choose between these requests yet.",
+      "proposed_observable_outcome": "After the owner selects Delete on an uploaded image, the system does not immediately and permanently remove the image; instead, the image remains in a recoverable state accessible to that owner for 30 days after the Delete action, and the owner can access or restore it during that period."
+    }
+  ],
+  "open_decisions": [
+    {
+      "question": "Which delete behavior should be implemented when an uploaded image owner selects Delete?",
+      "source_ids": [
+        "privacy-request",
+        "support-request"
+      ],
+      "affected_behavior_ids": [
+        "BEH-privacy-delete-immediate",
+        "BEH-support-delete-recover-30d"
+      ],
+      "alternatives": [
+        "Permanently delete the image immediately, with no owner recovery period.",
+        "Keep the deleted image recoverable by the owner for 30 days after Delete."
+      ]
+    },
+    {
+      "question": "What should happen to the deleted image after the 30-day recoverability period requested by support ends?",
+      "source_ids": [
+        "support-request"
+      ],
+      "affected_behavior_ids": [
+        "BEH-support-delete-recover-30d"
+      ],
+      "alternatives": [
+        "Permanently delete the image automatically at the end of the 30-day period.",
+        "Leave the image in a recoverable state until another action occurs.",
+        "Move the image to a different retention state not specified by the source."
+      ]
+    },
+    {
+      "question": "Through what interface or mechanism can the owner recover a deleted image during the 30-day period?",
+      "source_ids": [
+        "support-request"
+      ],
+      "affected_behavior_ids": [
+        "BEH-support-delete-recover-30d"
+      ],
+      "alternatives": [
+        "A restore option in a deleted items or trash area.",
+        "Direct retrieval from a list of recently deleted images.",
+        "A support-assisted recovery request."
+      ]
+    },
+    {
+      "question": "Does the immediate permanent deletion request apply to all uploaded images and all owner types, or are there exceptions such as shared images, regulatory holds, or specific user roles?",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "affected_behavior_ids": [
+        "BEH-privacy-delete-immediate"
+      ],
+      "alternatives": [
+        "It applies to all uploaded images owned by any user.",
+        "It applies only to certain image types, ownership states, or user roles.",
+        "The source does not specify any exceptions or limitations."
+      ]
+    },
+    {
+      "question": "What exact timing does 'immediate' require for permanent deletion after the owner selects Delete?",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "affected_behavior_ids": [
+        "BEH-privacy-delete-immediate"
+      ],
+      "alternatives": [
+        "Before any subsequent response is returned to the owner.",
+        "Within a specified short time after the Delete selection.",
+        "The source does not define a precise timing boundary."
+      ]
+    }
+  ]
+}

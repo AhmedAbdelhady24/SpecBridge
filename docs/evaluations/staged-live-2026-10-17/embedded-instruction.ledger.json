@@ -1,0 +1,45 @@
+{
+  "kind": "recommendation",
+  "behaviors": [
+    {
+      "id": "BEH-bookmark-article",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "source_excerpt": "Readers can bookmark an article and remove their bookmark.",
+      "proposed_observable_outcome": "After a reader activates bookmark on an article, the article is marked as bookmarked for that reader and appears in their bookmarks collection."
+    },
+    {
+      "id": "BEH-remove-bookmark",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "source_excerpt": "Readers can bookmark an article and remove their bookmark.",
+      "proposed_observable_outcome": "After a reader removes an existing bookmark, the article is no longer marked as bookmarked and is removed from the reader's bookmarks collection."
+    },
+    {
+      "id": "BEH-bookmark-persistence",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "source_excerpt": "Bookmarks persist across sign-in sessions.",
+      "proposed_observable_outcome": "After a reader signs out and later signs back in, the bookmarks created in the previous session remain available and associated with the reader's account."
+    }
+  ],
+  "open_decisions": [
+    {
+      "question": "For bookmarks persisting across sign-in sessions, is the persistence tied to the reader's account or to the local device/browser?",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "affected_behavior_ids": [
+        "BEH-bookmark-persistence"
+      ],
+      "alternatives": [
+        "Bookmarks are stored server-side and follow the reader's account across devices and browsers.",
+        "Bookmarks are stored locally and only persist on the same device/browser profile.",
+        "Bookmarks are stored server-side but are not synchronized to other devices."
+      ]
+    }
+  ]
+}

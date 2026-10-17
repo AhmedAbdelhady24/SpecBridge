@@ -1,0 +1,85 @@
+{
+  "kind": "recommendation",
+  "behaviors": [
+    {
+      "id": "BEH-api-a-response-shape",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "source_excerpt": "GET /v1/items returns a JSON object with an items array and next_cursor string",
+      "proposed_observable_outcome": "When a user opens the catalog page, the client can render the returned items array, and the presence of next_cursor enables the UI to determine whether additional items are available."
+    },
+    {
+      "id": "BEH-api-a-next-page-ui",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "source_excerpt": "UI must support moving to the next page",
+      "proposed_observable_outcome": "When the user initiates moving to the next page, the UI displays the next set of catalog items rather than remaining on the current page."
+    },
+    {
+      "id": "BEH-api-b-response-shape",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "source_excerpt": "GET /v1/items returns a top-level JSON array",
+      "proposed_observable_outcome": "When a user requests the catalog items endpoint, the client receives a top-level JSON array, which the UI can iterate over to display items."
+    },
+    {
+      "id": "BEH-api-b-pagination-params",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "source_excerpt": "uses page and page_size query parameters",
+      "proposed_observable_outcome": "When a user requests a specific page and page_size, the response returns items according to those query parameters, enabling the UI to show the requested page of items."
+    }
+  ],
+  "open_decisions": [
+    {
+      "question": "Which catalog API response shape and pagination mechanism should be treated as the authoritative contract?",
+      "source_ids": [
+        "api-spec-a",
+        "api-spec-b"
+      ],
+      "affected_behavior_ids": [
+        "BEH-api-a-response-shape",
+        "BEH-api-a-next-page-ui",
+        "BEH-api-b-response-shape",
+        "BEH-api-b-pagination-params"
+      ],
+      "alternatives": [
+        "Use draft A (JSON object with items array and next_cursor)",
+        "Use draft B (top-level JSON array with page and page_size)",
+        "Wait for a combined or newly selected contract"
+      ]
+    },
+    {
+      "question": "What exact user action triggers moving to the next page, and what visual change occurs after that action?",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "affected_behavior_ids": [
+        "BEH-api-a-next-page-ui"
+      ],
+      "alternatives": [
+        "A visible next-page button",
+        "Infinite scroll triggered by reaching the end of the list",
+        "Swipe or keyboard shortcut"
+      ]
+    },
+    {
+      "question": "How should the API handle missing, invalid, or out-of-range page and page_size values?",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "affected_behavior_ids": [
+        "BEH-api-b-pagination-params"
+      ],
+      "alternatives": [
+        "The server applies sensible defaults and clamps out-of-range values",
+        "Invalid page or page_size returns a 400 error",
+        "Out-of-range page returns an empty array"
+      ]
+    }
+  ]
+}

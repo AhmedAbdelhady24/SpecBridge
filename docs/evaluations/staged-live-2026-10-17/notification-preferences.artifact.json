@@ -1,0 +1,138 @@
+{
+  "title": "Weekly Email Digest Notification Settings",
+  "purpose": "Document the requested weekly email digest notification preference behaviors.",
+  "scope": [
+    {
+      "text": "The requested scope covers four behaviors: members can switch weekly email digests on or off in notification settings; the setting persists after sign-out and sign-in; switching digests off does not disable account-security messages; new members start with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Members can switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "The setting must persist after sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "Switching digests off does not disable account-security messages.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    },
+    {
+      "text": "A newly created member starts with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-4"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a member, I want to switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a member is viewing notification settings, when the member switches weekly email digests on or off, then the selected value is stored and reflected in the setting."
+      ]
+    },
+    {
+      "text": "As a member, I want my weekly email digest setting to persist after sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Given a member has saved a weekly email digest setting, when the member signs out and then signs back in and opens notification settings, then the displayed setting matches the saved value."
+      ]
+    },
+    {
+      "text": "As a member, I want switching off weekly email digests not to disable account-security messages.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-3",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Given a member has switched weekly email digests off, when an account-security message would be sent under existing security-message policy, then the account-security message is still sent to the member."
+      ]
+    },
+    {
+      "text": "As a new member, I want to start with weekly email digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-4",
+      "requirement_ids": [
+        "REQ-4"
+      ],
+      "acceptance_criteria": [
+        "Given a new member account is created, when the member first views notification settings, then the weekly email digest setting is off."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "Owner and delivery date are unknown.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Owner and delivery date are unknown; scheduling and accountability for this feature remain unresolved.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "After implementation, verify that each acceptance criterion in STORY-1 through STORY-4 can be demonstrated.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Who owns the weekly email digest preference feature?",
+    "What is the delivery date for the weekly email digest preference behaviors?"
+  ]
+}
