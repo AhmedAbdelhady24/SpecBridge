@@ -255,23 +255,33 @@ def _usage(raw: bytes | None) -> dict[str, int] | None:
 
 
 def _call(
-    request: dict[str, Any], options: dict[str, Any], validator: Any
+    request: dict[str, Any],
+    options: dict[str, Any],
+    validator: Any,
+    rejected_output: Path,
 ) -> tuple[Any, dict[str, Any]]:
     transport = BoundTransport(request)
     provider = Observation(transport=transport, **options)
     started = time.monotonic()
     value = None
+    safe_final_content = False
     record: dict[str, Any] = {
         "request_sha256": preview_digest(request["body"]),
         "status": "invalid_response",
+        "rejected_content_file": None,
+        "content_retention": "not retained: no safely decoded final JSON; malformed, refused, interrupted or secret responses retain metadata only",
     }
     try:
         raw = asyncio.run(provider._request(request["body"]))
         content = _content(raw)
         if provider._key in json.dumps(content, ensure_ascii=False):
             raise ProviderFailure("secret_in_response")
+        safe_final_content = True
         value = validator(content)
         record["status"] = "validated"
+        record["content_retention"] = (
+            "validated JSON retained as ledger or artifact; not approved"
+        )
     except ProviderFailure as error:
         record["status"] = error.code
     except (TimeoutError, httpx.TimeoutException):
@@ -280,8 +290,19 @@ def _call(
         record["status"] = "provider_transport_error"
     except (ValueError, KeyError, IndexError, TypeError, RecursionError):
         record["status"] = "invalid_response"
+    if value is None and safe_final_content:
+        rejected_output.write_text(
+            json.dumps(content, indent=2, ensure_ascii=False) + "\n"
+        )
+        record["rejected_content_file"] = rejected_output.name
+        record["content_retention"] = (
+            "rejected JSON retained for diagnosis; not approved"
+        )
     record.update(
         {
+            "response_sha256": hashlib.sha256(provider.raw).hexdigest()
+            if provider.raw is not None
+            else None,
             "attempts": transport.attempts,
             "http_status": transport.http_status,
             "duration_seconds": round(time.monotonic() - started, 2),
@@ -327,7 +348,10 @@ def execute(preview: dict[str, Any], approval: str, output: Path) -> dict[str, A
                 raise ProviderFailure("invalid_analysis") from None
 
         ledger, analysis_record = _call(
-            case["analysis_request"], options, check_analysis
+            case["analysis_request"],
+            options,
+            check_analysis,
+            output / (case["id"] + ".analysis.rejected.json"),
         )
         record: dict[str, Any] = {
             "case": case["id"],
@@ -353,7 +377,12 @@ def execute(preview: dict[str, Any], approval: str, output: Path) -> dict[str, A
             def check_artifact(value: Any, sources: list[Source] = sources) -> Artifact:
                 return validate_artifact(Artifact.model_validate(value), sources)
 
-            artifact, record["draft"] = _call(request, options, check_artifact)
+            artifact, record["draft"] = _call(
+                request,
+                options,
+                check_artifact,
+                output / (case["id"] + ".draft.rejected.json"),
+            )
             if artifact is not None:
                 (output / (case["id"] + ".artifact.json")).write_text(
                     artifact.model_dump_json(indent=2) + "\n"

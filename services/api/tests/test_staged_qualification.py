@@ -1,5 +1,6 @@
 """Evaluation-only staged generation authorization and data boundaries."""
 
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -172,6 +173,13 @@ def test_invalid_analysis_stops_before_drafting(monkeypatch, tmp_path):
     assert result["results"][0]["analysis"]["status"] == "invalid_analysis"
     assert result["results"][0]["draft"] is None
     assert not list(output.glob("*.artifact.json"))
+    rejected = output / "incomplete-booking.analysis.rejected.json"
+    assert json.loads(rejected.read_text()) == {"approved": True}
+    record = result["results"][0]["analysis"]
+    assert record["rejected_content_file"] == rejected.name
+    assert len(record["response_sha256"]) == 64
+    evidence = "".join(p.read_text() for p in output.iterdir())
+    assert "DO-NOT-STORE-REASONING" not in evidence
 
 
 def test_mocked_two_stage_keeps_original_sources_and_sanitized_evidence(
@@ -345,6 +353,17 @@ def test_invalid_stage_two_never_persists_artifact(monkeypatch, tmp_path, fault)
     assert result["results"][0]["draft"]["status"] != "validated"
     assert not list(output.glob("*.artifact.json"))
     assert "private-test-key" not in "".join(p.read_text() for p in output.iterdir())
+    rejected = output / "incomplete-booking.draft.rejected.json"
+    if fault == "ledger-citation":
+        assert json.loads(rejected.read_text()) == artifact
+        assert result["results"][0]["draft"]["rejected_content_file"] == rejected.name
+    else:
+        assert not rejected.exists()
+        assert result["results"][0]["draft"]["rejected_content_file"] is None
+    assert len(result["results"][0]["draft"]["response_sha256"]) == 64
+    assert "DO-NOT-STORE-REASONING" not in "".join(
+        p.read_text() for p in output.iterdir()
+    )
 
 
 @pytest.mark.parametrize(
@@ -396,3 +415,29 @@ def test_analysis_array_limits_are_enforced(monkeypatch, field):
         item["loc"] == (field,) and item["type"] == "too_long"
         for item in error.value.errors()
     )
+
+
+def test_malformed_final_json_retains_only_hash_and_sanitized_status(
+    monkeypatch, tmp_path
+):
+    module = runner(monkeypatch)
+    monkeypatch.setenv("SPECBRIDGE_LLM_API_KEY", "private-test-key")
+    preview = module.prepare(case_ids=["incomplete-booking"])
+    raw = envelope({})
+    raw["choices"][0]["message"]["content"] = "MALFORMED-FINAL-NOT-JSON"
+    response_bytes = json.dumps(raw).encode()
+
+    async def handler(self, request):
+        return httpx.Response(200, content=response_bytes, request=request)
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", handler)
+    output = tmp_path / "evidence"
+    result = module.execute(preview, module.preview_digest(preview), output)
+    record = result["results"][0]["analysis"]
+    assert record["status"] == "invalid_response"
+    assert record["response_sha256"] == hashlib.sha256(response_bytes).hexdigest()
+    assert record["rejected_content_file"] is None
+    assert "not retained" in record["content_retention"]
+    evidence = "".join(p.read_text() for p in output.iterdir())
+    assert "MALFORMED-FINAL-NOT-JSON" not in evidence
+    assert "DO-NOT-STORE-REASONING" not in evidence
