@@ -10,7 +10,7 @@ from typing import Any
 
 import httpx
 from specbridge.models import Source
-from specbridge.providers import CompatibleProvider, ProviderFailure
+from specbridge.providers import CompatibleProvider, ProviderFailure, timeout_from_env
 from specbridge.skills import SkillRegistry
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +31,7 @@ def provider_options() -> dict[str, Any]:
         "output_mode": os.environ.get("SPECBRIDGE_LLM_OUTPUT_MODE", "json_schema"),
         "max_tokens": int(os.environ.get("SPECBRIDGE_LLM_MAX_TOKENS", "4096")),
         "reasoning_effort": os.environ.get("SPECBRIDGE_LLM_REASONING_EFFORT") or None,
+        "timeout_seconds": timeout_from_env(),
     }
 
 
@@ -96,10 +97,11 @@ def prepare(
             raise ValueError("invalid_case_selection")
         cases = [available[case_id] for case_id in case_ids]
     skill = active_skill()
+    options = provider_options()
     requests = []
     for case in cases:
         provider = Observation(
-            preview_only=True, omit_output_cap=omit_output_cap, **provider_options()
+            preview_only=True, omit_output_cap=omit_output_cap, **options
         )
         sources = [source(item) for item in case["sources"]]
         try:
@@ -123,6 +125,7 @@ def prepare(
         "skill_instructions_sha256": hashlib.sha256(skill.body.encode()).hexdigest(),
         "maximum_calls": len(requests),
         "omit_output_cap": omit_output_cap,
+        "generation_timeout_seconds": options["timeout_seconds"],
         "retries": 0,
         "requests": requests,
     }
@@ -168,6 +171,7 @@ def execute(preview: dict[str, Any], approval: str, output: Path) -> dict[str, A
         "maximum_calls": preview["maximum_calls"],
         "automatic_retries": 0,
         "client_output_cap_omitted": preview.get("omit_output_cap", False),
+        "generation_timeout_seconds": preview.get("generation_timeout_seconds", 60),
         "results": [],
         "semantic_review": "pending; schema validity is not human acceptance",
         "cost": None,

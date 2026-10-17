@@ -200,3 +200,270 @@ def test_tampered_contract_fails_before_a_provider_call(tmp_path, artifact_dict)
     )
     run = workflow.advance(project.id, run.id)
     assert run.status == "failed" and provider.calls == 0
+
+
+def blocked_generation(tmp_path, artifact_dict, monkeypatch, *, fail=False):
+    import threading
+
+    import specbridge.workflow as module
+
+    now = [1000.0]
+    monkeypatch.setattr(module, "time", SimpleNamespace(time=lambda: now[0]))
+    monkeypatch.setattr(module, "HEARTBEAT_SECONDS", 0.005, raising=False)
+    store, workflow, provider, run = setup(tmp_path, artifact_dict)
+    for _ in range(4):
+        run = workflow.advance(run.project_id, run.id)
+    started, release = threading.Event(), threading.Event()
+
+    def generate(*, skill, sources):
+        provider.calls += 1
+        started.set()
+        assert release.wait(5), "Test did not release its blocked provider"
+        if fail:
+            raise RuntimeError("SECRET_HEARTBEAT_SENTINEL")
+        return Artifact.model_validate(artifact_dict)
+
+    provider.generate = generate
+    return store, workflow, provider, run, now, started, release
+
+
+def assert_heartbeat_stopped(run):
+    import threading
+
+    assert not any(
+        t.name == f"specbridge-lease-{run.id}" for t in threading.enumerate()
+    )
+
+
+def test_long_generation_renews_lease_and_prevents_duplicate_call(
+    tmp_path, artifact_dict, monkeypatch
+):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    store, workflow, provider, run, now, started, release = blocked_generation(
+        tmp_path, artifact_dict, monkeypatch
+    )
+    renewed = Event()
+    original = getattr(workflow, "_renew_lease", lambda *args: False)
+
+    def renew(*args):
+        result = original(*args)
+        renewed.set()
+        return result
+
+    monkeypatch.setattr(workflow, "_renew_lease", renew, raising=False)
+    with ThreadPoolExecutor() as pool:
+        future = pool.submit(workflow.advance, run.project_id, run.id)
+        try:
+            assert started.wait(1)
+            now[0] = 1100.0
+            assert renewed.wait(1), "A running provider must renew its lease"
+            renewed.clear()
+            now[0] = 1150.0  # Beyond the original lease, within the renewed lease.
+            assert renewed.wait(1)
+            other = Workflow(Store(store.path), Registry(), provider)
+            assert other.get(run.project_id, run.id).status == "running"
+            with pytest.raises(Conflict, match="already running"):
+                other.advance(run.project_id, run.id, retry_acknowledged=True)
+            assert provider.calls == 1
+        finally:
+            release.set()
+        assert future.result(timeout=2).stage == "validate"
+    assert_heartbeat_stopped(run)
+    with store.transaction() as db:
+        assert (
+            db.execute(
+                "SELECT COUNT(*) FROM checkpoints WHERE run_id=? AND stage='execute'",
+                (run.id,),
+            ).fetchone()[0]
+            == 1
+        )
+
+
+def test_expired_owner_cannot_renew_or_checkpoint(tmp_path, artifact_dict, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+
+    import specbridge.workflow as module
+
+    store, workflow, _provider, run, now, started, release = blocked_generation(
+        tmp_path, artifact_dict, monkeypatch
+    )
+    monkeypatch.setattr(module, "HEARTBEAT_SECONDS", 3600, raising=False)
+    with ThreadPoolExecutor() as pool:
+        future = pool.submit(workflow.advance, run.project_id, run.id)
+        try:
+            assert started.wait(1)
+            now[0] = 1200.0
+            with store.transaction() as db:
+                token, expiry = db.execute(
+                    "SELECT lease,lease_until FROM runs WHERE id=?", (run.id,)
+                ).fetchone()
+            assert expiry == 1120.0
+            assert hasattr(workflow, "_renew_lease"), "Lease renewal must be explicit"
+            assert workflow._renew_lease(run.id, token) is False
+            with store.transaction() as db:
+                assert (
+                    db.execute(
+                        "SELECT lease_until FROM runs WHERE id=?", (run.id,)
+                    ).fetchone()[0]
+                    == expiry
+                )
+        finally:
+            release.set()
+        assert future.result(timeout=2).status == "failed"
+    assert_heartbeat_stopped(run)
+    with store.transaction() as db:
+        assert (
+            db.execute(
+                "SELECT COUNT(*) FROM checkpoints WHERE run_id=? AND stage='execute'",
+                (run.id,),
+            ).fetchone()[0]
+            == 0
+        )
+
+
+def test_replaced_lease_cannot_be_overwritten(tmp_path, artifact_dict, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+
+    store, workflow, _provider, run, _now, started, release = blocked_generation(
+        tmp_path, artifact_dict, monkeypatch
+    )
+    with ThreadPoolExecutor() as pool:
+        future = pool.submit(workflow.advance, run.project_id, run.id)
+        try:
+            assert started.wait(1)
+            with store.transaction() as db:
+                db.execute(
+                    "UPDATE runs SET lease='replacement',lease_until=2000 WHERE id=?",
+                    (run.id,),
+                )
+        finally:
+            release.set()
+        with pytest.raises(Conflict, match="lease"):
+            future.result(timeout=2)
+    assert_heartbeat_stopped(run)
+    with store.transaction() as db:
+        assert (
+            db.execute("SELECT lease FROM runs WHERE id=?", (run.id,)).fetchone()[0]
+            == "replacement"
+        )
+        assert (
+            db.execute(
+                "SELECT COUNT(*) FROM checkpoints WHERE run_id=? AND stage='execute'",
+                (run.id,),
+            ).fetchone()[0]
+            == 0
+        )
+
+
+def test_heartbeat_failure_discards_result_and_redacts_error(
+    tmp_path, artifact_dict, monkeypatch
+):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    store, workflow, _provider, run, _now, started, release = blocked_generation(
+        tmp_path, artifact_dict, monkeypatch
+    )
+    attempted = Event()
+
+    def broken_renew(*args):
+        attempted.set()
+        raise RuntimeError("SECRET_HEARTBEAT_SENTINEL")
+
+    monkeypatch.setattr(workflow, "_renew_lease", broken_renew, raising=False)
+    with ThreadPoolExecutor() as pool:
+        future = pool.submit(workflow.advance, run.project_id, run.id)
+        try:
+            assert started.wait(1)
+            assert attempted.wait(1), "Heartbeat did not run"
+        finally:
+            release.set()
+        failed = future.result(timeout=2)
+    assert failed.status == "failed" and failed.error == "generation_failed"
+    assert "SECRET_HEARTBEAT_SENTINEL" not in failed.model_dump_json()
+    assert_heartbeat_stopped(run)
+    with pytest.raises(RetryAcknowledgmentRequired):
+        workflow.advance(run.project_id, run.id)
+    with store.transaction() as db:
+        assert (
+            db.execute(
+                "SELECT COUNT(*) FROM checkpoints WHERE run_id=? AND stage='execute'",
+                (run.id,),
+            ).fetchone()[0]
+            == 0
+        )
+
+
+def test_provider_failure_stops_heartbeat(tmp_path, artifact_dict, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    _store, workflow, _provider, run, _now, started, release = blocked_generation(
+        tmp_path, artifact_dict, monkeypatch, fail=True
+    )
+    renewed = Event()
+    original = getattr(workflow, "_renew_lease", lambda *args: False)
+
+    def renew(*args):
+        result = original(*args)
+        renewed.set()
+        return result
+
+    monkeypatch.setattr(workflow, "_renew_lease", renew, raising=False)
+    with ThreadPoolExecutor() as pool:
+        future = pool.submit(workflow.advance, run.project_id, run.id)
+        try:
+            assert started.wait(1)
+            assert renewed.wait(1)
+        finally:
+            release.set()
+        assert future.result(timeout=2).status == "failed"
+    assert_heartbeat_stopped(run)
+
+
+def test_abandoned_execute_requires_acknowledged_recovery(tmp_path, artifact_dict):
+    store, workflow, provider, run = setup(tmp_path, artifact_dict)
+    for _ in range(4):
+        run = workflow.advance(run.project_id, run.id)
+    with store.transaction() as db:
+        stale = run.model_copy(update={"status": "running"})
+        db.execute(
+            "UPDATE runs SET data=?,lease='abandoned',lease_until=0 WHERE id=?",
+            (stale.model_dump_json(), run.id),
+        )
+    assert workflow.get(run.project_id, run.id).status == "failed"
+    with pytest.raises(RetryAcknowledgmentRequired):
+        workflow.advance(run.project_id, run.id)
+    assert (
+        workflow.advance(run.project_id, run.id, retry_acknowledged=True).stage
+        == "validate"
+    )
+    assert provider.calls == 1
+
+
+def test_renewal_checks_expiry_after_acquiring_database(
+    tmp_path, artifact_dict, monkeypatch
+):
+    from contextlib import contextmanager
+
+    import specbridge.workflow as module
+
+    now = [1000.0]
+    monkeypatch.setattr(module, "time", SimpleNamespace(time=lambda: now[0]))
+    store, workflow, _provider, run = setup(tmp_path, artifact_dict)
+    with store.transaction() as db:
+        db.execute(
+            "UPDATE runs SET lease='test',lease_until=1050 WHERE id=?", (run.id,)
+        )
+    original = store.transaction
+
+    @contextmanager
+    def delayed_transaction():
+        now[0] = 1100.0  # Simulate waiting for SQLite's writer lock.
+        with original() as db:
+            yield db
+
+    monkeypatch.setattr(store, "transaction", delayed_transaction)
+    assert workflow._renew_lease(run.id, "test") is False

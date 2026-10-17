@@ -372,3 +372,73 @@ def test_reasoning_usage_is_optional_and_private_text_is_not_saved(
         "private-provider-reasoning-for-test" not in f.read_text()
         for f in output.iterdir()
     )
+
+
+def test_preview_binds_generation_wait_policy_before_any_call(monkeypatch, tmp_path):
+    module = runner()
+    for name, value in {
+        "BASE_URL": "https://api.deepseek.com",
+        "MODEL": "deepseek-v4-pro",
+        "API_KEY": "private-test-key",
+        "OUTPUT_MODE": "json_object",
+        "TIMEOUT_SECONDS": "none",
+    }.items():
+        monkeypatch.setenv("SPECBRIDGE_LLM_" + name, value)
+    unlimited = module.prepare(case_ids=["incomplete-booking"], omit_output_cap=True)
+    assert unlimited["generation_timeout_seconds"] is None
+    monkeypatch.setenv("SPECBRIDGE_LLM_TIMEOUT_SECONDS", "0.05")
+    finite = module.prepare(case_ids=["incomplete-booking"], omit_output_cap=True)
+    assert finite["generation_timeout_seconds"] == 0.05
+    assert unlimited["requests"] == finite["requests"]
+    assert module.preview_digest(unlimited) != module.preview_digest(finite)
+
+    async def forbidden(*args, **kwargs):
+        pytest.fail("A changed wait policy must fail before network access")
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", forbidden)
+    with pytest.raises(ValueError, match="preview_mismatch"):
+        module.execute(
+            unlimited, module.preview_digest(unlimited), tmp_path / "changed"
+        )
+    assert not (tmp_path / "changed").exists()
+
+
+@pytest.mark.parametrize(
+    "timeout,expected", [("none", "validated"), ("0.005", "provider_timeout")]
+)
+def test_execution_uses_the_previewed_wait_policy(
+    timeout, expected, monkeypatch, tmp_path, artifact_dict
+):
+    import asyncio
+
+    module = runner()
+    for name, value in {
+        "BASE_URL": "https://api.deepseek.com",
+        "MODEL": "deepseek-v4-pro",
+        "API_KEY": "private-test-key",
+        "OUTPUT_MODE": "json_object",
+        "TIMEOUT_SECONDS": timeout,
+    }.items():
+        monkeypatch.setenv("SPECBRIDGE_LLM_" + name, value)
+    preview = module.prepare(case_ids=["incomplete-booking"], omit_output_cap=True)
+
+    async def slow(self, request):
+        await asyncio.sleep(0.03)
+        return httpx.Response(
+            200,
+            request=request,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": json.dumps(artifact_dict)},
+                    }
+                ]
+            },
+        )
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", slow)
+    result = module.execute(preview, module.preview_digest(preview), tmp_path / "wait")
+    assert result["results"][0]["status"] == expected
+    assert result["results"][0]["attempts"] == 1
+    assert result["generation_timeout_seconds"] == preview["generation_timeout_seconds"]

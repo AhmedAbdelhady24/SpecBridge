@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
 import time
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
@@ -24,6 +27,8 @@ STAGES = (
     "human_review",
     "publish",
 )
+LEASE_SECONDS = 120
+HEARTBEAT_SECONDS = 30
 
 
 class RetryAcknowledgmentRequired(Conflict):
@@ -105,6 +110,45 @@ class Workflow:
             raise NotFound("Workflow not found")
         return Run.model_validate_json(row["data"]), row
 
+    def _renew_lease(self, run_id: str, lease: str) -> bool:
+        with self.store.transaction() as db:
+            now = time.time()
+            return (
+                db.execute(
+                    "UPDATE runs SET lease_until=? WHERE id=? AND lease=? AND lease_until>?",
+                    (now + LEASE_SECONDS, run_id, lease, now),
+                ).rowcount
+                == 1
+            )
+
+    @contextmanager
+    def _maintain_lease(self, run_id: str, lease: str) -> Iterator[None]:
+        stop = threading.Event()
+        failed = threading.Event()
+
+        def renew() -> None:
+            while not stop.wait(HEARTBEAT_SECONDS):
+                try:
+                    if self._renew_lease(run_id, lease):
+                        continue
+                except Exception:  # noqa: BLE001 -- Fail closed without retaining secret exception text.
+                    failed.set()
+                    return
+                failed.set()
+                return
+
+        heartbeat = threading.Thread(
+            target=renew, name=f"specbridge-lease-{run_id}", daemon=True
+        )
+        heartbeat.start()
+        try:
+            yield
+        finally:
+            stop.set()
+            heartbeat.join()
+        if failed.is_set():
+            raise Conflict("Workflow lease renewal failed; this result was discarded")
+
     def advance(
         self, project_id: str, run_id: str, *, retry_acknowledged: bool = False
     ) -> Run:
@@ -129,7 +173,7 @@ class Workflow:
                 run.attempts += 1
             db.execute(
                 "UPDATE runs SET data=?,lease=?,lease_until=? WHERE id=?",
-                (run.model_dump_json(), lease, time.time() + 120, run.id),
+                (run.model_dump_json(), lease, time.time() + LEASE_SECONDS, run.id),
             )
 
         try:
@@ -167,7 +211,8 @@ class Workflow:
                     "sources": canonical({s.id: s.digest for s in sources}),
                     "run_id": run.id,
                 }
-                artifact = self.provider.generate(skill=skill, sources=sources)
+                with self._maintain_lease(run.id, lease):
+                    artifact = self.provider.generate(skill=skill, sources=sources)
                 selected_ids = {s.id for s in sources}
                 if any(
                     set(item.source_ids) - selected_ids
@@ -180,7 +225,10 @@ class Workflow:
                 }
             with self.store.transaction() as db:
                 _, current_row = self._row(db, project_id, run_id)
-                if current_row["lease"] != lease:
+                if (
+                    current_row["lease"] != lease
+                    or current_row["lease_until"] <= time.time()
+                ):
                     raise Conflict("Workflow lease changed; this result was discarded")
                 if run.stage == "validate":
                     draft = db.execute(
