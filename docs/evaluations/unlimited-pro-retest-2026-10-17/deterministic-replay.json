@@ -1,0 +1,41 @@
+{
+  "only_change": "client generation timeout60 -> none; all request bodies identical",
+  "generation_timeout_seconds": null,
+  "replay": [
+    {
+      "case": "notification-preferences",
+      "replay": "validated",
+      "duration_seconds": 42.94
+    },
+    {
+      "case": "incomplete-booking",
+      "replay": "validated",
+      "duration_seconds": 37.22
+    },
+    {
+      "case": "contradictory-deletion",
+      "replay": "validated",
+      "duration_seconds": 42.71
+    },
+    {
+      "case": "conflicting-api",
+      "replay": "validated",
+      "duration_seconds": 73.39
+    },
+    {
+      "case": "embedded-instruction",
+      "replay": "validated",
+      "duration_seconds": 73.15
+    }
+  ],
+  "completed_above_old_deadline": [
+    "conflicting-api",
+    "embedded-instruction"
+  ],
+  "all_usage_reported": true,
+  "input_tokens": 17175,
+  "completion_tokens": 25145,
+  "reasoning_tokens": 21359,
+  "duration_seconds_sum": 269.41,
+  "frozen_acceptance_sha256": "4518b228d88431c8d6d074a367146f457fef2067638830ef13991b40f8e997cf"
+}

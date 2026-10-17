@@ -1,0 +1,95 @@
+{
+  "title": "Weekly Email Digest Notification Preferences",
+  "purpose": "Document member-controlled weekly email digest notification preferences, persistence after sign-out and sign-in, separation from account-security messages, and default state for new members.",
+  "scope": [
+    {
+      "text": "Members can change weekly email digest notification settings, the preference persists across sessions, account-security messages remain unaffected, and new members start with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Members can switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "The setting must persist after sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "Switching digests off does not disable account-security messages.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    },
+    {
+      "text": "A newly created member starts with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-4"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a member, I want to switch weekly email digests on or off in notification settings, with the setting persisting after sign-out and sign-in, without disabling account-security messages; newly created members start with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1",
+        "REQ-2",
+        "REQ-3",
+        "REQ-4"
+      ],
+      "acceptance_criteria": [
+        "Given a signed-in member viewing notification settings, when the member switches weekly email digests on, then the setting changes to on.",
+        "Given a signed-in member viewing notification settings, when the member switches weekly email digests off, then the setting changes to off.",
+        "Given a member has selected a weekly digest preference, when the member signs out and then signs back in, then the preference remains unchanged.",
+        "Given weekly email digests are switched off for a member, when an account-security message is triggered, then the account-security message is still delivered.",
+        "Given a newly created member, when the member views notification settings, then weekly email digests are off by default."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "Owner and delivery date are unknown.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "unknown"
+    }
+  ],
+  "risks": [],
+  "success_metrics": [
+    {
+      "text": "A tester can observe the selected weekly digest preference persisting after sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Who is the owner of this feature?",
+    "What is the delivery date?"
+  ]
+}

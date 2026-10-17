@@ -1,0 +1,84 @@
+{
+  "title": "Workshop place reservation",
+  "purpose": "Document the request to let visitors reserve a place in a workshop and capture the unresolved decisions that remain.",
+  "scope": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    }
+  ],
+  "stories": [
+    {
+      "text": "As a visitor, I want to reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Given a workshop, when a visitor submits a reservation for that workshop, then the system records the visitor's reservation.",
+        "Given a visitor has submitted a reservation, when the system records it, then the visitor has a reserved place in that workshop."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [
+    {
+      "text": "We have not decided whether reservations need payment, an account, a capacity limit or cancellation.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "No owner or release date is assigned.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Delivering the reservation feature now may require rework once the unresolved payment, account, capacity, or cancellation policies are decided.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "success_metrics": [
+    {
+      "text": "A visitor can have a reservation recorded for a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation"
+    }
+  ],
+  "open_questions": [
+    "Should reservations require payment?",
+    "Should visitors create an account to reserve?",
+    "Should workshops have a capacity limit for reservations?",
+    "Should reservations support cancellation?",
+    "Who owns this feature?",
+    "When is the target release date?"
+  ]
+}
