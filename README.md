@@ -1,63 +1,120 @@
 # SpecBridge
 
-SpecBridge turns a feature idea and selected evidence into a persisted PRD and linked stories, human review, and an independently runnable documentation package.
+**From product ideas to reviewed engineering handoffs.**
 
-**The technical first slice is implemented.** Local fixture/browser and standalone-package checks exercise the workflow. The [typed-plan candidate passed all five frozen live semantic cases](docs/evaluations/compiled-handoff.md). Runtime adoption and an unfamiliar-human handoff remain before full Milestone1 acceptance. See [current phase status](docs/plans/roadmap-status-2026-10-16.md) for evidence and limitations.
+SpecBridge turns feature ideas and selected project evidence into persisted PRDs, linked user stories, acceptance criteria, and documentation that developers can run independently. It keeps source references, unresolved questions, revision history, and human approval attached to the handoff.
 
-A [fresh paid retest after the audit](docs/evaluations/post-audit-live-retest.md) also passed5/5 with the same candidate configuration. No application provider default changed; both results concern the frozen evaluation pack.
+The current release is a **local, single-owner MVP** with a React review workspace, a FastAPI/SQLite backend, and standalone Astro Starlight exports. Milestones 0 and 2 are delivered locally. Runtime integration of the qualified generation candidate and an unfamiliar-engineer handoff remain before full Milestone 1 acceptance. See the [phase status](docs/plans/roadmap-status-2026-10-16.md).
+
+## Workflow overview
 
 ```mermaid
 flowchart LR
-    A[Feature idea] --> B[Checkpointed draft]
-    B --> C[Edit and record review]
-    C --> D[Inspect package digest]
-    D --> E[Approve and download]
+    A[Idea and selected evidence] --> B[Checkpointed draft]
+    B --> C[Human review and corrections]
+    C --> D[Approve exact package]
+    D --> E[Standalone documentation website]
 ```
 
-## Run locally
+## Contents
 
-Use Python 3.12, Node 22.23.1, npm 10 and uv (CI pins uv 0.12.17). From the repository root:
+- [Workflow overview](#workflow-overview)
+- [Components](#components)
+- [Install](#install)
+- [Create a handoff](#create-a-handoff)
+- [Model providers](#model-providers)
+- [Experiments and verification](#experiments-and-verification)
+- [Data and external access](#data-and-external-access)
+- [Results and resume](#results-and-resume)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
+- [Limitations](#limitations)
+
+## Components
+
+One backend owns workflow transitions, persistence, validation, and approval. The frontend displays state and submits user intent.
+
+| Component | Responsibility | Location |
+| --- | --- | --- |
+| Review workspace | Intake, source selection, corrections, review, and package download | `apps/web/` |
+| Workflow and API | Checkpoints, artifacts, evidence labels, and approval enforcement | `services/api/specbridge/` |
+| Project knowledge | Versioned goals, stakeholders, decisions, risks, dependencies, API references, and notes | `services/api/specbridge/knowledge.py` |
+| Runtime PM skills | Data-only instructions with validated metadata and hashed provenance | `skills/runtime/` |
+| API contracts | Generated OpenAPI and frontend types | `packages/contracts/` |
+| Documentation exporter | Fixed template, escaped content, manifests, and standalone source ZIP | `packages/docs-template/` |
+
+See the [architecture](docs/architecture/first-slice.md) and [design decisions](docs/decisions/0001-local-modular-monolith.md) for boundaries and trade-offs.
+
+## Install
+
+Use **Python 3.12, Node.js 22.23.1, npm 10, and uv**. CI pins uv 0.12.17. From the repository root:
 
 ```sh
 uv sync --locked
 npm --prefix apps/web ci --ignore-scripts
+```
+
+Start the API with the deterministic demo provider:
+
+```sh
 SPECBRIDGE_PROVIDER=fixture PYTHONPATH=services/api uv run python -m specbridge
 ```
 
-In a second terminal, from the same root:
+In a second terminal:
 
 ```sh
 npm --prefix apps/web run dev
 ```
 
-Open `http://127.0.0.1:5173`. On initial startup the API creates an owner-only `.data/session-token`. Copy its contents privately into the UI's **Session token** password field and connect. Never paste the token into chat, URLs, logs or committed files. The browser keeps it only in tab memory; refresh requires entering it again. SQLite project data lives in `.data/specbridge.db`; protect and back up that directory rather than deleting it to reset a session.
+Open `http://127.0.0.1:5173`. Copy the contents of the newly created `.data/session-token` privately into the **Session token** field and connect. The browser keeps the token only in tab memory; refreshing requires entering it again. Keep it out of chat, URLs, logs, and Git.
 
-Create or choose a project, enter a feature idea, acknowledge the displayed generation destination, and generate a draft. Inspect original source evidence, findings and structured fields. Save edits as a new revision, record review notes, prepare the package, inspect its manifest, approve that exact digest, and download. Reopen a saved run after refresh; completed generation stages are retained. A failed or interrupted provider stage requires an explicit potentially billable retry acknowledgment.
+Fixture mode needs no model credentials and makes no model calls. Its output is labeled **DEMO** and does not interpret arbitrary product requests. For hosted generation or serving the built UI from the API, see [provider setup](docs/engineering/model-providers.md).
 
-Handoff rules now require verbatim excerpts for `user_provided` claims, proposal labels for synthesized stories, and explicit story links covering every requirement. Unstated motivations are omitted and unknown constraints stay questions. Older snapshots remain readable; drafts that fail these rules need a corrected revision before publication. See [the active rules and verification limits](docs/evaluations/handoff-rules-results.md).
+## Create a handoff
 
-The [autonomous full-pack check](docs/evaluations/autopilot-qualification.md) did not meet semantic acceptance after three bounded rounds. Application regression checks pass; the model provider remains unqualified for automatic handoff. Experimental prompts were archived and the committed runtime skill restored. Subsequent [no-client-cap](docs/evaluations/no-client-cap-retest.md), [reasoning-low](docs/evaluations/reasoning-low-comparison.md) and [reasoning-high](docs/evaluations/reasoning-high-comparison.md) comparisons each passed only two semantic cases out of five. The [Pro model comparison](docs/evaluations/pro-model-comparison.md) produced one semantic pass, two semantic failures and two timeouts with no assessable draft. The subsequent [no-timeout retest](docs/evaluations/long-generation.md) completed all five requests (two above73seconds), with two semantic passes and three semantic failures. Configurable generation waiting and lease renewal are verified; the subsequent [two-stage paid test](docs/evaluations/staged-generation.md) also passed only two of five semantic cases after ten completed calls. The candidate remains evaluation-only. No model configuration was promoted. See the [remaining phases](docs/plans/roadmap-status-2026-10-16.md).
+1. Create or select a project. Add knowledge records and select any context to include.
+2. Enter a feature idea, acknowledge the displayed generation destination, and generate a draft.
+3. Inspect source evidence, requirements, story links, acceptance criteria, findings, and open questions. Save corrections as a new revision.
+4. Record human review, prepare the package, inspect its manifest and digest, and approve that exact package.
+5. Download and extract the documentation ZIP into a new directory.
 
-Milestone2 adds [versioned project knowledge and recovery](docs/evaluations/milestone-2.md): open **Project knowledge** to save classified context, inspect history and select an exact version for generation. [Backup/restore instructions](docs/engineering/workspace-recovery.md) include a one-command fixture recovery check. The corrected typed-plan candidate now passes5/5 in one recorded live round; it remains evaluation-only pending runtime integration and human acceptance. This does not change the configured application provider.
-
-The [expandable phase board](docs/engineering/specbridge-progress.html) is a reporting snapshot refreshed at verified checkpoints. If your chat client cannot render it, the current session's ordinary browser copy is at `exports/specbridge-progress.html`; it works offline and can be copied to another device. Generated exports are ignored by Git; the maintained roadmap is the portable text fallback. Neither the board nor its export performs background synchronization or grants acceptance.
-
-The [Ponytail codebase audit](docs/evaluations/ponytail-audit-2026-10-18.md) repaired credential handling and browsing beyond20records/versions/revisions. Use the knowledge panel's continuation buttons to reach older items. The provider rejects selected content or output containing its configured credential rather than sending or retaining it; use a distinct synthetic credential in mock/local configurations to avoid collisions with ordinary model names or text. This recognizes the configured credential, not arbitrary secrets.
-
-The default **DEMO fixture provider** emits generic deterministic examples. It does not understand arbitrary feature requests or validate business facts. The compatible provider is opt-in through environment variables in the API process: `SPECBRIDGE_PROVIDER=compatible`, `SPECBRIDGE_LLM_BASE_URL`, `SPECBRIDGE_LLM_MODEL`, and `SPECBRIDGE_LLM_API_KEY`. See [.env.example](.env.example). Put your key in the ignored, private `.env` file and load it explicitly with `PYTHONPATH=services/api uv run --env-file .env python -m specbridge`. The launcher does not load environment files automatically. DeepSeek uses explicit `SPECBRIDGE_LLM_OUTPUT_MODE=json_object`; other endpoints default to `json_schema`. Both modes enforce the same backend Artifact/source validation. `SPECBRIDGE_LLM_MAX_TOKENS` sets a 1–16384 output-token cap (default 4096); this does not establish a dollar budget. DeepSeek is configured with `SPECBRIDGE_LLM_REASONING_EFFORT=none` for a bounded non-thinking trial; this optional field is omitted when unset and must be supported by the chosen endpoint/model. Truncated responses fail instead of silently retrying. An initial [live synthetic measurement](docs/evaluations/deepseek-complete-response.md) completed. A later [revised-rules live check](docs/evaluations/deepseek-handoff-rules-live.md) passed current validation and addressed the observed motivation/link errors on that case. The initial measurement’s 1469-token output informed the DeepSeek example cap of 3072 tokens; The [five-case unrelated-feature check](docs/evaluations/deepseek-out-of-sample.md) produced three valid drafts and two rejected conflict drafts. Both conflict cases passed a [targeted retest after the skill 1.2.0 correction](docs/evaluations/conflict-handoff-fix.md); broader semantic quality and larger-request limits remain unqualified. Keep credentials in local process configuration. Mock tests cover compatible-provider transport/schema failure paths; fixture checks alone do not establish live-provider behavior.
-
-For longer reasoning requests, set `SPECBRIDGE_LLM_TIMEOUT_SECONDS=none` in private process configuration to disable generation total/read deadlines. A finite positive number sets a whole-request deadline; unset defaults to 60 seconds. Connection establishment remains bounded to at most 30 seconds, and response size remains bounded. The backend renews its owned workflow lease while generation runs, preventing a healthy long request from becoming eligible for duplicate execution. A stopped process stops renewal; recovery still requires explicit retry acknowledgement. If lease renewal fails, the returned result is discarded; an already stalled provider call can continue until it returns or the process is stopped. Unlimited waiting does not guarantee provider completion or semantic correctness. Restart a running API to load changed configuration. Evaluation previews bind the chosen wait policy as well as the request payload.
-
-For one-process static serving, build the UI, then restart the API with its matching origin:
+From the extracted directory:
 
 ```sh
-npm --prefix apps/web run build
-SPECBRIDGE_PROVIDER=fixture SPECBRIDGE_UI_ORIGIN=http://127.0.0.1:8000 PYTHONPATH=services/api uv run python -m specbridge
+npm ci
+npm run dev
+npm run build
+npm run preview
 ```
 
-Open `http://127.0.0.1:8000`. Both modes bind to loopback; this is a single-operator local application, not a multi-user deployment.
+The generated website runs without SpecBridge or an LLM API. Installation needs npm registry access. The package includes requirements, stories, acceptance criteria, edge cases, risks, questions, source references, revision metadata, and [Git collaboration instructions](packages/docs-template/README.md#local-git-changes).
 
-## Verify and explore
+Editing a revision invalidates its previous approval. Compare files before incorporating another export into developer-authored documentation; never extract over an existing repository silently.
+
+## Model providers
+
+| Mode | Current behavior |
+| --- | --- |
+| Fixture | Default, deterministic demonstration; no network or model call |
+| OpenAI-compatible API | Explicit endpoint, model, and private credential; validates returned artifacts locally |
+| Experimental typed-plan candidate | Evaluation-only generation plus deterministic assembly; not integrated into the application runtime |
+
+The checked-in environment example targets DeepSeek. Follow the [setup guide](docs/engineering/model-providers.md) to create a private `.env`, select output mode and request limits, and load it explicitly. Native Claude support and local-model serving are not qualified; an OpenAI-compatible endpoint must be validated separately.
+
+Hosted generation sends selected evidence to the configured provider and may incur charges. No model response can approve an artifact or authorize publication.
+
+## Experiments and verification
+
+The typed-plan candidate scored **5/5 on the same frozen semantic pack in two recorded live rounds**, with independent review and exact compilation replay. This is evidence for that candidate and pack, not general reliability or the quality of the application's current generator.
+
+| Evidence | Report |
+| --- | --- |
+| Candidate design, initial failures, and first complete 5/5 round | [Compiled handoff evaluation](docs/evaluations/compiled-handoff.md) |
+| Fresh paid repeat: 5/5 with the same configuration | [Post-audit live retest](docs/evaluations/post-audit-live-retest.md) |
+| Codebase review and repairs: 317 backend tests, 19 browser checks, builds, recovery, and clean dependency audits | [Ponytail audit](docs/evaluations/ponytail-audit-2026-10-18.md) |
+
+Run local checks:
 
 ```sh
 python3 -m unittest discover -s tests -v
@@ -66,14 +123,57 @@ npm --prefix apps/web run typecheck
 npm --prefix apps/web run lint
 npm --prefix apps/web test
 npm --prefix apps/web run build
+```
+
+For browser and independent-package checks:
+
+```sh
 npm ci
 PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npm exec playwright install chromium
 npm run test:e2e
 uv run python scripts/verify_handoff.py --output /tmp/specbridge-handoff-check
 ```
 
-Stop manual servers before browser tests; tests own ports 8000/5173 and isolated temporary data. Use a fresh, nonexistent output directory for each standalone handoff run. That runner installs, builds and browses the extracted Starlight project with SpecBridge stopped. Registry access is needed for installs. See [the implementation plan](docs/plans/2026-10-15-first-slice-implementation.md) for the remaining static, contract and dependency-audit commands, and [the template README](packages/docs-template/README.md) for independent documentation commands and the reviewed parser security override.
+Stop manual servers first; browser tests own ports 8000/5173 and use isolated fixture data. Choose a fresh output directory for every handoff check. That runner closes its SpecBridge fixture session before installing, building, and browsing the extracted site. See [engineering instructions](AGENTS.md) for static analysis, contract generation, and dependency-audit commands.
 
-The [architecture](docs/architecture/first-slice.md), [accepted ADR](docs/decisions/0001-local-modular-monolith.md), [security boundaries](docs/security/threat-model.md), [roadmap](docs/plans/bootstrap-and-first-slice.md) and [skill inventory](docs/engineering/skill-inventory.md) explain current boundaries. The [bootstrap report](docs/engineering/bootstrap-report.md), [environment audit](docs/engineering/environment-audit.md) and [reference research](docs/engineering/reference-research.md) remain historical evidence.
+Paid evaluation uses a separate exact preview and bounded authorization. These local verification commands do not launch paid model tests.
 
-No remote publication or external integration is configured. Original SpecBridge code has no distribution license selected; reference repository licenses do not license this project.
+## Data and external access
+
+The application binds to loopback and uses a private local session token. Project data stays in `.data/specbridge.db`; protect that directory and its backups. Runtime PM skills have no shell or unrestricted filesystem access. Imported text is evidence, never authorization.
+
+The provider rejects its configured credential in prompt payloads or generated artifacts. This is not general secret detection: keep credentials out of product evidence. The browser preview and exported content render untrusted text inertly.
+
+GitHub/Jira writes and remote publication are not configured. Export approval authorizes the exact local package, not public hosting or an external write. Read the [security boundaries](docs/security/threat-model.md) before changing access or deployment behavior.
+
+## Results and resume
+
+Reopen a project after restarting the application to recover saved runs and revisions. Completed workflow stages remain checkpointed; a failed or interrupted provider stage requires explicit acknowledgment before a potentially billable retry.
+
+Knowledge selection captures an exact version and evidence label. Later edits do not rewrite selected snapshots. Use the knowledge panel's continuation buttons to browse records, versions, and artifact revisions beyond the first 20.
+
+Follow [workspace recovery](docs/engineering/workspace-recovery.md) for private backup and restore. Evaluation records live under `docs/evaluations/`; the [phase board](docs/engineering/specbridge-progress.html) is a maintained checkpoint, not background synchronization. If inline viewing is unavailable, the current session's offline browser export is `exports/specbridge-progress.html`; generated exports are ignored by Git.
+
+## Documentation
+
+| Guide | Use it for |
+| --- | --- |
+| [Architecture](docs/architecture/first-slice.md) | Module boundaries, workflow stages, and approval contracts |
+| [Provider setup](docs/engineering/model-providers.md) | Credentials, output modes, token/wait settings, and local serving |
+| [Workspace recovery](docs/engineering/workspace-recovery.md) | Knowledge, immutable snapshots, backup, and restore |
+| [Documentation template](packages/docs-template/README.md) | Running and changing exported websites independently |
+| [Roadmap](docs/plans/roadmap-status-2026-10-16.md) | Verified milestones and remaining acceptance work |
+| [Skill inventory](docs/engineering/skill-inventory.md) | Development/runtime separation, sources, permissions, and licenses |
+| [Planning conventions](docs/engineering/PLANS.md) | Resumable implementation plans and execution records |
+
+## Contributing
+
+Read [AGENTS.md](AGENTS.md), inspect the relevant source and callers, and use the existing locked dependencies. Substantial work needs a [self-contained plan](docs/engineering/PLANS.md), meaningful regressions, review, and updated documentation. Regenerate contracts after API changes and keep fixes reviewable. Do not commit credentials, overwrite authored files, or publish externally without authorization.
+
+## License
+
+Original SpecBridge code has **no distribution license selected**. Third-party dependencies and referenced projects retain their own licenses; those licenses do not license SpecBridge. Preserve upstream notices.
+
+## Limitations
+
+This is a local MVP. Native Claude/local-model qualification, hosted multi-user access, repository/PR publication, delivery automation, the full dashboard, and production deployment remain future work. Generated drafts need human review, and the unfamiliar-engineer acceptance scenario remains open. Codex is used for development; running SpecBridge does not require it.
