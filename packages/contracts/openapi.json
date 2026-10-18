@@ -258,6 +258,78 @@
         "title": "ContextItem",
         "type": "object"
       },
+      "FeatureRevision": {
+        "additionalProperties": false,
+        "properties": {
+          "change_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change Summary"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "feature_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feature Number"
+          },
+          "legacy_number": {
+            "title": "Legacy Number",
+            "type": "integer"
+          },
+          "parent_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Revision Id"
+          },
+          "revision_id": {
+            "title": "Revision Id",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision_id",
+          "run_id",
+          "parent_revision_id",
+          "feature_number",
+          "legacy_number",
+          "created_at",
+          "change_summary"
+        ],
+        "title": "FeatureRevision",
+        "type": "object"
+      },
       "Finding": {
         "additionalProperties": false,
         "properties": {
@@ -681,6 +753,23 @@
         "title": "Revision",
         "type": "object"
       },
+      "RevisionComparison": {
+        "additionalProperties": false,
+        "properties": {
+          "base": {
+            "$ref": "#/components/schemas/Revision"
+          },
+          "head": {
+            "$ref": "#/components/schemas/Revision"
+          }
+        },
+        "required": [
+          "base",
+          "head"
+        ],
+        "title": "RevisionComparison",
+        "type": "object"
+      },
       "RevisionEdit": {
         "additionalProperties": false,
         "properties": {
@@ -930,6 +1019,17 @@
           "intent": {
             "title": "Intent",
             "type": "string"
+          },
+          "legacy_revision_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legacy Revision Number"
           },
           "project_id": {
             "title": "Project Id",
@@ -2572,6 +2672,155 @@
           }
         },
         "summary": "Advance"
+      }
+    },
+    "/api/projects/{project_id}/runs/{run_id}/compare": {
+      "get": {
+        "operationId": "compare_revisions_api_projects__project_id__runs__run_id__compare_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "base",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "title": "Base",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "head",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "title": "Head",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionComparison"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compare Revisions"
+      }
+    },
+    "/api/projects/{project_id}/runs/{run_id}/history": {
+      "get": {
+        "operationId": "feature_history_api_projects__project_id__runs__run_id__history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "before",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FeatureRevision"
+                  },
+                  "title": "Response Feature History Api Projects  Project Id  Runs  Run Id  History Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Feature History"
       }
     },
     "/api/projects/{project_id}/sources": {

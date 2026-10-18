@@ -40,10 +40,12 @@ def migrate_lineage(db: sqlite3.Connection) -> None:
         head = json.loads(row["data"]).get("revision_id")
         if head in signals:
             signals[head].add(run_id)
+    roots: set[str] = set()
     for row in db.execute("SELECT run_id,data FROM checkpoints WHERE stage='validate'"):
         revision_id = json.loads(row["data"]).get("revision_id")
         if revision_id in signals:
             signals[revision_id].add(row["run_id"])
+            roots.add(revision_id)
     proven = {}
     for revision_id, origins in signals.items():
         if len(origins) != 1:
@@ -55,7 +57,6 @@ def migrate_lineage(db: sqlite3.Connection) -> None:
         ):
             continue
         proven[revision_id] = run_id
-    counts = {key: list(proven.values()).count(key) for key in set(proven.values())}
     for revision_id, run_id in proven.items():
         project_id = revisions[revision_id]["project_id"]
         created = db.execute(
@@ -69,7 +70,7 @@ def migrate_lineage(db: sqlite3.Connection) -> None:
                 project_id,
                 run_id,
                 None,
-                1 if counts[run_id] == 1 else None,
+                1 if revision_id in roots else None,
                 created[0] + "Z" if created else None,
                 None,
             ),

@@ -2,7 +2,7 @@ from io import BytesIO
 from zipfile import ZipFile
 
 import pytest
-from specbridge.models import Artifact
+from specbridge.models import Artifact, Run
 from specbridge.publication import Publication
 from specbridge.publisher import TEMPLATE_FILES
 from specbridge.storage import Conflict, NotFound, Store
@@ -17,8 +17,26 @@ def publication(tmp_path, artifact_dict):
         path.write_text("{}" if name.endswith("json") else "static template")
     store = Store(tmp_path / "db")
     project = store.create_project("Reports")
+    run = Run(
+        id="approval-feature",
+        project_id=project.id,
+        source_ids=[],
+        skill_id="feature-handoff",
+        intent="Reports",
+        destination="fixture",
+        stage="human_review",
+    )
+    with store.transaction() as db:
+        db.execute(
+            "INSERT INTO runs(id,project_id,data) VALUES (?,?,?)",
+            (run.id, project.id, run.model_dump_json()),
+        )
     revision = store.save_revision(
-        project.id, Artifact.model_validate(artifact_dict), None
+        project.id,
+        Artifact.model_validate(artifact_dict),
+        None,
+        run_id=run.id,
+        provenance={"run_id": run.id},
     )
     return Publication(store, template), store, project, revision
 
@@ -63,7 +81,13 @@ def test_revision_template_and_rejection_invalidate(publication):
     service.approve(project.id, new.id, new.digest)
     changed = revision.artifact.model_copy(deep=True)
     changed.title = "Different content"
-    store.save_revision(project.id, changed, revision.digest)
+    store.save_revision(
+        project.id,
+        changed,
+        revision.digest,
+        run_id=revision.provenance["run_id"],
+        parent_revision_id=revision.id,
+    )
     with pytest.raises(Conflict):
         service.download(project.id, new.id)
 
@@ -161,5 +185,11 @@ def test_legacy_uncovered_artifact_stays_readable_but_cannot_publish(
         else:
             service.download(project.id, "legacy-candidate")
     artifact.stories[0].requirement_ids.append("REQ-headers")
-    fixed = store.save_revision(project.id, artifact, legacy.digest)
+    fixed = store.save_revision(
+        project.id,
+        artifact,
+        legacy.digest,
+        run_id=legacy.provenance["run_id"],
+        parent_revision_id=legacy.id,
+    )
     assert service.prepare(project.id, fixed.id).revision_id == fixed.id

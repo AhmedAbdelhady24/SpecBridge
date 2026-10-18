@@ -158,6 +158,9 @@ class Store:
         artifact: Artifact,
         expected_digest: str | None,
         *,
+        run_id: str | None = None,
+        parent_revision_id: str | None = None,
+        change_summary: str | None = None,
         provenance: dict[str, str] | None = None,
         findings: list[Finding] | None = None,
         connection: sqlite3.Connection | None = None,
@@ -168,6 +171,9 @@ class Store:
                     project_id,
                     artifact,
                     expected_digest,
+                    run_id=run_id,
+                    parent_revision_id=parent_revision_id,
+                    change_summary=change_summary,
                     provenance=provenance,
                     findings=findings,
                     connection=db,
@@ -180,6 +186,14 @@ class Store:
         ).fetchall()
         history = [Revision.model_validate_json(row[0]) for row in rows]
         latest = history[-1] if history else None
+        if run_id is not None:
+            from .feature_history import FeatureHistory
+
+            latest = FeatureHistory(self).head(project_id, run_id, connection=db)
+            if (latest.id if latest else None) != parent_revision_id:
+                raise Conflict("Feature changed; compare revisions before saving")
+        elif parent_revision_id is not None:
+            raise ValueError("Parent requires feature identity")
         if (latest.digest if latest else None) != expected_digest:
             raise Conflict("Revision changed; reload before editing")
         current_ids = (
@@ -234,6 +248,39 @@ class Store:
                 revision.model_dump_json(),
             ),
         )
+        if run_id is not None:
+            parent_number = (
+                db.execute(
+                    "SELECT feature_number FROM revision_lineage WHERE revision_id=? AND project_id=? AND run_id=?",
+                    (parent_revision_id, project_id, run_id),
+                ).fetchone()
+                if parent_revision_id
+                else None
+            )
+            feature_number = (
+                1
+                if parent_revision_id is None
+                else (
+                    parent_number[0] + 1
+                    if parent_number and parent_number[0] is not None
+                    else None
+                )
+            )
+            db.execute(
+                "INSERT INTO revision_lineage VALUES (?,?,?,?,?,strftime('%Y-%m-%dT%H:%M:%SZ','now'),?)",
+                (
+                    revision.id,
+                    project_id,
+                    run_id,
+                    parent_revision_id,
+                    feature_number,
+                    change_summary,
+                ),
+            )
+            db.execute(
+                "INSERT INTO feature_heads VALUES (?,?,?) ON CONFLICT(run_id) DO UPDATE SET revision_id=excluded.revision_id",
+                (project_id, run_id, revision.id),
+            )
         self.audit(db, project_id, "revision_created", revision.id)
         return revision
 

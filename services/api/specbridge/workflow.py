@@ -56,10 +56,6 @@ class Workflow:
         if self.provider.destination != acknowledged_destination:
             raise Conflict("Acknowledge the currently configured provider destination")
         with self.store.transaction() as db:
-            row = db.execute(
-                "SELECT digest FROM revisions WHERE project_id=? ORDER BY number DESC LIMIT 1",
-                (project_id,),
-            ).fetchone()
             run = Run(
                 id=str(uuid4()),
                 project_id=project_id,
@@ -68,7 +64,7 @@ class Workflow:
                 intent=intent,
                 destination=acknowledged_destination,
                 stage="intake",
-                base_digest=row[0] if row else None,
+                base_digest=None,
             )
             db.execute(
                 "INSERT INTO runs(id,project_id,data) VALUES (?,?,?)",
@@ -100,10 +96,10 @@ class Workflow:
                 )
             ]
             revisions = {
-                row["id"]: (row["title"], row["number"])
+                row["id"]: (row["title"], row["number"], row["legacy_number"])
                 for row in db.execute(
-                    "SELECT DISTINCT r.id,r.number,json_extract(r.data,'$.artifact.title') AS title "
-                    "FROM revisions r JOIN runs w "
+                    "SELECT DISTINCT r.id,r.number AS legacy_number,l.feature_number AS number,json_extract(r.data,'$.artifact.title') AS title "
+                    "FROM revisions r LEFT JOIN revision_lineage l ON l.revision_id=r.id JOIN runs w "
                     "ON r.id=json_extract(w.data,'$.revision_id') AND w.project_id=r.project_id "
                     "WHERE r.project_id=?",
                     (project_id,),
@@ -123,7 +119,9 @@ class Workflow:
         for run_id in ids:
             # Keep the existing expired-lease presentation and its lack of writes.
             run = self.get(project_id, run_id)
-            title, revision_number = revisions.get(run.revision_id, (run.intent, None))
+            title, revision_number, legacy_number = revisions.get(
+                run.revision_id, (run.intent, None, None)
+            )
             created = creation_times.get(run_id)
             created_at = None
             if created:
@@ -139,6 +137,7 @@ class Workflow:
                     **run.model_dump(),
                     title=title,
                     revision_number=revision_number,
+                    legacy_revision_number=legacy_number,
                     created_at=created_at,
                 )
             )
@@ -288,7 +287,9 @@ class Workflow:
                     revision = self.store.save_revision(
                         project_id,
                         artifact,
-                        run.base_digest,
+                        None,
+                        run_id=run.id,
+                        parent_revision_id=None,
                         provenance=checkpoint["provenance"],
                         findings=findings,
                         connection=db,

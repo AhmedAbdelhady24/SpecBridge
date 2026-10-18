@@ -121,11 +121,13 @@ class Publication:
     @staticmethod
     def _eligible(db: sqlite3.Connection, project_id: str, revision_id: str) -> None:
         row = db.execute(
-            "SELECT id,data FROM revisions WHERE project_id=? ORDER BY number DESC LIMIT 1",
-            (project_id,),
+            "SELECT r.id,r.data FROM revisions r JOIN revision_lineage l ON l.revision_id=r.id JOIN feature_heads h ON h.project_id=l.project_id AND h.run_id=l.run_id AND h.revision_id=r.id WHERE r.project_id=? AND r.id=?",
+            (project_id, revision_id),
         ).fetchone()
-        if not row or row[0] != revision_id:
-            raise Conflict("A newer revision exists; prepare and review that revision")
+        if not row:
+            raise Conflict(
+                "Feature handoff is stale or historical association is unknown; prepare and review the current revision"
+            )
         revision = Revision.model_validate_json(row["data"])
         ids = {
             key

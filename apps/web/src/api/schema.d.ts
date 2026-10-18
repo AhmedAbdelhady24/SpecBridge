@@ -331,6 +331,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{project_id}/runs/{run_id}/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Compare Revisions */
+        get: operations["compare_revisions_api_projects__project_id__runs__run_id__compare_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/runs/{run_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Feature History */
+        get: operations["feature_history_api_projects__project_id__runs__run_id__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects/{project_id}/sources": {
         parameters: {
             query?: never;
@@ -473,6 +507,23 @@ export interface components {
             title: string;
             /** Version */
             version: number | null;
+        };
+        /** FeatureRevision */
+        FeatureRevision: {
+            /** Change Summary */
+            change_summary: string | null;
+            /** Created At */
+            created_at: string | null;
+            /** Feature Number */
+            feature_number: number | null;
+            /** Legacy Number */
+            legacy_number: number;
+            /** Parent Revision Id */
+            parent_revision_id: string | null;
+            /** Revision Id */
+            revision_id: string;
+            /** Run Id */
+            run_id: string;
         };
         /** Finding */
         Finding: {
@@ -637,6 +688,11 @@ export interface components {
                 [key: string]: string;
             };
         };
+        /** RevisionComparison */
+        RevisionComparison: {
+            base: components["schemas"]["Revision"];
+            head: components["schemas"]["Revision"];
+        };
         /** RevisionEdit */
         RevisionEdit: {
             artifact: components["schemas"]["Artifact"];
@@ -722,6 +778,8 @@ export interface components {
             id: string;
             /** Intent */
             intent: string;
+            /** Legacy Revision Number */
+            legacy_revision_number?: number | null;
             /** Project Id */
             project_id: string;
             /** Revision Id */
@@ -1606,6 +1664,76 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Run"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compare_revisions_api_projects__project_id__runs__run_id__compare_get: {
+        parameters: {
+            query: {
+                base: string;
+                head: string;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RevisionComparison"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    feature_history_api_projects__project_id__runs__run_id__history_get: {
+        parameters: {
+            query?: {
+                before?: number | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeatureRevision"][];
                 };
             };
             /** @description Validation Error */

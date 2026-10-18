@@ -204,7 +204,8 @@ def test_run_metadata_resolves_linked_revision_beyond_recent_history(
         )
     summary = c.get(base + "/runs").json()[0]
     assert summary["title"] == "Report export"
-    assert summary["revision_number"] == 1
+    assert summary["revision_number"] is None
+    assert summary["legacy_revision_number"] == 1
 
 
 def test_source_picker_excludes_non_original_kinds_and_authenticates(workspace):
@@ -259,7 +260,8 @@ def test_run_summary_does_not_require_full_historical_artifact_validation(worksp
     response = c.get(base + "/runs")
     assert response.status_code == 200
     assert response.json()[0]["title"] == "Historical title"
-    assert response.json()[0]["revision_number"] == 1
+    assert response.json()[0]["revision_number"] is None
+    assert response.json()[0]["legacy_revision_number"] == 1
 
 
 def test_source_cursor_input_is_bounded(workspace):

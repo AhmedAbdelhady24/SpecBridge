@@ -169,6 +169,7 @@ class Run(Model):
 class RunSummary(Run):
     title: str
     revision_number: int | None = None
+    legacy_revision_number: int | None = None
     created_at: str | None = None
 
 

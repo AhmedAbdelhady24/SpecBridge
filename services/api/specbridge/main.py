@@ -12,6 +12,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
 
+from .feature_history import FeatureHistory, FeatureRevision, RevisionComparison
 from .knowledge import register_knowledge_routes
 from .models import (
     AdvanceRequest,
@@ -256,10 +257,20 @@ def create_app(
         if previous.digest != body.expected_digest:
             raise Conflict("Revision changed; reload before editing")
         with store.transaction() as db:
+            association = db.execute(
+                "SELECT run_id FROM revision_lineage WHERE revision_id=? AND project_id=?",
+                (revision_id, project_id),
+            ).fetchone()
+            if not association:
+                raise Conflict(
+                    "Historical feature association is unknown; this revision is read-only"
+                )
             revised = store.save_revision(
                 project_id,
                 body.artifact,
                 body.expected_digest,
+                run_id=association[0],
+                parent_revision_id=revision_id,
                 findings=workflow.findings(body.artifact),
                 connection=db,
             )
@@ -296,6 +307,24 @@ def create_app(
     @app.get("/api/projects/{project_id}/runs")
     def runs(project_id: str) -> list[RunSummary]:
         return workflow.list_runs(project_id)
+
+    @app.get("/api/projects/{project_id}/runs/{run_id}/history")
+    def feature_history(
+        project_id: str,
+        run_id: str,
+        before: int | None = Query(default=None, ge=1),
+        limit: int = Query(default=20, ge=1, le=50),
+    ) -> list[FeatureRevision]:
+        return FeatureHistory(store).list(project_id, run_id, before, limit)
+
+    @app.get("/api/projects/{project_id}/runs/{run_id}/compare")
+    def compare_revisions(
+        project_id: str,
+        run_id: str,
+        base: str = Query(max_length=128),
+        head: str = Query(max_length=128),
+    ) -> RevisionComparison:
+        return FeatureHistory(store).compare(project_id, run_id, base, head)
 
     @app.get("/api/projects/{project_id}/runs/{run_id}")
     def get_run(project_id: str, run_id: str) -> Run:
