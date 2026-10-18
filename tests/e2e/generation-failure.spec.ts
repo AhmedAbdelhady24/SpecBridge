@@ -1,3 +1,4 @@
+import { projectCreation } from './helpers';
 import { test, expect } from '@playwright/test';
 import { signInLocal } from './helpers';
 
@@ -26,9 +27,11 @@ for (const [code, message] of [
       } else await route.continue();
     });
     await signInLocal(page);
+    await projectCreation(page);
     await page.getByLabel('Project name', { exact: true }).fill('Safe failure fixture');
     await page.getByRole('button', { name: 'Create project', exact: true }).click();
     await page.getByLabel('Feature idea', { exact: true }).fill('Synthetic export feature.');
+    if(!await page.getByLabel('I acknowledge generation uses this destination',{exact:true}).isVisible())await page.getByRole('button',{name:'Review generation',exact:true}).click();
     await page.getByLabel('I acknowledge generation uses this destination', { exact: true }).check();
     await page.getByRole('button', { name: 'Generate draft', exact: true }).click();
     await expect(page.getByRole('alert').first()).toContainText(message);

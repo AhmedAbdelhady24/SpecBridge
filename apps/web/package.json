@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src vite.config.ts",
     "generate:types": "openapi-typescript ../../packages/contracts/openapi.json -o src/api/schema.d.ts",
-    "test": "node --experimental-strip-types --test src/api/client.test.ts"
+    "test": "node --experimental-strip-types --test src/api/client.test.ts src/artifactDiff.test.ts"
   },
   "dependencies": {
     "react": "19.3.1",

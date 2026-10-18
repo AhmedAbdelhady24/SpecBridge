@@ -1,3 +1,4 @@
+import { projectCreation, reviewTask, committedRevision } from './helpers';
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -7,14 +8,17 @@ test('human review binds the exact package before download', async ({ page, requ
   await signInLocal(page);
   const { projectId, runId } = await createFeatureDraft(page, 'Export saved reports. API ownership is unresolved; do not invent a decision.');
   await expect(page.getByLabel('Purpose', { exact: true })).toHaveValue(/not AI validation/);
+  await reviewTask(page);
   await expect(page.getByRole('button', { name: 'Download package', exact: true })).toBeDisabled();
   await recordReview(page);
   const candidate = await preparePackage(page);
   const url = `${api}/projects/${projectId}/candidates/${candidate.id}/download`;
   expect((await request.get(url, { headers: authHeaders() })).status()).toBe(409);
   await page.getByRole('button', { name: 'Approve this package', exact: true }).click();
+  await reviewTask(page);
   await expect(page.getByRole('button', { name: 'Download package', exact: true })).toBeEnabled();
   const downloadEvent = page.waitForEvent('download');
+  await reviewTask(page);
   await page.getByRole('button', { name: 'Download package', exact: true }).click();
   const download = await downloadEvent;
   expect(download.suggestedFilename()).toMatch(/\.zip$/);
@@ -28,12 +32,13 @@ test('human review binds the exact package before download', async ({ page, requ
   const ids = revision.artifact.requirements.map((r: { id: string }) => r.id);
   for (const id of ids) await expect(page.getByText(`Requirement ID: ${id}`, { exact: false })).toBeVisible();
   expect(revision.artifact.requirements[0].source_ids).toEqual(run.source_ids);
-  const saveResponse = page.waitForResponse(r => r.url().endsWith('/edits') && r.request().method() === 'POST');
+  const saveResponse = page.waitForResponse(r => r.url().endsWith('/commits') && r.request().method() === 'POST');
   await page.getByLabel('Purpose', { exact: true }).fill('Revised purpose; keep source and requirement IDs unchanged.');
   await page.getByRole('button', { name: 'Save revision', exact: true }).click();
-  const edited = await (await saveResponse).json();
+  const edited = await committedRevision(page, await saveResponse);
   expect(edited.artifact.requirements.map((r: { id: string }) => r.id)).toEqual(ids);
   expect(edited.digest).not.toBe(revision.digest);
+  await reviewTask(page);
   await expect(page.getByRole('button', { name: 'Download package', exact: true })).toBeDisabled();
   expect((await request.get(url, { headers: authHeaders() })).status()).toBe(409);
 });
@@ -49,10 +54,12 @@ test('reload recovers an existing run without repeating generation', async ({ pa
   await page.getByLabel('Session token', { exact: true }).fill(process.env.SPECBRIDGE_TOKEN!);
   await page.getByRole('button', { name: 'Connect', exact: true }).click();
   await page.getByLabel('Existing project', { exact: true }).selectOption(projectId);
+  if(!await page.getByLabel('Existing run',{exact:true}).isVisible())await page.getByText('Choose or start a feature',{exact:true}).click();
   await page.getByLabel('Existing run', { exact: true }).selectOption(runId);
   await page.getByRole('button', { name: 'Open run', exact: true }).click();
   await editDraft(page);
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(/DEMO fixture/);
+  await page.getByText('Generation details', {exact:true}).click();
   await page.getByText('Selected source evidence', { exact: true }).click();
   await expect(page.getByText('Allow a customer to export their saved report.', { exact: true })).toBeVisible();
   const after = await (await request.get(runURL, { headers: authHeaders() })).json();
@@ -68,7 +75,7 @@ test('raw HTML and remote images remain inert in preview', async ({ page }) => {
   await createFeatureDraft(page, '<script>window.__specbridgeAttack = true</script> ![remote](https://attacker.example/source.png)');
   const attack = '<img src="https://attacker.example/pixel.png" onerror="window.__specbridgeAttack=true"><script>window.__specbridgeAttack=true</script> [click](javascript:alert(1))';
   await page.getByLabel('Purpose', { exact: true }).fill(attack);
-  const savedResponse = page.waitForResponse(r => r.url().endsWith('/edits') && r.request().method() === 'POST');
+  const savedResponse = page.waitForResponse(r => r.url().endsWith('/commits') && r.request().method() === 'POST');
   await page.getByRole('button', { name: 'Save revision', exact: true }).click();
   expect((await savedResponse).ok()).toBeTruthy();
   await expect(page.getByLabel('Purpose', { exact: true })).toHaveValue(attack);
@@ -102,9 +109,11 @@ test('invalid local authorization does not open project data', async ({ page }) 
 
 test('a transport failure preserves the run and requires an acknowledged retry', async ({ page }) => {
   await signInLocal(page);
+  await projectCreation(page);
   await page.getByLabel('Project name', { exact: true }).fill('Retry demonstration');
   await page.getByRole('button', { name: 'Create project', exact: true }).click();
   await page.getByLabel('Feature idea', { exact: true }).fill('Allow report exports.');
+  if(!await page.getByLabel('I acknowledge generation uses this destination',{exact:true}).isVisible())await page.getByRole('button',{name:'Review generation',exact:true}).click();
   await page.getByLabel('I acknowledge generation uses this destination', { exact: true }).check();
   // Inject a transport failure only; real provider interruption is covered by backend tests.
   await page.route('**/runs/*/advance', route => route.fulfill({
@@ -126,9 +135,11 @@ test('a transport failure preserves the run and requires an acknowledged retry',
 test('human rejection blocks package preparation', async ({ page, request }) => {
   await signInLocal(page);
   const { projectId, runId } = await createFeatureDraft(page);
+  await reviewTask(page);
   await page.getByLabel('Review notes', { exact: true }).fill('Reject: unresolved conflicting API owners require a new revision.');
   await page.getByRole('button', { name: 'Reject revision', exact: true }).click();
   await expect(page.getByText('Revision rejected. Edit and save a new revision to continue.', { exact: true })).toBeVisible();
+  await reviewTask(page);
   await expect(page.getByRole('button', { name: 'Prepare package', exact: true })).toBeDisabled();
   const run = await (await request.get(`${api}/projects/${projectId}/runs/${runId}`, { headers: authHeaders() })).json();
   expect((await request.post(`${api}/projects/${projectId}/revisions/${run.revision_id}/candidates`, { headers: authHeaders() })).status()).toBe(409);
@@ -144,6 +155,7 @@ test('review correction adds missing questions and criteria with fresh approval 
   await recordReview(page);
   const oldCandidate = await preparePackage(page);
   await page.getByRole('button', { name: 'Approve this package', exact: true }).click();
+  await reviewTask(page);
   await expect(page.getByRole('button', { name: 'Download package', exact: true })).toBeEnabled();
   const addQuestion = page.getByRole('button', { name: 'Add open question', exact: true });
   await expect(addQuestion).toBeVisible();
@@ -154,22 +166,25 @@ test('review correction adds missing questions and criteria with fresh approval 
   const criterion = 'Given draft A and continuation input have been agreed, when next-page navigation completes, then the next set of items is displayed.';
   await page.getByLabel('Acceptance criterion 1.2', { exact: true }).fill(criterion);
   await expect(page.getByLabel('Open question 1', { exact: true })).toHaveValue(originalQuestion);
+  await reviewTask(page);
   await expect(page.getByRole('button', { name: 'Download package', exact: true })).toBeDisabled();
-  const response = page.waitForResponse(r => r.url().endsWith('/edits') && r.request().method() === 'POST');
+  const response = page.waitForResponse(r => r.url().endsWith('/commits') && r.request().method() === 'POST');
   await page.getByRole('button', { name: 'Save revision', exact: true }).click();
   const savedResponse = await response;
   expect(savedResponse.status()).toBe(201);
-  const saved = await savedResponse.json();
+  const saved = await committedRevision(page, savedResponse);
   expect(saved.artifact.open_questions).toEqual([...before.artifact.open_questions, question]);
   expect(saved.artifact.stories[0].acceptance_criteria).toEqual([...before.artifact.stories[0].acceptance_criteria, criterion]);
   expect(saved.artifact.requirements.map((r: { id: string }) => r.id)).toEqual(before.artifact.requirements.map((r: { id: string }) => r.id));
   expect(saved.artifact.stories.map((s: { id: string }) => s.id)).toEqual(before.artifact.stories.map((s: { id: string }) => s.id));
+  await reviewTask(page);
   await expect(page.getByRole('button', { name: 'Prepare package', exact: true })).toBeDisabled();
   expect((await request.get(`${api}/projects/${projectId}/candidates/${oldCandidate.id}/download`, { headers: authHeaders() })).status()).toBe(409);
   await page.reload();
   await page.getByLabel('Session token', { exact: true }).fill(process.env.SPECBRIDGE_TOKEN!);
   await page.getByRole('button', { name: 'Connect', exact: true }).click();
   await page.getByLabel('Existing project', { exact: true }).selectOption(projectId);
+  if(!await page.getByLabel('Existing run',{exact:true}).isVisible())await page.getByText('Choose or start a feature',{exact:true}).click();
   await page.getByLabel('Existing run', { exact: true }).selectOption(runId);
   await page.getByRole('button', { name: 'Open run', exact: true }).click();
   await editDraft(page);
@@ -188,7 +203,7 @@ test('review correction requires nonblank entries and preserves the last criteri
   await expect(lastCriterion).toBeVisible();
   await expect(lastCriterion).toBeDisabled();
   let edits = 0;
-  page.on('request', r => { if (r.url().endsWith('/edits')) edits++; });
+  page.on('request', r => { if (r.url().endsWith('/commits') || (r.url().endsWith('/working-copy') && r.method() === 'PUT')) edits++; });
   await page.getByRole('button', { name: 'Add open question', exact: true }).click();
   const question = page.getByLabel('Open question 4', { exact: true });
   await page.getByRole('button', { name: 'Save revision', exact: true }).click();
@@ -220,21 +235,21 @@ test('review correction uses explicit evidence labels and retains source validat
   await expect(page.getByLabel('Evidence type for Scope 1', { exact: true }).locator('option[value="unknown"]')).toHaveCount(1);
   await page.getByLabel('Requirement 1', { exact: true }).fill(idea);
   await evidence.selectOption('user_provided');
-  const firstResponse = page.waitForResponse(r => r.url().endsWith('/edits') && r.request().method() === 'POST');
+  const firstResponse = page.waitForResponse(r => r.url().endsWith('/commits') && r.request().method() === 'POST');
   await page.getByRole('button', { name: 'Save revision', exact: true }).click();
-  const first = await (await firstResponse).json();
+  const first = await committedRevision(page, await firstResponse);
   expect(first.artifact.requirements[0].kind).toBe('user_provided');
   const run = await (await request.get(`${api}/projects/${projectId}/runs/${runId}`, { headers: authHeaders() })).json();
   expect(first.artifact.requirements[0].source_ids).toEqual(run.source_ids);
   await page.getByLabel('Requirement 1', { exact: true }).fill('Proposed behavior: deliver a digest when the preference is on.');
   await expect(evidence).toHaveValue('user_provided');
-  const invalidResponse = page.waitForResponse(r => r.url().endsWith('/edits') && r.request().method() === 'POST');
+  const invalidResponse = page.waitForResponse(r => r.url().endsWith('/commits') && r.request().method() === 'POST');
   await page.getByRole('button', { name: 'Save revision', exact: true }).click();
   expect((await invalidResponse).status()).toBe(422);
   await evidence.selectOption('recommendation');
-  const secondResponse = page.waitForResponse(r => r.url().endsWith('/edits') && r.request().method() === 'POST');
+  const secondResponse = page.waitForResponse(r => r.url().endsWith('/commits') && r.request().method() === 'POST');
   await page.getByRole('button', { name: 'Save revision', exact: true }).click();
-  const second = await (await secondResponse).json();
+  const second = await committedRevision(page, await secondResponse);
   expect(second.artifact.requirements[0].kind).toBe('recommendation');
   expect(second.artifact.requirements[0].id).toBe(first.artifact.requirements[0].id);
   expect(second.artifact.requirements[0].source_ids).toEqual(first.artifact.requirements[0].source_ids);
@@ -251,6 +266,7 @@ test('review correction respects question and criterion bounds', async ({ page, 
     headers: authHeaders(), data: { expected_digest: revision.digest, artifact: revision.artifact },
   });
   expect(saved.status()).toBe(201);
+  if(!await page.getByLabel('Existing run',{exact:true}).isVisible())await page.getByText('Choose or start a feature',{exact:true}).click();
   await page.getByLabel('Existing run', { exact: true }).selectOption(runId);
   await page.getByRole('button', { name: 'Open run', exact: true }).click();
   await editDraft(page);
@@ -286,6 +302,7 @@ test('review correction repairs a saved model omission without regenerating', as
   });
   expect(importedResponse.status()).toBe(201);
   const imported = await importedResponse.json();
+  if(!await page.getByLabel('Existing run',{exact:true}).isVisible())await page.getByText('Choose or start a feature',{exact:true}).click();
   await page.getByLabel('Existing run', { exact: true }).selectOption(runId);
   await page.getByRole('button', { name: 'Open run', exact: true }).click();
   await editDraft(page);
@@ -301,11 +318,11 @@ test('review correction repairs a saved model omission without regenerating', as
   await page.getByLabel('Acceptance criterion 1.4', { exact: true }).fill(off);
   await page.getByRole('button', { name: 'Add acceptance criterion to story 4', exact: true }).click();
   await page.getByLabel('Acceptance criterion 4.2', { exact: true }).fill(initial);
-  const response = page.waitForResponse(r => r.url().endsWith('/edits') && r.request().method() === 'POST');
+  const response = page.waitForResponse(r => r.url().endsWith('/commits') && r.request().method() === 'POST');
   await page.getByRole('button', { name: 'Save revision', exact: true }).click();
   const savedResponse = await response;
   expect(savedResponse.status()).toBe(201);
-  const saved = await savedResponse.json();
+  const saved = await committedRevision(page, savedResponse);
   expect(saved.artifact.stories[0].acceptance_criteria).toContain(on);
   expect(saved.artifact.stories[0].acceptance_criteria).toContain(off);
   expect(saved.artifact.stories[3].acceptance_criteria).toContain(initial);
