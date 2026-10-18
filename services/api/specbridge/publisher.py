@@ -7,6 +7,7 @@ from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 from .models import Artifact, Statement, canonical, digest
+from .workbench_models import DecisionSnapshot
 
 TEMPLATE_FILES = (
     "package.json",
@@ -77,7 +78,11 @@ class CandidatePackage:
 
 
 def render_package(
-    artifact: Artifact, provenance: dict[str, str], template_root: Path
+    artifact: Artifact,
+    provenance: dict[str, str],
+    template_root: Path,
+    *,
+    decisions: DecisionSnapshot | None = None,
 ) -> CandidatePackage:
     files = template_files(template_root)
     template_hash = digest(hashes(files))
@@ -154,6 +159,39 @@ def render_package(
             ),
         ),
     }
+    decisions = decisions or DecisionSnapshot()
+    decision_lines = [
+        "This is recorded decision history, not independently verified fact. Each resolution names its revision; later edits may supersede it. Inspect the current requirements for applicability."
+    ]
+    for question in decisions.questions:
+        decision_lines.append("## " + text(question.text))
+        decision_lines.append(
+            text(question.latest_answer.text)
+            if question.latest_answer
+            else "Answer not supplied."
+        )
+        decision_lines.append(
+            "Resolved in revision: "
+            + text(question.resolution_revision_id or "unknown")
+        )
+        decision_lines.append(
+            "Targets: " + ", ".join(text(target) for target in question.targets)
+        )
+    for request in decisions.requests:
+        decision_lines.append("## Addressed change request")
+        decision_lines.append(text(request.text))
+        decision_lines.append(
+            "Addressed in revision: "
+            + text(request.resolution_revision_id or "unknown")
+        )
+    if not decisions.questions and not decisions.requests:
+        decision_lines.append(
+            "No resolved decisions or addressed requests were incorporated in this snapshot."
+        )
+    pages["decisions"] = (
+        "Resolved decisions and review changes",
+        "\n\n".join(decision_lines),
+    )
     for slug, (title, body) in pages.items():
         files[f"src/content/docs/{slug}.md"] = page(title, body)
     mapping = {
@@ -168,6 +206,7 @@ def render_package(
         canonical(
             {
                 "artifact": artifact.model_dump(),
+                "decisions": decisions.model_dump(),
                 "provenance": provenance,
                 "requirement_stories": mapping,
             }

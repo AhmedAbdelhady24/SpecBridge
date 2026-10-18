@@ -191,13 +191,12 @@ def sync_questions(
             raise ValueError("Reopened question identity is not valid for this feature")
         previous.append((len(previous), reopen_id, json.loads(row[0])["text"]))
     old_texts = [p[2] for p in previous]
-    if (
-        (excluded_question_ids or reopened_question_ids)
-        and texts != old_texts
-        and any(old_texts.count(text) > 1 and text in texts for text in old_texts)
+    if texts != old_texts and any(
+        (old_texts.count(text) > 1 or texts.count(text) > 1) and text in texts
+        for text in old_texts
     ):
         raise ValueError(
-            "Save duplicate-question resolutions separately from other question-list edits"
+            "Resolve duplicate questions separately or clarify their wording before combining question-list changes"
         )
     for index, text in enumerate(texts):
         question_id = None

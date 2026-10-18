@@ -164,14 +164,25 @@ class Workbench:
             self.store.audit(db, project_id, "question_status_changed", q.id)
             return q
 
-    def requests(self, project_id: str, run_id: str) -> list[RequestView]:
+    def requests(
+        self, project_id: str, run_id: str, before: str | None = None, limit: int = 20
+    ) -> list[RequestView]:
         with self.store.transaction() as db:
             self.history.require_run(db, project_id, run_id)
+            cursor = 2147483647
+            if before:
+                row = db.execute(
+                    "SELECT rowid FROM change_requests WHERE id=? AND project_id=? AND run_id=?",
+                    (before, project_id, run_id),
+                ).fetchone()
+                if not row:
+                    raise NotFound("Requested change cursor not found")
+                cursor = row[0]
             return [
                 RequestView.model_validate_json(r[0])
                 for r in db.execute(
-                    "SELECT data FROM change_requests WHERE project_id=? AND run_id=? ORDER BY rowid DESC",
-                    (project_id, run_id),
+                    "SELECT data FROM change_requests WHERE project_id=? AND run_id=? AND rowid<? ORDER BY rowid DESC LIMIT ?",
+                    (project_id, run_id, cursor, limit),
                 )
             ]
 
@@ -253,3 +264,21 @@ class Workbench:
             )
             self.store.audit(db, project_id, "change_request_status_changed", item.id)
             return item
+
+    def request_history(
+        self,
+        project_id: str,
+        run_id: str,
+        request_id: str,
+        before: int = 2147483647,
+        limit: int = 20,
+    ) -> list[RequestView]:
+        with self.store.transaction() as db:
+            self.request(db, project_id, run_id, request_id)
+            return [
+                RequestView.model_validate_json(row[0])
+                for row in db.execute(
+                    "SELECT data FROM change_request_events WHERE request_id=? AND version<? ORDER BY version DESC LIMIT ?",
+                    (request_id, before, limit),
+                )
+            ]

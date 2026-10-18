@@ -54,8 +54,13 @@ def register_workbench_routes(app: FastAPI, store: Store) -> None:
         return service.set_question_status(project_id, run_id, question_id, body)
 
     @app.get(prefix + "/change-requests")
-    def requests(project_id: str, run_id: str) -> list[RequestView]:
-        return service.requests(project_id, run_id)
+    def requests(
+        project_id: str,
+        run_id: str,
+        before: str | None = Query(default=None, max_length=128),
+        limit: int = Query(default=20, ge=1, le=50),
+    ) -> list[RequestView]:
+        return service.requests(project_id, run_id, before, limit)
 
     @app.post(prefix + "/change-requests", status_code=201)
     def request_change(project_id: str, run_id: str, body: RequestInput) -> RequestView:
@@ -87,3 +92,13 @@ def register_workbench_routes(app: FastAPI, store: Store) -> None:
     @app.post(prefix + "/commits", status_code=201)
     def commit(project_id: str, run_id: str, body: CommitInput) -> CommitReceipt:
         return drafts.commit(project_id, run_id, body)
+
+    @app.get(prefix + "/change-requests/{request_id}/history")
+    def request_history(
+        project_id: str,
+        run_id: str,
+        request_id: str,
+        before: int = Query(default=2147483647, ge=0),
+        limit: int = Query(default=20, ge=1, le=50),
+    ) -> list[RequestView]:
+        return service.request_history(project_id, run_id, request_id, before, limit)

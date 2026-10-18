@@ -90,6 +90,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{project_id}/candidates/{candidate_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Preview Package */
+        get: operations["preview_package_api_projects__project_id__candidates__candidate_id__preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects/{project_id}/context": {
         parameters: {
             query?: never;
@@ -343,6 +360,23 @@ export interface paths {
         put?: never;
         /** Request Change */
         post: operations["request_change_api_projects__project_id__runs__run_id__change_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/runs/{run_id}/change-requests/{request_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Request History */
+        get: operations["request_history_api_projects__project_id__runs__run_id__change_requests__request_id__history_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -669,6 +703,49 @@ export interface components {
             /** Version */
             version: number | null;
         };
+        /** DecisionQuestion */
+        DecisionQuestion: {
+            /** Current Index */
+            current_index?: number | null;
+            /** Dismissal Reason */
+            dismissal_reason?: string | null;
+            /** Id */
+            id: string;
+            /**
+             * In Current Draft
+             * @default true
+             */
+            in_current_draft: boolean;
+            latest_answer?: components["schemas"]["AnswerVersion"] | null;
+            /** Origin Index */
+            origin_index: number;
+            /** Origin Revision Id */
+            origin_revision_id: string;
+            /** Resolution Revision Id */
+            resolution_revision_id?: string | null;
+            /**
+             * Status
+             * @default unresolved
+             * @enum {string}
+             */
+            status: "unresolved" | "answered" | "dismissed" | "resolved";
+            /** Targets */
+            targets?: string[];
+            /** Text */
+            text: string;
+            /**
+             * Version
+             * @default 0
+             */
+            version: number;
+        };
+        /** DecisionSnapshot */
+        DecisionSnapshot: {
+            /** Questions */
+            questions?: components["schemas"]["DecisionQuestion"][];
+            /** Requests */
+            requests?: components["schemas"]["RequestView"][];
+        };
         /** DiscardInput */
         DiscardInput: {
             /** Expected Version */
@@ -770,6 +847,26 @@ export interface components {
             text: string;
             /** Title */
             title: string;
+        };
+        /** PackageFile */
+        PackageFile: {
+            /** Path */
+            path: string;
+            /** Size Bytes */
+            size_bytes: number;
+        };
+        /** PackagePreview */
+        PackagePreview: {
+            /** Content */
+            content?: string | null;
+            /** Digest */
+            digest: string;
+            /** Files */
+            files: components["schemas"]["PackageFile"][];
+            /** Path */
+            path?: string | null;
+            /** Template Digest */
+            template_digest: string;
         };
         /** Project */
         Project: {
@@ -950,7 +1047,9 @@ export interface components {
         /** RevisionComparison */
         RevisionComparison: {
             base: components["schemas"]["Revision"];
+            base_decisions?: components["schemas"]["DecisionSnapshot"] | null;
             head: components["schemas"]["Revision"];
+            head_decisions?: components["schemas"]["DecisionSnapshot"] | null;
         };
         /** RevisionEdit */
         RevisionEdit: {
@@ -1389,6 +1488,40 @@ export interface operations {
                 content: {
                     "application/json": unknown;
                     "application/zip": string;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_package_api_projects__project_id__candidates__candidate_id__preview_get: {
+        parameters: {
+            query?: {
+                path?: string | null;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+                candidate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PackagePreview"];
                 };
             };
             /** @description Validation Error */
@@ -1990,7 +2123,10 @@ export interface operations {
     };
     requests_api_projects__project_id__runs__run_id__change_requests_get: {
         parameters: {
-            query?: never;
+            query?: {
+                before?: string | null;
+                limit?: number;
+            };
             header?: never;
             path: {
                 project_id: string;
@@ -2043,6 +2179,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RequestView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    request_history_api_projects__project_id__runs__run_id__change_requests__request_id__history_get: {
+        parameters: {
+            query?: {
+                before?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequestView"][];
                 };
             };
             /** @description Validation Error */

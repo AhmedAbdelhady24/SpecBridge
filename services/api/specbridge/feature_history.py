@@ -4,6 +4,7 @@ import sqlite3
 from typing import TYPE_CHECKING
 
 from .models import Model, Revision
+from .workbench_models import DecisionSnapshot
 
 if TYPE_CHECKING:
     from .storage import Store
@@ -22,6 +23,8 @@ class FeatureRevision(Model):
 class RevisionComparison(Model):
     base: Revision
     head: Revision
+    base_decisions: DecisionSnapshot | None = None
+    head_decisions: DecisionSnapshot | None = None
 
 
 class FeatureHistory:
@@ -87,7 +90,18 @@ class FeatureHistory:
                     (project_id, run_id, revision_id),
                 ).fetchone():
                     raise NotFound("Feature revision not found")
+            snapshots = []
+            for revision_id in (base_id, head_id):
+                row = db.execute(
+                    "SELECT data FROM revision_decisions WHERE revision_id=?",
+                    (revision_id,),
+                ).fetchone()
+                snapshots.append(
+                    DecisionSnapshot.model_validate_json(row[0]) if row else None
+                )
         return RevisionComparison(
+            base_decisions=snapshots[0],
+            head_decisions=snapshots[1],
             base=self.store.get_revision(project_id, base_id),
             head=self.store.get_revision(project_id, head_id),
         )

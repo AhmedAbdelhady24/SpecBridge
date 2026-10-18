@@ -450,3 +450,97 @@ def test_explicit_reopen_preserves_question_identity_and_export_history(workbenc
         next(item for item in active if item["id"] == q["id"])["latest_answer"]["text"]
         == "CSV"
     )
+
+
+def test_exact_package_preview_is_authenticated_bounded_and_inert(workbench):
+    app, c, b, _run, revision, _url = workbench
+    candidate = c.post(b + f"/revisions/{revision['id']}/candidates").json()
+    url = b + f"/candidates/{candidate['id']}/preview"
+    result = c.get(url)
+    assert result.status_code == 200, result.text
+    preview = result.json()
+    assert preview["digest"] == candidate["digest"]
+    assert "src/content/docs/requirements.md" in [f["path"] for f in preview["files"]]
+    doc = c.get(url, params={"path": "src/content/docs/requirements.md"})
+    assert doc.status_code == 200
+    assert revision["artifact"]["requirements"][0]["id"] in doc.json()["content"]
+    assert c.get(url, params={"path": "../.env"}).status_code == 404
+    assert c.get(url, params={"path": "astro.config.mjs"}).status_code == 404
+    other = c.post("/api/projects", json={"name": "Other"}).json()["id"]
+    assert (
+        c.get(f"/api/projects/{other}/candidates/{candidate['id']}/preview").status_code
+        == 404
+    )
+    # A candidate can be previewed, but preview never grants download authority.
+    assert c.get(b + f"/candidates/{candidate['id']}/download").status_code == 409
+    with app.state.store.transaction() as db:
+        db.execute(
+            "UPDATE candidates SET zip=CAST(zip || X'00' AS BLOB) WHERE id=?",
+            (candidate["id"],),
+        )
+    assert c.get(url).status_code == 409
+
+
+def test_request_paging_and_status_history_remain_scoped(workbench):
+    _, c, _b, _run, revision, url = workbench
+    for index in range(21):
+        result = c.post(
+            url + "/change-requests",
+            json={
+                "base_revision_id": revision["id"],
+                "text": f"Change {index}",
+                "target_ids": [],
+            },
+        )
+        assert result.status_code == 201
+    first = c.get(url + "/change-requests").json()
+    assert len(first) == 20
+    second = c.get(url + "/change-requests", params={"before": first[-1]["id"]}).json()
+    assert len(second) == 1 and second[0]["text"] == "Change 0"
+    item = first[0]
+    assert (
+        c.post(
+            url + f"/change-requests/{item['id']}/status",
+            json={
+                "expected_version": item["version"],
+                "status": "dismissed",
+                "reason": "Superseded",
+            },
+        ).status_code
+        == 200
+    )
+    history = c.get(url + f"/change-requests/{item['id']}/history").json()
+    assert [event["status"] for event in history] == ["dismissed", "open"]
+    assert c.get(url + "/change-requests?limit=51").status_code == 422
+
+
+def test_ambiguous_duplicate_edit_preserves_answer_identity(workbench):
+    _, c, _b, _run, revision, url = workbench
+    q = c.get(url + "/questions").json()[0]
+    answer = c.post(
+        url + f"/questions/{q['id']}/answers",
+        json={"expected_version": q["version"], "text": "CSV"},
+    )
+    assert answer.status_code == 201
+    artifact = json.loads(json.dumps(revision["artifact"]))
+    artifact["open_questions"].append("Another question?")
+    copied = save_copy(c, url, revision, artifact=artifact).json()
+    from uuid import uuid4
+
+    assert (
+        c.post(
+            url + "/commits",
+            json={
+                "working_copy_version": copied["version"],
+                "idempotency_key": str(uuid4()),
+            },
+        ).status_code
+        == 422
+    )
+    assert (
+        next(
+            item for item in c.get(url + "/questions").json() if item["id"] == q["id"]
+        )["in_current_draft"]
+        is True
+    )
+    assert c.get(url + "/working-copy").json()["version"] == copied["version"]

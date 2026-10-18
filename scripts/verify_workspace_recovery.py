@@ -131,6 +131,88 @@ def verify() -> dict[str, object]:
             assert response.status_code == 200
         assert response.json()["status"] == "review"
         assert c.get(b + "/revisions").json()[0]["number"] == 1
+        from uuid import uuid4
+
+        from specbridge.workbench import Workbench
+        from specbridge.workbench_models import CommitInput, WorkingInput
+        from specbridge.working_copy import WorkingDrafts
+
+        current = response.json()
+        revision = c.get(b + f"/revisions/{current['revision_id']}").json()
+        queue = c.get(b + f"/runs/{run.id}/questions").json()
+        question = queue[0]
+        saved_answer = c.post(
+            b + f"/runs/{run.id}/questions/{question['id']}/answers",
+            json={
+                "expected_version": question["version"],
+                "text": "Customers requested CSV export.",
+            },
+        )
+        saved_answer.raise_for_status()
+        answer = saved_answer.json()
+        question = c.get(b + f"/runs/{run.id}/questions").json()[0]
+        artifact = revision["artifact"]
+        artifact["scope"].append(
+            {
+                "text": answer["text"],
+                "kind": "user_provided",
+                "source_ids": [answer["source_id"]],
+            }
+        )
+        artifact["open_questions"].pop(0)
+        saved_copy = c.put(
+            b + f"/runs/{run.id}/working-copy",
+            json={
+                "expected_version": 0,
+                "base_revision_id": revision["id"],
+                "base_digest": revision["digest"],
+                "artifact": artifact,
+                "question_changes": [
+                    {
+                        "question_id": question["id"],
+                        "expected_question_version": question["version"],
+                        "answer_version": answer["version"],
+                        "targets": ["scope"],
+                    }
+                ],
+                "change_summary": "Record recovery decision",
+            },
+        )
+        saved_copy.raise_for_status()
+        workbench_backup = base / "workbench-backup.db"
+        subprocess.run(
+            [
+                sys.executable,
+                str(root / "scripts/backup_workspace.py"),
+                "backup",
+                "--database",
+                str(restored / "specbridge.db"),
+                "--output",
+                str(workbench_backup),
+            ],
+            check=True,
+        )
+        resumed_store = Store(workbench_backup)
+        service = Workbench(resumed_store)
+        drafts = WorkingDrafts(service)
+        recovered = drafts.get(p.id, run.id)
+        assert recovered is not None and recovered.model_dump() == saved_copy.json()
+        assert service.questions(p.id, run.id)[0].latest_answer.text == answer["text"]
+        commit = CommitInput(
+            working_copy_version=recovered.version, idempotency_key=str(uuid4())
+        )
+        receipt = drafts.commit(p.id, run.id, commit)
+        assert drafts.commit(p.id, run.id, commit) == receipt
+        committed_revision = resumed_store.get_revision(p.id, receipt.revision_id)
+        next_body = WorkingInput(
+            expected_version=0,
+            base_revision_id=committed_revision.id,
+            base_digest=committed_revision.digest,
+            artifact=committed_revision.artifact,
+        )
+        new_copy = drafts.save(p.id, run.id, next_body)
+        drafts.discard(p.id, run.id, new_copy.version)
+        assert drafts.save(p.id, run.id, next_body).version > new_copy.version
         report = {
             "status": "passed",
             "backup_cli": "passed",
@@ -140,6 +222,10 @@ def verify() -> dict[str, object]:
             "selected_context_kind": "recommendation",
             "restored_checkpoint_resumed_to": "human_review",
             "new_artifact_revision": 1,
+            "working_preview_recovered": True,
+            "saved_answer_recovered": True,
+            "commit_retry_idempotent": True,
+            "discard_version_counter_persisted": True,
             "private_backup_mode": oct(backup.stat().st_mode & 0o777),
             "provider": "fixture; no network/model calls",
         }

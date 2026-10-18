@@ -150,6 +150,58 @@ def verify(output: Path) -> None:
                 run = result.json()
             revision_url = base + "/revisions/" + run["revision_id"]
             revision = client.get(revision_url).json()
+            # Incorporate a synthetic user answer before export; no model amendment call.
+            questions = client.get(base + f"/runs/{run['id']}/questions").json()
+            question = questions[0]
+            answer = client.post(
+                base + f"/runs/{run['id']}/questions/{question['id']}/answers",
+                json={
+                    "expected_version": question["version"],
+                    "text": "Customers requested CSV export.",
+                },
+            )
+            answer.raise_for_status()
+            answer = answer.json()
+            question = client.get(base + f"/runs/{run['id']}/questions").json()[0]
+            resolved_artifact = revision["artifact"]
+            resolved_artifact["scope"].append(
+                {
+                    "text": answer["text"],
+                    "source_ids": [answer["source_id"]],
+                    "kind": "user_provided",
+                }
+            )
+            resolved_artifact["open_questions"].pop(0)
+            working = client.put(
+                base + f"/runs/{run['id']}/working-copy",
+                json={
+                    "expected_version": 0,
+                    "base_revision_id": revision["id"],
+                    "base_digest": revision["digest"],
+                    "artifact": resolved_artifact,
+                    "question_changes": [
+                        {
+                            "question_id": question["id"],
+                            "expected_question_version": question["version"],
+                            "answer_version": answer["version"],
+                            "targets": ["scope"],
+                        }
+                    ],
+                },
+            )
+            working.raise_for_status()
+            from uuid import uuid4
+
+            committed = client.post(
+                base + f"/runs/{run['id']}/commits",
+                json={
+                    "working_copy_version": working.json()["version"],
+                    "idempotency_key": str(uuid4()),
+                },
+            )
+            committed.raise_for_status()
+            revision_url = base + "/revisions/" + committed.json()["revision_id"]
+            revision = client.get(revision_url).json()
             artifact = revision["artifact"]
             artifact["title"] = 'Report export <script id="attack-title">bad()</script>'
             artifact["purpose"] = (

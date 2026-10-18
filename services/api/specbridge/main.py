@@ -36,6 +36,7 @@ from .providers import FixtureProvider, Provider, provider_from_env
 from .publication import Publication
 from .skills import SkillMetadata, SkillRegistry
 from .storage import Conflict, NotFound, Store
+from .workbench_models import PackagePreview
 from .workbench_routes import register_workbench_routes
 from .workflow import Workflow
 
@@ -362,6 +363,14 @@ def create_app(
     )
     def prepare(project_id: str, revision_id: str) -> Candidate:
         return publication.prepare(project_id, revision_id)
+
+    @app.get("/api/projects/{project_id}/candidates/{candidate_id}/preview")
+    def preview_package(
+        project_id: str,
+        candidate_id: str,
+        path: str | None = Query(default=None, max_length=200),
+    ) -> PackagePreview:
+        return publication.preview(project_id, candidate_id, path)
 
     @app.post("/api/projects/{project_id}/candidates/{candidate_id}/approve")
     def approve(project_id: str, candidate_id: str, body: ApprovalCreate) -> Candidate:

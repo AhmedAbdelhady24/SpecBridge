@@ -6,7 +6,13 @@ from typing import TYPE_CHECKING
 
 from .models import Run, canonical, digest
 from .storage import Conflict
-from .workbench_models import CommitInput, CommitReceipt, WorkingCopy, WorkingInput
+from .workbench_models import (
+    CommitInput,
+    CommitReceipt,
+    DecisionSnapshot,
+    WorkingCopy,
+    WorkingInput,
+)
 
 if TYPE_CHECKING:
     from .workbench import Workbench
@@ -236,6 +242,8 @@ class WorkingDrafts:
                         "resolution_revision_id": revision.id
                         if change.action == "resolve"
                         else None,
+                        "in_current_draft": change.action == "reopen",
+                        "current_index": None,
                     }
                 )
                 self.service.write_question(db, q)
@@ -268,6 +276,7 @@ class WorkingDrafts:
                 snapshot["requests"] = [
                     r for r in snapshot["requests"] if r["id"] != item.id
                 ] + [item.model_dump()]
+            DecisionSnapshot.model_validate(snapshot)
             db.execute(
                 "INSERT INTO revision_decisions VALUES (?,?) ON CONFLICT(revision_id) DO UPDATE SET data=excluded.data",
                 (revision.id, canonical(snapshot)),

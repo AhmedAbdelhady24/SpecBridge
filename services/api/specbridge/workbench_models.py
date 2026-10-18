@@ -114,3 +114,25 @@ class CommitReceipt(Model):
 
 class DiscardInput(Model):
     expected_version: Version
+
+
+class DecisionQuestion(QuestionView):
+    targets: list[str] = Field(default_factory=list, max_length=100)
+
+
+class DecisionSnapshot(Model):
+    questions: list[DecisionQuestion] = Field(default_factory=list, max_length=1000)
+    requests: list[RequestView] = Field(default_factory=list, max_length=1000)
+
+
+class PackageFile(Model):
+    path: str
+    size_bytes: int
+
+
+class PackagePreview(Model):
+    digest: str
+    template_digest: str
+    files: list[PackageFile]
+    path: str | None = None
+    content: str | None = None

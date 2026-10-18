@@ -19,6 +19,7 @@ from .models import (
 )
 from .publisher import hashes, render_package, template_digest
 from .storage import Conflict, NotFound, Store
+from .workbench_models import DecisionSnapshot, PackageFile, PackagePreview
 
 
 class Publication:
@@ -86,7 +87,19 @@ class Publication:
                     for source in self.store.sources(project_id, ids)
                 }
             )
-        package = render_package(revision.artifact, provenance, self.template_root)
+        with self.store.transaction() as db:
+            snapshot = db.execute(
+                "SELECT data FROM revision_decisions WHERE revision_id=?",
+                (revision.id,),
+            ).fetchone()
+        decisions = (
+            DecisionSnapshot.model_validate_json(snapshot[0])
+            if snapshot
+            else DecisionSnapshot()
+        )
+        package = render_package(
+            revision.artifact, provenance, self.template_root, decisions=decisions
+        )
         with self.store.transaction() as db:
             self._eligible(db, project_id, revision_id)
             review = db.execute(
@@ -223,6 +236,52 @@ class Publication:
             RecursionError,
         ):
             raise Conflict("Stored package integrity check failed") from None
+
+    def preview(
+        self, project_id: str, candidate_id: str, path: str | None = None
+    ) -> PackagePreview:
+        allowed = {
+            f"src/content/docs/{name}.md"
+            for name in (
+                "index",
+                "requirements",
+                "stories",
+                "edge-cases",
+                "risks",
+                "questions",
+                "provenance",
+                "decisions",
+            )
+        }
+        if path is not None and path not in allowed:
+            raise NotFound("Documentation file not found")
+        with self.store.transaction() as db:
+            candidate, row = self._candidate(db, project_id, candidate_id)
+            raw = self._verify(candidate, row)
+        with ZipFile(BytesIO(raw)) as archive:
+            files = [
+                PackageFile(path=name, size_bytes=archive.getinfo(name).file_size)
+                for name in sorted(set(candidate.manifest) & allowed)
+            ]
+            content = None
+            if path is not None:
+                if path not in candidate.manifest:
+                    raise NotFound("Documentation file not found")
+                if archive.getinfo(path).file_size > 128 * 1024:
+                    raise Conflict(
+                        "Document exceeds the preview size limit; inspect the approved export locally"
+                    )
+                try:
+                    content = archive.read(path).decode("utf-8")
+                except UnicodeDecodeError:
+                    raise Conflict("Document preview requires valid UTF-8") from None
+        return PackagePreview(
+            digest=candidate.digest,
+            template_digest=candidate.template_digest,
+            files=files,
+            path=path,
+            content=content,
+        )
 
     def approve(
         self, project_id: str, candidate_id: str, expected_digest: str

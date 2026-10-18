@@ -46,9 +46,17 @@ try {
   assert.ok((await page.locator('h1').textContent()).includes(snapshot.artifact.title));
   assert.equal(await page.locator('main script, main img, #attack-title, #attack-body').count(), 0);
   assert.equal(await page.locator('main a[href^="javascript:"], main a[href^="data:"]').count(), 0);
-  for (const slug of ['requirements', 'stories', 'edge-cases', 'risks', 'questions', 'provenance']) {
+  for (const slug of ['requirements', 'stories', 'edge-cases', 'risks', 'questions', 'provenance', 'decisions']) {
     const response = await page.goto(`${base}/${slug}/`, { waitUntil: 'networkidle' });
     assert.equal(response.status(), 200, slug);
+    if (slug === 'decisions') {
+      const body = await page.locator('main').textContent();
+      assert.ok(snapshot.decisions.questions.length > 0, 'Export exercise must include a real saved answer');
+      for (const question of snapshot.decisions.questions) {
+        assert.ok(body.includes(question.text));
+        assert.ok(body.includes(question.latest_answer.text));
+      }
+    }
     if (slug === 'requirements') {
       for (const requirement of snapshot.artifact.requirements) {
         assert.equal(await page.getByRole('heading', { name: requirement.id, exact: true }).count(), 1);

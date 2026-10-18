@@ -373,6 +373,130 @@
         "title": "ContextItem",
         "type": "object"
       },
+      "DecisionQuestion": {
+        "additionalProperties": false,
+        "properties": {
+          "current_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Index"
+          },
+          "dismissal_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dismissal Reason"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "in_current_draft": {
+            "default": true,
+            "title": "In Current Draft",
+            "type": "boolean"
+          },
+          "latest_answer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnswerVersion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "origin_index": {
+            "title": "Origin Index",
+            "type": "integer"
+          },
+          "origin_revision_id": {
+            "title": "Origin Revision Id",
+            "type": "string"
+          },
+          "resolution_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Revision Id"
+          },
+          "status": {
+            "default": "unresolved",
+            "enum": [
+              "unresolved",
+              "answered",
+              "dismissed",
+              "resolved"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "targets": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Targets",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "version": {
+            "default": 0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "origin_revision_id",
+          "origin_index"
+        ],
+        "title": "DecisionQuestion",
+        "type": "object"
+      },
+      "DecisionSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionQuestion"
+            },
+            "maxItems": 1000,
+            "title": "Questions",
+            "type": "array"
+          },
+          "requests": {
+            "items": {
+              "$ref": "#/components/schemas/RequestView"
+            },
+            "maxItems": 1000,
+            "title": "Requests",
+            "type": "array"
+          }
+        },
+        "title": "DecisionSnapshot",
+        "type": "object"
+      },
       "DiscardInput": {
         "additionalProperties": false,
         "properties": {
@@ -667,6 +791,74 @@
           "text"
         ],
         "title": "KnowledgeInput",
+        "type": "object"
+      },
+      "PackageFile": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "path",
+          "size_bytes"
+        ],
+        "title": "PackageFile",
+        "type": "object"
+      },
+      "PackagePreview": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "digest": {
+            "title": "Digest",
+            "type": "string"
+          },
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/PackageFile"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "template_digest": {
+            "title": "Template Digest",
+            "type": "string"
+          }
+        },
+        "required": [
+          "digest",
+          "template_digest",
+          "files"
+        ],
+        "title": "PackagePreview",
         "type": "object"
       },
       "Project": {
@@ -1161,8 +1353,28 @@
           "base": {
             "$ref": "#/components/schemas/Revision"
           },
+          "base_decisions": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionSnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "head": {
             "$ref": "#/components/schemas/Revision"
+          },
+          "head_decisions": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionSnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -2204,6 +2416,71 @@
         "summary": "Download"
       }
     },
+    "/api/projects/{project_id}/candidates/{candidate_id}/preview": {
+      "get": {
+        "operationId": "preview_package_api_projects__project_id__candidates__candidate_id__preview_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "candidate_id",
+            "required": true,
+            "schema": {
+              "title": "Candidate Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "path",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Path"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PackagePreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Package"
+      }
+    },
     "/api/projects/{project_id}/context": {
       "get": {
         "operationId": "context_api_projects__project_id__context_get",
@@ -3241,6 +3518,35 @@
               "title": "Run Id",
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "before",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -3326,6 +3632,90 @@
           }
         },
         "summary": "Request Change"
+      }
+    },
+    "/api/projects/{project_id}/runs/{run_id}/change-requests/{request_id}/history": {
+      "get": {
+        "operationId": "request_history_api_projects__project_id__runs__run_id__change_requests__request_id__history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "before",
+            "required": false,
+            "schema": {
+              "default": 2147483647,
+              "minimum": 0,
+              "title": "Before",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RequestView"
+                  },
+                  "title": "Response Request History Api Projects  Project Id  Runs  Run Id  Change Requests  Request Id  History Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Request History"
       }
     },
     "/api/projects/{project_id}/runs/{run_id}/change-requests/{request_id}/status": {
