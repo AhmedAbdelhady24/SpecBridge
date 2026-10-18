@@ -164,6 +164,10 @@ def test_v1_migration_keeps_existing_sources_and_is_idempotent(tmp_path):
     db = tmp_path / "specbridge.db"
     with sqlite3.connect(db) as conn:
         conn.execute("DROP TABLE IF EXISTS knowledge")
+        from specbridge.migrations import WORKBENCH_TABLES
+
+        for table in WORKBENCH_TABLES:
+            conn.execute(f"DROP TABLE {table}")
         conn.execute("DROP TABLE feature_heads")
         conn.execute("DROP TABLE revision_lineage")
         conn.execute("PRAGMA user_version=1")
@@ -171,7 +175,7 @@ def test_v1_migration_keeps_existing_sources_and_is_idempotent(tmp_path):
     Store(db)
     assert client(tmp_path).get(b + f"/sources/{s['id']}").json() == s
     with sqlite3.connect(db) as conn:
-        assert conn.execute("PRAGMA user_version").fetchone()[0] == 3
+        assert conn.execute("PRAGMA user_version").fetchone()[0] == 4
 
 
 def test_revision_navigation_is_project_scoped(tmp_path, artifact_dict):
@@ -391,6 +395,10 @@ def test_v1_migration_preserves_artifacts_checkpoints_reviews_and_approved_zip(
     db = tmp_path / "specbridge.db"
     with sqlite3.connect(db) as conn:
         conn.execute("DROP TABLE knowledge")
+        from specbridge.migrations import WORKBENCH_TABLES
+
+        for table in WORKBENCH_TABLES:
+            conn.execute(f"DROP TABLE {table}")
         conn.execute("DROP TABLE feature_heads")
         conn.execute("DROP TABLE revision_lineage")
         conn.execute("PRAGMA user_version=1")

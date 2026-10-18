@@ -41,6 +41,10 @@ def legacy_workspace(tmp_path, artifact_dict):
             "INSERT INTO checkpoints VALUES (?,?,?)",
             (run.id, "validate", json.dumps({"revision_id": first.id})),
         )
+        from specbridge.migrations import WORKBENCH_TABLES
+
+        for table in WORKBENCH_TABLES:
+            db.execute(f"DROP TABLE {table}")
         db.execute("DROP TABLE feature_heads")
         db.execute("DROP TABLE revision_lineage")
         db.execute("PRAGMA user_version=2")
@@ -60,7 +64,7 @@ def test_v2_migration_preserves_bytes_and_proves_root(tmp_path, artifact_dict):
     assert entries[0].parent_revision_id is None
     with sqlite3.connect(old.path) as db:
         assert db.execute("SELECT data,digest FROM revisions").fetchall() == before
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 3
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 4
         assert db.execute("PRAGMA foreign_key_check").fetchall() == []
     assert FeatureHistory(Store(old.path)).list(project.id, run.id) == entries
     with pytest.raises(NotFound):
@@ -274,3 +278,11 @@ def test_head_membership_without_root_evidence_has_unknown_number(
     entry = FeatureHistory(Store(old.path)).list(project.id, run.id)[0]
     assert entry.revision_id == revision.id
     assert entry.feature_number is None
+
+
+def test_current_schema_missing_base_table_is_refused(tmp_path):
+    store = Store(tmp_path / "missing-base.db")
+    with sqlite3.connect(store.path) as db:
+        db.execute("DROP TABLE reviews")
+    with pytest.raises(ValueError, match="Incomplete"):
+        Store(store.path)

@@ -331,6 +331,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{project_id}/runs/{run_id}/change-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Requests */
+        get: operations["requests_api_projects__project_id__runs__run_id__change_requests_get"];
+        put?: never;
+        /** Request Change */
+        post: operations["request_change_api_projects__project_id__runs__run_id__change_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/runs/{run_id}/change-requests/{request_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request Status */
+        post: operations["request_status_api_projects__project_id__runs__run_id__change_requests__request_id__status_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/runs/{run_id}/commits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Commit */
+        post: operations["commit_api_projects__project_id__runs__run_id__commits_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects/{project_id}/runs/{run_id}/compare": {
         parameters: {
             query?: never;
@@ -360,6 +412,77 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/runs/{run_id}/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Questions */
+        get: operations["questions_api_projects__project_id__runs__run_id__questions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/runs/{run_id}/questions/{question_id}/answers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Answers */
+        get: operations["answers_api_projects__project_id__runs__run_id__questions__question_id__answers_get"];
+        put?: never;
+        /** Answer */
+        post: operations["answer_api_projects__project_id__runs__run_id__questions__question_id__answers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/runs/{run_id}/questions/{question_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Question Status */
+        post: operations["question_status_api_projects__project_id__runs__run_id__questions__question_id__status_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/runs/{run_id}/working-copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Working Copy */
+        get: operations["working_copy_api_projects__project_id__runs__run_id__working_copy_get"];
+        /** Save Working Copy */
+        put: operations["save_working_copy_api_projects__project_id__runs__run_id__working_copy_put"];
+        post?: never;
+        /** Discard Working Copy */
+        delete: operations["discard_working_copy_api_projects__project_id__runs__run_id__working_copy_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -429,6 +552,26 @@ export interface components {
              */
             retry_acknowledged: boolean;
         };
+        /** AnswerInput */
+        AnswerInput: {
+            /** Expected Version */
+            expected_version: number;
+            /** Text */
+            text: string;
+        };
+        /** AnswerVersion */
+        AnswerVersion: {
+            /** Created At */
+            created_at: string;
+            /** Question Id */
+            question_id: string;
+            /** Source Id */
+            source_id: string;
+            /** Text */
+            text: string;
+            /** Version */
+            version: number;
+        };
         /** ApprovalCreate */
         ApprovalCreate: {
             /** Digest */
@@ -481,6 +624,24 @@ export interface components {
             /** Template Digest */
             template_digest: string;
         };
+        /** CommitInput */
+        CommitInput: {
+            /** Idempotency Key */
+            idempotency_key: string;
+            /** Working Copy Version */
+            working_copy_version: number;
+        };
+        /** CommitReceipt */
+        CommitReceipt: {
+            /** Feature Number */
+            feature_number: number | null;
+            /** Idempotency Key */
+            idempotency_key: string;
+            /** Revision Id */
+            revision_id: string;
+            /** Working Copy Version */
+            working_copy_version: number;
+        };
         /** ContextItem */
         ContextItem: {
             /** Digest */
@@ -507,6 +668,11 @@ export interface components {
             title: string;
             /** Version */
             version: number | null;
+        };
+        /** DiscardInput */
+        DiscardInput: {
+            /** Expected Version */
+            expected_version: number;
         };
         /** FeatureRevision */
         FeatureRevision: {
@@ -628,6 +794,99 @@ export interface components {
              * @enum {string}
              */
             provider: "fixture" | "compatible";
+        };
+        /** QuestionChange */
+        QuestionChange: {
+            /**
+             * Action
+             * @default resolve
+             * @enum {string}
+             */
+            action: "resolve" | "reopen";
+            /** Answer Version */
+            answer_version: number;
+            /** Expected Question Version */
+            expected_question_version: number;
+            /** Question Id */
+            question_id: string;
+            /** Targets */
+            targets: string[];
+        };
+        /** QuestionView */
+        QuestionView: {
+            /** Current Index */
+            current_index?: number | null;
+            /** Dismissal Reason */
+            dismissal_reason?: string | null;
+            /** Id */
+            id: string;
+            /**
+             * In Current Draft
+             * @default true
+             */
+            in_current_draft: boolean;
+            latest_answer?: components["schemas"]["AnswerVersion"] | null;
+            /** Origin Index */
+            origin_index: number;
+            /** Origin Revision Id */
+            origin_revision_id: string;
+            /** Resolution Revision Id */
+            resolution_revision_id?: string | null;
+            /**
+             * Status
+             * @default unresolved
+             * @enum {string}
+             */
+            status: "unresolved" | "answered" | "dismissed" | "resolved";
+            /** Text */
+            text: string;
+            /**
+             * Version
+             * @default 0
+             */
+            version: number;
+        };
+        /** RequestChange */
+        RequestChange: {
+            /** Expected Version */
+            expected_version: number;
+            /** Request Id */
+            request_id: string;
+        };
+        /** RequestInput */
+        RequestInput: {
+            /** Base Revision Id */
+            base_revision_id: string;
+            /** Target Ids */
+            target_ids?: string[];
+            /** Text */
+            text: string;
+        };
+        /** RequestView */
+        RequestView: {
+            /** Base Revision Id */
+            base_revision_id: string;
+            /** Dismissal Reason */
+            dismissal_reason?: string | null;
+            /** Id */
+            id: string;
+            /** Resolution Revision Id */
+            resolution_revision_id?: string | null;
+            /**
+             * Status
+             * @default open
+             * @enum {string}
+             */
+            status: "open" | "dismissed" | "addressed";
+            /** Target Ids */
+            target_ids?: string[];
+            /** Text */
+            text: string;
+            /**
+             * Version
+             * @default 0
+             */
+            version: number;
         };
         /** Requirement */
         Requirement: {
@@ -875,6 +1134,18 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** StatusInput */
+        StatusInput: {
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "dismissed" | "unanswered";
+        };
         /** Story */
         Story: {
             /** Acceptance Criteria */
@@ -917,6 +1188,46 @@ export interface components {
             note: string;
             /** Source Ids */
             source_ids: string[];
+        };
+        /** WorkingCopy */
+        WorkingCopy: {
+            artifact: components["schemas"]["Artifact"];
+            /** Base Digest */
+            base_digest: string;
+            /** Base Revision Id */
+            base_revision_id: string;
+            /**
+             * Change Summary
+             * @default
+             */
+            change_summary: string;
+            /** Expected Version */
+            expected_version: number;
+            /** Question Changes */
+            question_changes?: components["schemas"]["QuestionChange"][];
+            /** Request Changes */
+            request_changes?: components["schemas"]["RequestChange"][];
+            /** Version */
+            version: number;
+        };
+        /** WorkingInput */
+        WorkingInput: {
+            artifact: components["schemas"]["Artifact"];
+            /** Base Digest */
+            base_digest: string;
+            /** Base Revision Id */
+            base_revision_id: string;
+            /**
+             * Change Summary
+             * @default
+             */
+            change_summary: string;
+            /** Expected Version */
+            expected_version: number;
+            /** Question Changes */
+            question_changes?: components["schemas"]["QuestionChange"][];
+            /** Request Changes */
+            request_changes?: components["schemas"]["RequestChange"][];
         };
     };
     responses: never;
@@ -1677,6 +1988,147 @@ export interface operations {
             };
         };
     };
+    requests_api_projects__project_id__runs__run_id__change_requests_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequestView"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    request_change_api_projects__project_id__runs__run_id__change_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequestView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    request_status_api_projects__project_id__runs__run_id__change_requests__request_id__status_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequestView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    commit_api_projects__project_id__runs__run_id__commits_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommitInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommitReceipt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     compare_revisions_api_projects__project_id__runs__run_id__compare_get: {
         parameters: {
             query: {
@@ -1734,6 +2186,254 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FeatureRevision"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    questions_api_projects__project_id__runs__run_id__questions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionView"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    answers_api_projects__project_id__runs__run_id__questions__question_id__answers_get: {
+        parameters: {
+            query?: {
+                before?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+                question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerVersion"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    answer_api_projects__project_id__runs__run_id__questions__question_id__answers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+                question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnswerInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerVersion"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    question_status_api_projects__project_id__runs__run_id__questions__question_id__status_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+                question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    working_copy_api_projects__project_id__runs__run_id__working_copy_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkingCopy"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_working_copy_api_projects__project_id__runs__run_id__working_copy_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkingInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkingCopy"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    discard_working_copy_api_projects__project_id__runs__run_id__working_copy_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscardInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: boolean;
+                    };
                 };
             };
             /** @description Validation Error */

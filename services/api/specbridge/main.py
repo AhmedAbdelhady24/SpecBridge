@@ -36,6 +36,7 @@ from .providers import FixtureProvider, Provider, provider_from_env
 from .publication import Publication
 from .skills import SkillMetadata, SkillRegistry
 from .storage import Conflict, NotFound, Store
+from .workbench_routes import register_workbench_routes
 from .workflow import Workflow
 
 LOOPBACK = {"localhost", "127.0.0.1", "::1"}
@@ -99,6 +100,7 @@ def create_app(
     store = Store(data_dir / "specbridge.db")
     app.state.store = store
     register_knowledge_routes(app, store)
+    register_workbench_routes(app, store)
     configured_provider = provider or FixtureProvider()
     registry = SkillRegistry(skill_root or ROOT / "skills/runtime")
     workflow = Workflow(store, registry, configured_provider)

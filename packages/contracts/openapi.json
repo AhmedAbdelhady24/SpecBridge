@@ -13,6 +13,64 @@
         "title": "AdvanceRequest",
         "type": "object"
       },
+      "AnswerInput": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "text": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_version",
+          "text"
+        ],
+        "title": "AnswerInput",
+        "type": "object"
+      },
+      "AnswerVersion": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "question_id": {
+            "title": "Question Id",
+            "type": "string"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "question_id",
+          "version",
+          "text",
+          "source_id",
+          "created_at"
+        ],
+        "title": "AnswerVersion",
+        "type": "object"
+      },
       "ApprovalCreate": {
         "additionalProperties": false,
         "properties": {
@@ -183,6 +241,63 @@
         "title": "Candidate",
         "type": "object"
       },
+      "CommitInput": {
+        "additionalProperties": false,
+        "properties": {
+          "idempotency_key": {
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "working_copy_version": {
+            "minimum": 1.0,
+            "title": "Working Copy Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "working_copy_version",
+          "idempotency_key"
+        ],
+        "title": "CommitInput",
+        "type": "object"
+      },
+      "CommitReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "feature_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feature Number"
+          },
+          "idempotency_key": {
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "revision_id": {
+            "title": "Revision Id",
+            "type": "string"
+          },
+          "working_copy_version": {
+            "title": "Working Copy Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "working_copy_version",
+          "revision_id",
+          "feature_number",
+          "idempotency_key"
+        ],
+        "title": "CommitReceipt",
+        "type": "object"
+      },
       "ContextItem": {
         "additionalProperties": false,
         "properties": {
@@ -256,6 +371,21 @@
           "score"
         ],
         "title": "ContextItem",
+        "type": "object"
+      },
+      "DiscardInput": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expected_version"
+        ],
+        "title": "DiscardInput",
         "type": "object"
       },
       "FeatureRevision": {
@@ -600,6 +730,278 @@
           "destination"
         ],
         "title": "ProviderInfo",
+        "type": "object"
+      },
+      "QuestionChange": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "default": "resolve",
+            "enum": [
+              "resolve",
+              "reopen"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "answer_version": {
+            "minimum": 0.0,
+            "title": "Answer Version",
+            "type": "integer"
+          },
+          "expected_question_version": {
+            "minimum": 0.0,
+            "title": "Expected Question Version",
+            "type": "integer"
+          },
+          "question_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Question Id",
+            "type": "string"
+          },
+          "targets": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Targets",
+            "type": "array"
+          }
+        },
+        "required": [
+          "question_id",
+          "expected_question_version",
+          "answer_version",
+          "targets"
+        ],
+        "title": "QuestionChange",
+        "type": "object"
+      },
+      "QuestionView": {
+        "additionalProperties": false,
+        "properties": {
+          "current_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Index"
+          },
+          "dismissal_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dismissal Reason"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "in_current_draft": {
+            "default": true,
+            "title": "In Current Draft",
+            "type": "boolean"
+          },
+          "latest_answer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnswerVersion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "origin_index": {
+            "title": "Origin Index",
+            "type": "integer"
+          },
+          "origin_revision_id": {
+            "title": "Origin Revision Id",
+            "type": "string"
+          },
+          "resolution_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Revision Id"
+          },
+          "status": {
+            "default": "unresolved",
+            "enum": [
+              "unresolved",
+              "answered",
+              "dismissed",
+              "resolved"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "version": {
+            "default": 0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "origin_revision_id",
+          "origin_index"
+        ],
+        "title": "QuestionView",
+        "type": "object"
+      },
+      "RequestChange": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "request_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "expected_version"
+        ],
+        "title": "RequestChange",
+        "type": "object"
+      },
+      "RequestInput": {
+        "additionalProperties": false,
+        "properties": {
+          "base_revision_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Base Revision Id",
+            "type": "string"
+          },
+          "target_ids": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Target Ids",
+            "type": "array"
+          },
+          "text": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "base_revision_id",
+          "text"
+        ],
+        "title": "RequestInput",
+        "type": "object"
+      },
+      "RequestView": {
+        "additionalProperties": false,
+        "properties": {
+          "base_revision_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Base Revision Id",
+            "type": "string"
+          },
+          "dismissal_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dismissal Reason"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "resolution_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Revision Id"
+          },
+          "status": {
+            "default": "open",
+            "enum": [
+              "open",
+              "dismissed",
+              "addressed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "target_ids": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Target Ids",
+            "type": "array"
+          },
+          "text": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          },
+          "version": {
+            "default": 0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "base_revision_id",
+          "text",
+          "id"
+        ],
+        "title": "RequestView",
         "type": "object"
       },
       "Requirement": {
@@ -1302,6 +1704,37 @@
         "title": "Statement",
         "type": "object"
       },
+      "StatusInput": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 16384,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "dismissed",
+              "unanswered"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_version",
+          "status",
+          "reason"
+        ],
+        "title": "StatusInput",
+        "type": "object"
+      },
       "Story": {
         "additionalProperties": false,
         "properties": {
@@ -1440,6 +1873,119 @@
           "confirm"
         ],
         "title": "VerifyKnowledge",
+        "type": "object"
+      },
+      "WorkingCopy": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact": {
+            "$ref": "#/components/schemas/Artifact"
+          },
+          "base_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Base Digest",
+            "type": "string"
+          },
+          "base_revision_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Base Revision Id",
+            "type": "string"
+          },
+          "change_summary": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Change Summary",
+            "type": "string"
+          },
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "question_changes": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionChange"
+            },
+            "maxItems": 100,
+            "title": "Question Changes",
+            "type": "array"
+          },
+          "request_changes": {
+            "items": {
+              "$ref": "#/components/schemas/RequestChange"
+            },
+            "maxItems": 100,
+            "title": "Request Changes",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expected_version",
+          "base_revision_id",
+          "base_digest",
+          "artifact",
+          "version"
+        ],
+        "title": "WorkingCopy",
+        "type": "object"
+      },
+      "WorkingInput": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact": {
+            "$ref": "#/components/schemas/Artifact"
+          },
+          "base_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Base Digest",
+            "type": "string"
+          },
+          "base_revision_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Base Revision Id",
+            "type": "string"
+          },
+          "change_summary": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Change Summary",
+            "type": "string"
+          },
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "question_changes": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionChange"
+            },
+            "maxItems": 100,
+            "title": "Question Changes",
+            "type": "array"
+          },
+          "request_changes": {
+            "items": {
+              "$ref": "#/components/schemas/RequestChange"
+            },
+            "maxItems": 100,
+            "title": "Request Changes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "expected_version",
+          "base_revision_id",
+          "base_digest",
+          "artifact"
+        ],
+        "title": "WorkingInput",
         "type": "object"
       }
     }
@@ -2674,6 +3220,239 @@
         "summary": "Advance"
       }
     },
+    "/api/projects/{project_id}/runs/{run_id}/change-requests": {
+      "get": {
+        "operationId": "requests_api_projects__project_id__runs__run_id__change_requests_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RequestView"
+                  },
+                  "title": "Response Requests Api Projects  Project Id  Runs  Run Id  Change Requests Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Requests"
+      },
+      "post": {
+        "operationId": "request_change_api_projects__project_id__runs__run_id__change_requests_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Request Change"
+      }
+    },
+    "/api/projects/{project_id}/runs/{run_id}/change-requests/{request_id}/status": {
+      "post": {
+        "operationId": "request_status_api_projects__project_id__runs__run_id__change_requests__request_id__status_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Request Status"
+      }
+    },
+    "/api/projects/{project_id}/runs/{run_id}/commits": {
+      "post": {
+        "operationId": "commit_api_projects__project_id__runs__run_id__commits_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommitReceipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Commit"
+      }
+    },
     "/api/projects/{project_id}/runs/{run_id}/compare": {
       "get": {
         "operationId": "compare_revisions_api_projects__project_id__runs__run_id__compare_get",
@@ -2821,6 +3600,446 @@
           }
         },
         "summary": "Feature History"
+      }
+    },
+    "/api/projects/{project_id}/runs/{run_id}/questions": {
+      "get": {
+        "operationId": "questions_api_projects__project_id__runs__run_id__questions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/QuestionView"
+                  },
+                  "title": "Response Questions Api Projects  Project Id  Runs  Run Id  Questions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Questions"
+      }
+    },
+    "/api/projects/{project_id}/runs/{run_id}/questions/{question_id}/answers": {
+      "get": {
+        "operationId": "answers_api_projects__project_id__runs__run_id__questions__question_id__answers_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "title": "Question Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "before",
+            "required": false,
+            "schema": {
+              "default": 2147483647,
+              "minimum": 1,
+              "title": "Before",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AnswerVersion"
+                  },
+                  "title": "Response Answers Api Projects  Project Id  Runs  Run Id  Questions  Question Id  Answers Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Answers"
+      },
+      "post": {
+        "operationId": "answer_api_projects__project_id__runs__run_id__questions__question_id__answers_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerVersion"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Answer"
+      }
+    },
+    "/api/projects/{project_id}/runs/{run_id}/questions/{question_id}/status": {
+      "post": {
+        "operationId": "question_status_api_projects__project_id__runs__run_id__questions__question_id__status_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "question_id",
+            "required": true,
+            "schema": {
+              "title": "Question Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Question Status"
+      }
+    },
+    "/api/projects/{project_id}/runs/{run_id}/working-copy": {
+      "delete": {
+        "operationId": "discard_working_copy_api_projects__project_id__runs__run_id__working_copy_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscardInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "boolean"
+                  },
+                  "title": "Response Discard Working Copy Api Projects  Project Id  Runs  Run Id  Working Copy Delete",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Discard Working Copy"
+      },
+      "get": {
+        "operationId": "working_copy_api_projects__project_id__runs__run_id__working_copy_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/WorkingCopy"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Working Copy Api Projects  Project Id  Runs  Run Id  Working Copy Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Working Copy"
+      },
+      "put": {
+        "operationId": "save_working_copy_api_projects__project_id__runs__run_id__working_copy_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkingInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkingCopy"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Working Copy"
       }
     },
     "/api/projects/{project_id}/sources": {

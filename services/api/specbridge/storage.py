@@ -5,7 +5,15 @@ from copy import deepcopy
 from pathlib import Path
 from uuid import uuid4
 
-from .migrations import LINEAGE_TABLES, migrate_lineage, require_tables
+from .migrations import (
+    BASE_TABLES,
+    LINEAGE_TABLES,
+    WORKBENCH_TABLES,
+    migrate_lineage,
+    migrate_workbench,
+    require_tables,
+    sync_questions,
+)
 from .models import (
     Artifact,
     Finding,
@@ -31,11 +39,17 @@ class Store:
         path.parent.mkdir(parents=True, exist_ok=True)
         with self.transaction() as db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version not in (0, 1, 2, 3):
+            if version not in (0, 1, 2, 3, 4):
                 raise ValueError(
                     "Unsupported database schema; database was not changed"
                 )
-            if version == 3:
+            if version >= 1:
+                require_tables(
+                    db, BASE_TABLES | ({"knowledge"} if version >= 2 else set())
+                )
+            if version >= 4:
+                require_tables(db, WORKBENCH_TABLES)
+            if version >= 3:
                 require_tables(db, LINEAGE_TABLES)
             db.execute(
                 "CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, name TEXT NOT NULL)"
@@ -72,6 +86,8 @@ class Store:
             )
             if version < 3:
                 migrate_lineage(db)
+            if version < 4:
+                migrate_workbench(db)
 
     @contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:
@@ -161,6 +177,8 @@ class Store:
         run_id: str | None = None,
         parent_revision_id: str | None = None,
         change_summary: str | None = None,
+        excluded_question_ids: list[str] | None = None,
+        reopened_question_ids: list[str] | None = None,
         provenance: dict[str, str] | None = None,
         findings: list[Finding] | None = None,
         connection: sqlite3.Connection | None = None,
@@ -174,6 +192,8 @@ class Store:
                     run_id=run_id,
                     parent_revision_id=parent_revision_id,
                     change_summary=change_summary,
+                    excluded_question_ids=excluded_question_ids,
+                    reopened_question_ids=reopened_question_ids,
                     provenance=provenance,
                     findings=findings,
                     connection=db,
@@ -280,6 +300,22 @@ class Store:
             db.execute(
                 "INSERT INTO feature_heads VALUES (?,?,?) ON CONFLICT(run_id) DO UPDATE SET revision_id=excluded.revision_id",
                 (project_id, run_id, revision.id),
+            )
+        if run_id is not None:
+            sync_questions(
+                db,
+                project_id,
+                run_id,
+                revision.id,
+                body.open_questions,
+                parent_revision_id,
+                excluded_question_ids,
+                reopened_question_ids,
+            )
+        if run_id is not None and parent_revision_id is not None:
+            db.execute(
+                "INSERT INTO revision_decisions SELECT ?,data FROM revision_decisions WHERE revision_id=?",
+                (revision.id, parent_revision_id),
             )
         self.audit(db, project_id, "revision_created", revision.id)
         return revision

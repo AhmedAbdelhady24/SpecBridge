@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 def validate_database(db: sqlite3.Connection) -> None:
-    if db.execute("PRAGMA user_version").fetchone()[0] not in (1, 2, 3):
+    if db.execute("PRAGMA user_version").fetchone()[0] not in (1, 2, 3, 4):
         raise ValueError("Unsupported workspace schema")
     required = {
         "projects",
@@ -26,6 +26,19 @@ def validate_database(db: sqlite3.Connection) -> None:
     }
     if db.execute("PRAGMA user_version").fetchone()[0] >= 3:
         required |= {"revision_lineage", "feature_heads"}
+    if db.execute("PRAGMA user_version").fetchone()[0] >= 4:
+        required |= {
+            "questions",
+            "question_occurrences",
+            "question_answers",
+            "question_events",
+            "change_requests",
+            "change_request_events",
+            "working_copies",
+            "commit_receipts",
+            "revision_decisions",
+            "working_versions",
+        }
     if not required <= tables or (
         db.execute("PRAGMA user_version").fetchone()[0] >= 2
         and "knowledge" not in tables
