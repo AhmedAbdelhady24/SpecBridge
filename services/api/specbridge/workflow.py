@@ -6,10 +6,11 @@ import threading
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from .models import Artifact, Finding, Run, canonical, digest
+from .models import Artifact, Finding, Run, RunSummary, canonical, digest
 from .storage import Conflict, NotFound, Store
 
 if TYPE_CHECKING:
@@ -87,7 +88,7 @@ class Workflow:
                 )
             return run
 
-    def list_runs(self, project_id: str) -> list[Run]:
+    def list_runs(self, project_id: str) -> list[RunSummary]:
         with self.store.transaction() as db:
             self.store.require_project(db, project_id)
             ids = [
@@ -97,7 +98,43 @@ class Workflow:
                     (project_id,),
                 )
             ]
-        return [self.get(project_id, run_id) for run_id in ids]
+        summaries = []
+        for run_id in ids:
+            run = self.get(project_id, run_id)
+            title = run.intent
+            revision_number = None
+            if run.revision_id:
+                try:
+                    revision = self.store.get_revision(project_id, run.revision_id)
+                except NotFound:
+                    pass  # Historical runs may have no surviving linked revision.
+                else:
+                    title = revision.artifact.title
+                    revision_number = revision.number
+            with self.store.transaction() as db:
+                created = db.execute(
+                    "SELECT at FROM audit WHERE project_id=? AND action='workflow_created' "
+                    "AND subject=? ORDER BY id LIMIT 1",
+                    (project_id, run_id),
+                ).fetchone()
+            created_at = None
+            if created:
+                # SQLite CURRENT_TIMESTAMP records UTC without a timezone suffix.
+                created_at = (
+                    datetime.fromisoformat(created[0])
+                    .replace(tzinfo=UTC)
+                    .isoformat()
+                    .replace("+00:00", "Z")
+                )
+            summaries.append(
+                RunSummary(
+                    **run.model_dump(),
+                    title=title,
+                    revision_number=revision_number,
+                    created_at=created_at,
+                )
+            )
+        return summaries
 
     @staticmethod
     def _row(

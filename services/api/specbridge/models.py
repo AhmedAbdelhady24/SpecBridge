@@ -93,6 +93,14 @@ class Source(Model):
     knowledge_ref: str | None = None
 
 
+class SourceSummary(Model):
+    id: str
+    project_id: str
+    kind: Literal["user_provided"] = "user_provided"
+    digest: str
+    preview: str
+
+
 def validate_handoff(artifact: Artifact, sources: list[Source]) -> None:
     """Enforce current eligibility without changing historical snapshot schemas."""
     source_texts = {source.id: source.text for source in sources}
@@ -156,6 +164,12 @@ class Run(Model):
     attempts: int = 0
     history: list[str] = Field(default_factory=list)
     base_digest: str | None = None
+
+
+class RunSummary(Run):
+    title: str
+    revision_number: int | None = None
+    created_at: str | None = None
 
 
 class RunCreate(Model):

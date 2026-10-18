@@ -4,7 +4,7 @@ import stat
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -26,8 +26,10 @@ from .models import (
     RevisionEdit,
     Run,
     RunCreate,
+    RunSummary,
     Source,
     SourceCreate,
+    SourceSummary,
 )
 from .providers import FixtureProvider, Provider, provider_from_env
 from .publication import Publication
@@ -194,6 +196,50 @@ def create_app(
     def create_source(project_id: str, body: SourceCreate) -> Source:
         return store.add_source(project_id, body.text)
 
+    @app.get("/api/projects/{project_id}/sources")
+    def sources(
+        project_id: str,
+        query: str = Query(default="", max_length=200),
+        limit: int = Query(default=20, ge=1, le=50),
+        after: str | None = None,
+    ) -> list[SourceSummary]:
+        with store.transaction() as db:
+            store.require_project(db, project_id)
+            after_rowid = 0
+            if after:
+                cursor = db.execute(
+                    "SELECT rowid FROM sources WHERE project_id=? AND id=? "
+                    "AND json_extract(data,'$.knowledge_ref') IS NULL "
+                    "AND coalesce(json_extract(data,'$.kind'),'user_provided')='user_provided'",
+                    (project_id, after),
+                ).fetchone()
+                if not cursor:
+                    raise NotFound("Source cursor not found")
+                after_rowid = cursor[0]
+            result = []
+            # casefold supplies Unicode-aware literal matching; no LIKE wildcards.
+            for row in db.execute(
+                "SELECT data FROM sources WHERE project_id=? AND rowid>? "
+                "AND json_extract(data,'$.knowledge_ref') IS NULL "
+                "AND coalesce(json_extract(data,'$.kind'),'user_provided')='user_provided' "
+                "ORDER BY rowid",
+                (project_id, after_rowid),
+            ):
+                item = Source.model_validate_json(row[0])
+                if query.casefold() not in item.text.casefold():
+                    continue
+                result.append(
+                    SourceSummary(
+                        id=item.id,
+                        project_id=project_id,
+                        digest=item.digest,
+                        preview=item.text[:320],
+                    )
+                )
+                if len(result) == limit:
+                    break
+            return result
+
     @app.get("/api/projects/{project_id}/sources/{source_id}")
     def source(project_id: str, source_id: str) -> Source:
         return store.sources(project_id, [source_id])[0]
@@ -248,7 +294,7 @@ def create_app(
         )
 
     @app.get("/api/projects/{project_id}/runs")
-    def runs(project_id: str) -> list[Run]:
+    def runs(project_id: str) -> list[RunSummary]:
         return workflow.list_runs(project_id)
 
     @app.get("/api/projects/{project_id}/runs/{run_id}")
