@@ -4,6 +4,8 @@ SpecBridge turns a feature idea and selected evidence into a persisted PRD and l
 
 **The technical first slice is implemented.** Local fixture/browser and standalone-package checks exercise the workflow. The [typed-plan candidate passed all five frozen live semantic cases](docs/evaluations/compiled-handoff.md). Runtime adoption and an unfamiliar-human handoff remain before full Milestone1 acceptance. See [current phase status](docs/plans/roadmap-status-2026-10-16.md) for evidence and limitations.
 
+A [fresh paid retest after the audit](docs/evaluations/post-audit-live-retest.md) also passed5/5 with the same candidate configuration. No application provider default changed; both results concern the frozen evaluation pack.
+
 ```mermaid
 flowchart LR
     A[Feature idea] --> B[Checkpointed draft]

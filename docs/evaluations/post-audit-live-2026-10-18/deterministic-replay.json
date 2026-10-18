@@ -1,0 +1,31 @@
+{
+  "preview_sha256": "aace7d6e533e4d9435a470718ffa27c0c0c5357b8b7660bb0b78ab5ae2207efb",
+  "frozen_acceptance_sha256": "4518b228d88431c8d6d074a367146f457fef2067638830ef13991b40f8e997cf",
+  "single_attempt_calls": 5,
+  "compiler_and_skill_snapshots_match": true,
+  "original_sources_unchanged": true,
+  "no_output_cap": true,
+  "generation_timeout_seconds": null,
+  "cases": [
+    {
+      "case": "notification-preferences",
+      "status": "exact_compilation_replayed"
+    },
+    {
+      "case": "incomplete-booking",
+      "status": "exact_compilation_replayed"
+    },
+    {
+      "case": "contradictory-deletion",
+      "status": "exact_compilation_replayed"
+    },
+    {
+      "case": "conflicting-api",
+      "status": "exact_compilation_replayed"
+    },
+    {
+      "case": "embedded-instruction",
+      "status": "exact_compilation_replayed"
+    }
+  ]
+}

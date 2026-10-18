@@ -1,0 +1,55 @@
+{
+  "title": "Workshop reservation capability",
+  "purpose": "Proposed handoff assembled from source-linked outcomes; human source review and approval required.",
+  "scope": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    }
+  ],
+  "stories": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "A visitor can cause a place in a workshop to become reserved."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [],
+  "success_metrics": [],
+  "open_questions": [
+    "Should a reservation require payment before it is completed?",
+    "Should a reservation require a visitor account?",
+    "Should reservations be subject to a capacity limit per workshop?",
+    "Should visitors be able to cancel a reservation after making it?",
+    "How should a visitor supply the workshop and their reservation request to the system?",
+    "What response states should the system provide after a reservation attempt, and how should visitors interpret success, failure, or exhaustion?",
+    "Which visitor-facing reservation behaviors should apply for each possible response state?",
+    "Who is assigned as the owner of the workshop reservation capability?",
+    "What is the assigned release date for the workshop reservation capability?"
+  ]
+}

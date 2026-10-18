@@ -1,0 +1,78 @@
+{
+  "title": "Uploaded Image Deletion and Recovery Policy",
+  "behaviors": [
+    {
+      "id": "BEH-privacy-immediate-delete",
+      "evidence": {
+        "source_id": "privacy-request",
+        "excerpt": "Privacy stakeholder requests immediate permanent deletion of an uploaded image when its owner selects Delete."
+      },
+      "outcomes": [
+        "After the owner selects Delete for an uploaded image, the uploaded image is immediately permanently deleted and is not recoverable by the owner."
+      ]
+    },
+    {
+      "id": "BEH-support-recover-30d",
+      "evidence": {
+        "source_id": "support-request",
+        "excerpt": "Support stakeholder requests that the same deleted image remain recoverable by its owner for 30 days after Delete."
+      },
+      "outcomes": [
+        "After the owner selects Delete for an uploaded image, the same deleted image remains recoverable by its owner for 30 days."
+      ]
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "DEC-deletion-recovery",
+      "alternatives": [
+        {
+          "id": "ALT-immediate-permanent-delete",
+          "behavior_ids": [
+            "BEH-privacy-immediate-delete"
+          ]
+        },
+        {
+          "id": "ALT-30-day-owner-recovery",
+          "behavior_ids": [
+            "BEH-support-recover-30d"
+          ]
+        }
+      ],
+      "question": "Which deletion policy should apply when an owner selects Delete for an uploaded image: immediate permanent deletion or 30-day owner recovery?",
+      "authority_question": "The support source states no stakeholder has authority to choose between these requests yet; who will be authorized to select between immediate permanent deletion and 30-day owner recovery?"
+    }
+  ],
+  "timing_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-support-recover-30d"
+      ],
+      "start_question": "What exact event starts the 30-day recovery period: the owner's selection of Delete, a separate confirmation, or completion of the deletion processing?",
+      "time_basis_question": "Are the 30 days counted as calendar days from a specific time zone, or as 30 elapsed 24-hour periods?",
+      "boundary_question": "Is recovery available through the entire 30th day, or does it end at the exact 30-day boundary?",
+      "after_question": "What happens after the 30-day recovery period ends; does the same image become unrecoverable, and if so, at what point and through what observable change?"
+    }
+  ],
+  "interface_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-privacy-immediate-delete",
+        "BEH-support-recover-30d"
+      ],
+      "request_question": "How is the owner's Delete selection supplied to the system, and how is the target uploaded image identified?",
+      "response_question": "How is the result of Delete reported to the owner, and how is the availability or exhaustion of recovery reported during the 30-day recovery period?",
+      "ui_applicability_question": "Which owner-facing UI behaviors apply under each selected alternative: immediate permanent deletion with no recovery, or deletion followed by 30-day owner recovery?"
+    }
+  ],
+  "owner": {
+    "evidence": null,
+    "question": "Who is the owner accountable for this handoff plan?"
+  },
+  "delivery_date": {
+    "evidence": null,
+    "question": "What is the delivery date for this handoff plan?"
+  },
+  "open_questions": [],
+  "ignored_sources": []
+}

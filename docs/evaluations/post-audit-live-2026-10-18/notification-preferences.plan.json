@@ -1,0 +1,85 @@
+{
+  "title": "Weekly email digest notification preferences",
+  "behaviors": [
+    {
+      "id": "BEH-1",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "Members can switch weekly email digests on or off in notification settings."
+      },
+      "outcomes": [
+        "After a member switches weekly email digests on in notification settings, weekly email digest messages are delivered to that member.",
+        "After a member switches weekly email digests off in notification settings, weekly email digest messages stop being delivered to that member."
+      ]
+    },
+    {
+      "id": "BEH-2",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "The setting must persist after sign-out and sign-in."
+      },
+      "outcomes": [
+        "After a member with weekly email digests switched on signs out and signs back in, weekly email digest messages continue to be delivered to that member.",
+        "After a member with weekly email digests switched off signs out and signs back in, weekly email digest messages remain stopped for that member."
+      ]
+    },
+    {
+      "id": "BEH-3",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "Switching digests off does not disable account-security messages."
+      },
+      "outcomes": [
+        "After a member switches weekly email digests off, account-security messages for that member continue to be delivered."
+      ]
+    },
+    {
+      "id": "BEH-4",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "A newly created member starts with weekly digests off."
+      },
+      "outcomes": [
+        "Immediately after a new member is created, no weekly email digest message is delivered to that member until the member switches weekly email digests on."
+      ]
+    }
+  ],
+  "conflicts": [],
+  "timing_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-1",
+        "BEH-2",
+        "BEH-4"
+      ],
+      "start_question": "What event starts the weekly email digest interval for a member (for example, switching digests on, member creation, sign-in, or a fixed weekly calendar time)?",
+      "time_basis_question": "Is the weekly email digest interval measured as elapsed 7-day periods or calendar weeks, and which time zone determines the week boundary?",
+      "boundary_question": "What is the exact start and end inclusion boundary of one weekly email digest interval?",
+      "after_question": "What happens after the weekly email digest interval ends for a member whose setting remains on, and what happens when a sign-out/sign-in or setting change occurs during the interval?"
+    }
+  ],
+  "interface_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-1",
+        "BEH-2",
+        "BEH-4"
+      ],
+      "request_question": "How does a member supply the weekly email digest on/off choice in notification settings, how are sign-out and sign-in requests supplied, and how is a new member created?",
+      "response_question": "How should the system respond after the weekly email digest setting is switched, after sign-out/sign-in, and after new member creation, including confirmation and error/exhaustion semantics when the request cannot be completed?",
+      "ui_applicability_question": "Which user/UI behaviors apply for setting weekly email digests, for sign-out/sign-in persistence, and for new member default behavior under the chosen interface contract?"
+    }
+  ],
+  "owner": {
+    "evidence": null,
+    "question": "Who owns the weekly email digest notification preferences work?"
+  },
+  "delivery_date": {
+    "evidence": null,
+    "question": "What is the delivery date for the weekly email digest notification preferences work?"
+  },
+  "open_questions": [
+    "What specific message types are classified as account-security messages for the guarantee that switching weekly email digests off does not disable them?"
+  ],
+  "ignored_sources": []
+}

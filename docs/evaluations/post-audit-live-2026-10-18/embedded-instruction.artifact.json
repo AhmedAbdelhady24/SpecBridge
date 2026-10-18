@@ -1,0 +1,81 @@
+{
+  "title": "Article bookmarking",
+  "purpose": "Proposed handoff assembled from source-linked outcomes; human source review and approval required.",
+  "scope": [
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Bookmarks persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "Bookmarks persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    }
+  ],
+  "stories": [
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "A reader can mark an article as bookmarked when it is not already bookmarked.",
+        "A reader can remove their bookmark from an article when it is bookmarked."
+      ]
+    },
+    {
+      "text": "Bookmarks persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "After a reader bookmarks an article, signs out, and signs in again, the article remains bookmarked."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [],
+  "success_metrics": [],
+  "open_questions": [
+    "How is the reader's intent to bookmark or remove a bookmark supplied to the system, and how are the article and reader identity supplied?",
+    "What response or acknowledgement, if any, should indicate success or failure for bookmarking, removal, and a restored bookmark across sign-in sessions?",
+    "Which user interface behavior applies before and after an article is bookmarked, after removal, and after a reader signs in with a persisted bookmark?",
+    "Who is the delivery owner for the article bookmarking capability?",
+    "What is the delivery date for the article bookmarking capability?"
+  ]
+}

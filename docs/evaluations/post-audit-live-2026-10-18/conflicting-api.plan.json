@@ -1,0 +1,95 @@
+{
+  "title": "Catalog API contract and next-page UI behavior",
+  "behaviors": [
+    {
+      "id": "BEH-API-A",
+      "evidence": {
+        "source_id": "api-spec-a",
+        "excerpt": "GET /v1/items returns a JSON object with an items array and next_cursor string."
+      },
+      "outcomes": [
+        "When Draft A is authoritative, a GET /v1/items response is a JSON object.",
+        "The response object contains an items array.",
+        "The response object contains a next_cursor string."
+      ]
+    },
+    {
+      "id": "BEH-UI-NEXT",
+      "evidence": {
+        "source_id": "api-spec-a",
+        "excerpt": "UI must support moving to the next page."
+      },
+      "outcomes": [
+        "When Draft A is authoritative, the catalog UI provides an action for moving to the next page.",
+        "After the next-page action is invoked, the UI displays the next page of catalog items."
+      ]
+    },
+    {
+      "id": "BEH-API-B",
+      "evidence": {
+        "source_id": "api-spec-b",
+        "excerpt": "GET /v1/items returns a top-level JSON array and uses page and page_size query parameters."
+      },
+      "outcomes": [
+        "When Draft B is authoritative, a GET /v1/items response is a top-level JSON array.",
+        "The page of items returned is controlled by page and page_size query parameters on the request."
+      ]
+    },
+    {
+      "id": "BEH-NONAPPROVAL",
+      "evidence": {
+        "source_id": "api-spec-b",
+        "excerpt": "Neither draft is approved; the authoritative contract has not been selected."
+      },
+      "outcomes": [
+        "The plan records that neither Draft A nor Draft B is the approved Catalog API contract.",
+        "The plan records the authoritative Catalog API contract as not yet selected."
+      ]
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "DEC-API-CONTRACT",
+      "alternatives": [
+        {
+          "id": "ALT-A",
+          "behavior_ids": [
+            "BEH-API-A",
+            "BEH-UI-NEXT"
+          ]
+        },
+        {
+          "id": "ALT-B",
+          "behavior_ids": [
+            "BEH-API-B"
+          ]
+        }
+      ],
+      "question": "Which Catalog API contract should be authoritative: Draft A (top-level JSON object with items array and next_cursor) or Draft B (top-level JSON array with page and page_size query parameters)?",
+      "authority_question": "Who has the authority to approve the Catalog API contract between Draft A and Draft B?"
+    }
+  ],
+  "timing_reviews": [],
+  "interface_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-API-A",
+        "BEH-API-B",
+        "BEH-UI-NEXT"
+      ],
+      "request_question": "How are pagination inputs supplied to GET /v1/items under each draft contract, specifically next_cursor under Draft A and page/page_size under Draft B?",
+      "response_question": "What are the response interpretation rules under each draft, including how the consumer knows there are no further pages or how a page beyond the last page is represented?",
+      "ui_applicability_question": "Which user/UI paging behaviors apply under each draft contract, and is the next-page UI action associated only with Draft A?"
+    }
+  ],
+  "owner": {
+    "evidence": null,
+    "question": "Who is the owner responsible for the Catalog API contract and UI paging behavior?"
+  },
+  "delivery_date": {
+    "evidence": null,
+    "question": "What is the delivery date for the selected Catalog API contract and UI paging behavior?"
+  },
+  "open_questions": [],
+  "ignored_sources": []
+}

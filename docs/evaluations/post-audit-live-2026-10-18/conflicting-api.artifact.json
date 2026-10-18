@@ -1,0 +1,145 @@
+{
+  "title": "Catalog API contract and next-page UI behavior",
+  "purpose": "Proposed handoff assembled from source-linked outcomes; human source review and approval required.",
+  "scope": [
+    {
+      "text": "GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Neither draft is approved; the authoritative contract has not been selected.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    },
+    {
+      "text": "Neither draft is approved; the authoritative contract has not been selected.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-4"
+    }
+  ],
+  "stories": [
+    {
+      "text": "Only if an authorized human selects alternative ALT-A in unresolved decision DEC-API-CONTRACT: GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Only if an authorized human selects alternative ALT-A in unresolved decision DEC-API-CONTRACT: When Draft A is authoritative, a GET /v1/items response is a JSON object.",
+        "Only if an authorized human selects alternative ALT-A in unresolved decision DEC-API-CONTRACT: The response object contains an items array.",
+        "Only if an authorized human selects alternative ALT-A in unresolved decision DEC-API-CONTRACT: The response object contains a next_cursor string."
+      ]
+    },
+    {
+      "text": "Only if an authorized human selects alternative ALT-A in unresolved decision DEC-API-CONTRACT: UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Only if an authorized human selects alternative ALT-A in unresolved decision DEC-API-CONTRACT: When Draft A is authoritative, the catalog UI provides an action for moving to the next page.",
+        "Only if an authorized human selects alternative ALT-A in unresolved decision DEC-API-CONTRACT: After the next-page action is invoked, the UI displays the next page of catalog items."
+      ]
+    },
+    {
+      "text": "Only if an authorized human selects alternative ALT-B in unresolved decision DEC-API-CONTRACT: GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-3",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Only if an authorized human selects alternative ALT-B in unresolved decision DEC-API-CONTRACT: When Draft B is authoritative, a GET /v1/items response is a top-level JSON array.",
+        "Only if an authorized human selects alternative ALT-B in unresolved decision DEC-API-CONTRACT: The page of items returned is controlled by page and page_size query parameters on the request."
+      ]
+    },
+    {
+      "text": "Neither draft is approved; the authoritative contract has not been selected.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-4",
+      "requirement_ids": [
+        "REQ-4"
+      ],
+      "acceptance_criteria": [
+        "The plan records that neither Draft A nor Draft B is the approved Catalog API contract.",
+        "The plan records the authoritative Catalog API contract as not yet selected."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [],
+  "success_metrics": [],
+  "open_questions": [
+    "How are pagination inputs supplied to GET /v1/items under each draft contract, specifically next_cursor under Draft A and page/page_size under Draft B?",
+    "What are the response interpretation rules under each draft, including how the consumer knows there are no further pages or how a page beyond the last page is represented?",
+    "Which user/UI paging behaviors apply under each draft contract, and is the next-page UI action associated only with Draft A?",
+    "Which Catalog API contract should be authoritative: Draft A (top-level JSON object with items array and next_cursor) or Draft B (top-level JSON array with page and page_size query parameters)?",
+    "Who has the authority to approve the Catalog API contract between Draft A and Draft B?",
+    "Who is the owner responsible for the Catalog API contract and UI paging behavior?",
+    "What is the delivery date for the selected Catalog API contract and UI paging behavior?"
+  ]
+}

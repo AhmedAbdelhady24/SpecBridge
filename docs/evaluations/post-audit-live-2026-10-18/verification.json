@@ -1,0 +1,64 @@
+{
+  "runner_regressions_passed": 97,
+  "backend_suite": {
+    "passed": 317,
+    "bootstrap_subtests": 267
+  },
+  "ruff_lint": "passed",
+  "ruff_format": {
+    "files": 38,
+    "result": "passed"
+  },
+  "mypy": {
+    "application_sources": 11,
+    "result": "passed"
+  },
+  "live": {
+    "calls": 5,
+    "single_attempts": true,
+    "http_200": 5,
+    "structural_passes": 5,
+    "independent_semantic_passes": 5,
+    "automatic_retries": 0,
+    "client_output_token_cap": null,
+    "generation_deadline": null,
+    "sum_duration_seconds": 353.83,
+    "longest_call_seconds": 127.9,
+    "prompt_tokens": 14000,
+    "completion_tokens": 35405,
+    "total_tokens": 49405,
+    "dollar_cost": null
+  },
+  "replay": {
+    "artifacts_identical": 5,
+    "compiler_skill_preview_hashes_match": true,
+    "original_sources_and_rubric_unchanged": true
+  },
+  "private_scan": "passed; no configured credential or provider reasoning-content fields retained",
+  "project_hosted_attempts": 75,
+  "application_and_harness_code_changed": false,
+  "normal_provider_configuration_changed": false,
+  "runtime_promotion": false,
+  "artifact_approval": false,
+  "product_browser_build_audits": "preceding Ponytail audit evidence retained, not rerun for this paid-only test",
+  "limits": [
+    "same tuned pack, not general reliability",
+    "clarity caveats recorded in semantic review",
+    "runtime integration and unfamiliar-human acceptance remain open"
+  ],
+  "bootstrap_unittest": {
+    "passed": 2
+  },
+  "diff_check": "passed",
+  "board_browser": {
+    "milestones": 7,
+    "widths": [
+      736,
+      320
+    ],
+    "latest_repeat_result_visible": true,
+    "expand_collapse": "passed",
+    "page_errors": [],
+    "remote_requests": []
+  }
+}
