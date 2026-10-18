@@ -5,7 +5,7 @@ import { mkdirSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { createServer } from 'node:net';
 import { resolve } from 'node:path';
-import { editDraft, preparePackage, signInLocal } from '../tests/e2e/helpers';
+import { editDraft, preparePackage, reviewTask, signInLocal } from '../tests/e2e/helpers';
 
 const root = resolve(__dirname, '..');
 const output = resolve(root, 'docs/media');
@@ -23,6 +23,7 @@ test('capture an isolated fixture handoff and its independently built documentat
   await page.getByLabel('Feature idea', { exact: true }).fill(
     'Export saved reports as CSV with column headers. Owner, deadline, report-size limit and permission rules are unknown.',
   );
+  if(!await page.getByLabel('I acknowledge generation uses this destination',{exact:true}).isVisible())await page.getByRole('button',{name:'Review generation',exact:true}).click();
   await page.getByLabel('I acknowledge generation uses this destination', { exact: true }).check();
   await page.evaluate(() => scrollTo(0, 0));
   await page.screenshot({ path: resolve(output, 'intake.png'), animations: 'disabled' });
@@ -32,11 +33,13 @@ test('capture an isolated fixture handoff and its independently built documentat
   await page.screenshot({ path: resolve(output, 'review.png'), animations: 'disabled' });
   await editDraft(page);
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(/DEMO fixture/);
+  await reviewTask(page);
   await expect(page.getByRole('button', { name: 'Download package', exact: true })).toBeDisabled();
   const requirementLabel = await page.getByText('Requirement ID:', { exact: false }).first().textContent();
   const requirementId = requirementLabel?.match(/REQ-[a-z0-9-]+/i)?.[0];
   expect(requirementId).toBeTruthy();
   await page.getByRole('button', { name: 'Read draft', exact: true }).click();
+  await reviewTask(page);
   await page.getByLabel('Review notes', { exact: true }).fill(
     'Demo review only: fixture assertions remain proposals. Resolve ownership, permissions and size limits before implementation.',
   );

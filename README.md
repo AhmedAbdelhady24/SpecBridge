@@ -48,11 +48,11 @@ flowchart LR
 
 ### Inspect the draft
 
-![Readable draft review showing unresolved questions, revision identity and explicit read/edit controls](docs/media/review.png)
+![Two-pane workspace with an answerable question queue alongside the complete readable draft](docs/media/review.png)
 
 ### Review the exact package
 
-![Recorded demo review with the exact package digest and file manifest](docs/media/approval.png)
+![Recorded demo review with exact prepared documentation preview and secondary integrity details](docs/media/approval.png)
 
 ### Open the independent documentation
 
@@ -74,7 +74,7 @@ One backend owns workflow transitions, persistence, validation, and approval. Th
 | --- | --- | --- |
 | Review workspace | Intake, source selection, corrections, review, and package download | `apps/web/` |
 | Workflow and API | Checkpoints, artifacts, evidence labels, and approval enforcement | `services/api/specbridge/` |
-| Project knowledge | Versioned goals, stakeholders, decisions, risks, dependencies, API references, and notes | `services/api/specbridge/knowledge.py` |
+| Project context | Versioned goals, stakeholders, decisions, risks, dependencies, API references, and notes | `services/api/specbridge/knowledge.py` |
 | Runtime PM skills | Data-only instructions with validated metadata and hashed provenance | `skills/runtime/` |
 | API contracts | Generated OpenAPI and frontend types | `packages/contracts/` |
 | Documentation exporter | Fixed template, escaped content, manifests, and standalone source ZIP | `packages/docs-template/` |
@@ -106,13 +106,16 @@ Open `http://127.0.0.1:5173`. Copy the contents of the newly created `.data/sess
 
 Fixture mode needs no model credentials and makes no model calls. Its output is labeled **DEMO** and does not interpret arbitrary product requests. For hosted generation or serving the built UI from the API, see [provider setup](docs/engineering/model-providers.md).
 
+Existing workspaces require an additive schema upgrade before running this branch. See the [verified upgrade and rollback procedure](docs/engineering/focused-workspace-upgrade.md). The owner app has not been upgraded automatically.
+
 ## Create a handoff
 
-1. Create or select a project. Add knowledge records and select any context to include.
-2. Enter a feature idea, acknowledge the displayed generation destination, and generate a draft.
-3. Read the draft and inspect its evidence, requirements, story links, acceptance criteria and questions. Select **Edit draft** to make corrections; the persistent **Save revision / Discard changes** bar keeps actions reachable. Saving requires fresh review.
-4. Record human review, prepare the package, inspect its manifest and digest, and approve that exact package.
-5. Download and extract the documentation ZIP into a new directory.
+1. Select a project or choose **Create a project**. **Project context** is reusable background: save a note, then select **Use in next draft** to include that exact version. Saving background alone does not change a feature.
+2. Open existing work, or enter a feature idea and choose **Review generation**. Confirm the displayed destination before generating.
+3. Read the full draft beside **Questions**. **Save answer** records your decision separately. Choose a target and enter exact wording, then **Preview amendment** to see the proposed change. These actions make no model call.
+4. Edit individual sections as needed. **Save working preview** preserves private work for reconnection; **Save revision** commits a new immutable revision and requires fresh review. Unpreviewed wording must be previewed or explicitly discarded first.
+5. Use **Changes** for feature revision history, before/after comparison and requested changes. A request becomes addressed only with an explicit saved revision.
+6. In **Review & export**, record review, prepare and read the exact package, then approve it. Download and extract its ZIP into a new directory.
 
 From the extracted directory:
 

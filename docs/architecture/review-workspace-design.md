@@ -1,6 +1,6 @@
 # Focused requirements workspace
 
-Status: design approved by the user on 18 October 2026: “im the human partner and this plan is approved”. This is a source-checked refinement of the user-supplied UX report, not an implementation or acceptance claim. Approval permits a detailed implementation plan; no paid call, publication or owner-database migration is authorized here. Execution details are in [the implementation plan](../plans/2026-10-18-focused-workspace.md).
+Status: design approved by the user on 18 October 2026: “im the human partner and this plan is approved”. This is a source-checked refinement of the user-supplied UX report, not an implementation or acceptance claim. The user subsequently confirmed the detailed implementation plan. Implementation is verified in an isolated branch; see [results](../evaluations/focused-workspace.md). No paid call, publication or owner-database migration is authorized here. Execution details are in [the implementation plan](../plans/2026-10-18-focused-workspace.md).
 
 ## Outcome
 

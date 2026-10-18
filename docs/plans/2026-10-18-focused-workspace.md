@@ -10,7 +10,7 @@
 
 **Spec:** [Approved focused requirements workspace](../architecture/review-workspace-design.md).
 
-**Status:** detailed implementation plan prepared; user approved the written design on 18 October 2026. Implementation-plan review remains pending under the writing-plans workflow. No implementation step is complete. Preserve the existing lead-agent execution approach; do not ask the user to select it again. No additional paid test, publication or owner-data migration approval is implied.
+**Status:** design and detailed plan approved; implementation Tasks1–7 delivered in the isolated `codex/focused-workspace` worktree. Task8 code verification and operational handoff preparation completed on19 October2026; backend367/291subtests and browser49/49 pass. See [current evidence](../evaluations/focused-workspace.md). Owner rollout remains a separately approved final step; no paid call/publication is included.
 
 ## Global Constraints
 
@@ -294,4 +294,8 @@ The temporary parent exists but its handoff child does not; the existing handoff
 
 Coverage: feature isolation/migration Tasks1–2; answers/requests Task3; preview persistence/idempotency Task4; side-view, editing, review and responsive navigation Task5; timeline/diff/context Task6; exact docs/decision export Task7; full acceptance/recovery/security/docs Task8. Review Focus cases each have explicit owning tests above. No implementation, test pass or milestone completion is asserted by this plan.
 
-The approved design is preserved. Next action is user review of this detailed execution plan, then Task1 using superpowers:executing-plans and the established lead-agent approach. Backend contracts precede UI integration, independent review precedes final claims, and live provider calls remain outside this work.
+The approved design is preserved. Implementation proceeded using the existing lead-agent approach and independent read-only reviews. The checklists above retain the original execution requirements; the maintained acceptance record below reports actual evidence rather than retrospectively claiming every planned red-first exercise occurred. Live-provider qualification and owner rollout remain separate.
+
+## Execution result
+
+Tasks1–4: feature lineage, feature-local authority, saved answers/requests and atomic recoverable commits implemented and reviewed. Tasks5–7: responsive two-pane UI, section editing, decision queue, history/diff/context and verified exact package preview/export implemented. Task8: combined checks, private migration/restore rehearsal, media and maintained documentation recorded in the evaluation report. User approval is required only for upgrading/restarting the owner app under the explicit design boundary.

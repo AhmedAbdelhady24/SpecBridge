@@ -65,3 +65,14 @@ For the first slice, generation creates a new package rather than updating an ex
 The [acceptance scenarios](../evaluations/acceptance.md) are the test contract. First-slice completion requires API/integration tests, browser review/download tests, attack fixtures, interruption/restart tests, and an actual clean ZIP install/build/navigation test. No live-provider quality claim is allowed from fixture execution alone.
 
 Performance is recorded as actual duration, provider call count and reported token/cost data where available. Do not fabricate prices or latency budgets. Set budgets from measured local baselines before widening scope.
+
+
+## Focused workspace extension (19 October 2026)
+
+The [approved workspace design](review-workspace-design.md) adds schema3 feature lineage and schema4 collaboration sidecars. Historical Artifact JSON, IDs, legacy numbers and digests remain immutable. Proven run associations own feature heads; parent links are explicit and unknown legacy metadata stays unknown. Equal digests do not imply feature identity.
+
+`feature_history.py` owns scoped history/comparison. `workbench.py` owns question identities, versioned answers and requested changes. `working_copy.py` owns compare-and-swap private previews and atomic, idempotent revision commits. Commit receipts survive lost responses; changes resolve only in the same transaction as the new feature revision. `revision_decisions` freezes incorporated decisions for history and export. Existing compatibility edits inherit that snapshot.
+
+React presents a task pane beside a complete document on desktop, with Task/Draft switching on narrow screens. Answers, unpreviewed wording, working previews and saved revisions are separate states. Section editors retain the rest of the readable document. Scope guards reject late responses after navigation; reauthentication retains mounted local work. Project context captures exact versions only on explicit selection. Private content is not written to browser storage.
+
+Prepared package previews read verified stored ZIP bytes. Only fixed bounded documentation paths can be returned; rendering uses inert React text and a conservative Markdown subset, with exact source available. Approval remains backend-owned and digest-bound. See [verification and limitations](../evaluations/focused-workspace.md).

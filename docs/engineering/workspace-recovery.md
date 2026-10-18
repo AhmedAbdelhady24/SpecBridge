@@ -1,6 +1,6 @@
 # Workspace knowledge and recovery
 
-Select a project and open **Project knowledge**. Save goals, stakeholders, decisions, risks, dependencies, API references or conversation notes with an evidence label. Use **Choose evidence** to search and select original source previews from this project; selections survive searches and older sources can be paged. Changing selected evidence clears verification confirmation. Save edits as new versions; stale edits require reloading rather than overwriting another change. Archiving removes an entry from active context search; include archived records in the list to inspect or restore it.
+Select a project and open **Project context**. Save goals, stakeholders, decisions, risks, dependencies, API references or conversation notes with an evidence label. Use **Choose evidence** to search and select original source previews from this project; selections survive searches and older sources can be paged. Changing selected evidence clears verification confirmation. Save edits as new versions; stale edits require reloading rather than overwriting another change. Archiving removes an entry from active context search; include archived records in the list to inspect or restore it.
 
 Search matches literal substrings in current titles/content and original sources, not semantic similarity. A title match ranks first. Results default to20, with a server maximum50 and a context budget up to65,536 bytes. Empty query browses current context. Refine the query for a smaller selection. Histories use `before`/`limit` for API pagination. The knowledge panel provides continuation controls for current records, knowledge versions, and artifact revisions beyond the first 20. The full project dashboard remains Milestone 5 scope.
 
@@ -37,3 +37,6 @@ uv run pytest -q services/api/tests/test_knowledge.py services/api/tests/test_wo
 ```
 
 The verifier creates temporary fixture workspaces, invokes both CLI operations, reconnects through the API, checks seven knowledge types/two immutable goal versions and resumes a saved workflow to human review. It makes no model/network call. Optional `--output NEW.json` saves sanitized evidence and refuses overwrite. Migration regressions additionally compare all nine preexisting tables, approved package bytes and workflow state before/after schema 1→2.
+
+
+Schema3/4 adds immutable feature lineage, answers, working previews and commit receipts. The recovery runner also verifies saved answer/preview recovery, same-key commit replay and copy-version continuity after discard. See the [focused workspace upgrade procedure](focused-workspace-upgrade.md) before opening an owner schema2 database with the new branch.

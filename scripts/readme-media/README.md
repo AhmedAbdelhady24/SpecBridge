@@ -2,7 +2,7 @@
 
 The screenshots are actual Playwright captures from a new synthetic fixture workspace. The video is a 30-second captioned Hyperframes montage of those screens and the original architecture SVG, without narration or music. It demonstrates local workflow behavior, not live-model quality or an unfamiliar engineer's acceptance.
 
-Use the repository's Python/Node versions and locked environments. Install root/UI dependencies and Playwright Chromium as documented in the [root README](../../README.md). Stop manual servers on ports 8000/5173. The extracted documentation uses a fresh ephemeral preview port with Astro daemon reuse disabled. From the repository root:
+Use the repository's Python/Node versions and locked environments. Install root/UI dependencies and Playwright Chromium as documented in the [root README](../../README.md). Use free ports8000/5173, or set `SPECBRIDGE_E2E_API_PORT=18000 SPECBRIDGE_E2E_WEB_PORT=15173` on the capture command to keep the owner app untouched. The extracted documentation uses a fresh ephemeral preview port with Astro daemon reuse disabled. From the repository root:
 
 ```sh
 PLAYWRIGHT_BROWSERS_PATH=.cache/playwright npm exec playwright test -- --config scripts/readme-media.config.ts

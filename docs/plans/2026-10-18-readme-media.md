@@ -43,3 +43,8 @@ Final capture recovery: a repeat exposed Astro preview daemon reuse and an ESRCH
 Frontend typecheck, lint, 2 unit tests and production build passed. Ruff check/format passed (39 Python files); mypy passed (11 sources). No model/provider changes were made. The only test infrastructure changes exclude vendor/render-state Markdown from authored-link validation and make the documented pytest entrypoint resolve root scripts consistently.
 
 Final strict check: zero lint/runtime/layout warnings or errors across nine layout samples; 32/32 sampled text contrast checks pass. GIF regenerated from the final MP4. Both media durations verified by ffprobe at 30 seconds; all README section anchors resolve.
+
+
+## Focused workspace refresh (19 October2026)
+
+Updated capture navigation for task panes and generation confirmation. Fixture capture passed1/1 in7.2s and independently built the exported website. Refreshed four PNGs,30-second1440×1000/24fps/720frame MP4 and720px GIF; six decoded scene samples inspected. Strict Hyperframes check reported zero issues and32/32 sampled contrast checks. Uses alternate fixture ports18000/15173; original owner app/data and credentials untouched. No hosted model/render or new dependency. See [workspace verification](../evaluations/focused-workspace.md) for current product checks and separate rollout gate.
