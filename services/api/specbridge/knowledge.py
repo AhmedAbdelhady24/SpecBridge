@@ -244,14 +244,27 @@ class Knowledge:
         entity_type: Entity | None,
         limit: int,
         include_archived: bool = False,
+        after: str | None = None,
     ) -> list[KnowledgeEntry]:
         with self.store.transaction() as db:
             self.store.require_project(db, project_id)
             return [
                 KnowledgeEntry.model_validate_json(r[0])
                 for r in db.execute(
-                    """SELECT k.data FROM knowledge k WHERE k.project_id=? AND k.version=(SELECT MAX(v.version) FROM knowledge v WHERE v.id=k.id AND v.project_id=k.project_id) AND (? OR json_extract(k.data,'$.archived')=0) AND (? IS NULL OR json_extract(k.data,'$.entity_type')=?) AND (?='' OR instr(lower(json_extract(k.data,'$.title')),lower(?))>0 OR instr(lower(json_extract(k.data,'$.text')),lower(?))>0) ORDER BY CASE WHEN ?<>'' AND instr(lower(json_extract(k.data,'$.title')),lower(?))>0 THEN 0 ELSE 1 END,k.id LIMIT ?""",
+                    """WITH matching AS (
+                        SELECT k.data,k.id,
+                          CASE WHEN ?<>'' AND instr(lower(json_extract(k.data,'$.title')),lower(?))>0 THEN 0 ELSE 1 END AS priority
+                        FROM knowledge k WHERE k.project_id=?
+                          AND k.version=(SELECT MAX(v.version) FROM knowledge v WHERE v.id=k.id AND v.project_id=k.project_id)
+                          AND (? OR json_extract(k.data,'$.archived')=0)
+                          AND (? IS NULL OR json_extract(k.data,'$.entity_type')=?)
+                          AND (?='' OR instr(lower(json_extract(k.data,'$.title')),lower(?))>0 OR instr(lower(json_extract(k.data,'$.text')),lower(?))>0)
+                    ) SELECT data FROM matching
+                    WHERE ? IS NULL OR (priority,id) > (SELECT priority,id FROM matching WHERE id=?)
+                    ORDER BY priority,id LIMIT ?""",
                     (
+                        query,
+                        query,
                         project_id,
                         include_archived,
                         entity_type,
@@ -259,8 +272,8 @@ class Knowledge:
                         query,
                         query,
                         query,
-                        query,
-                        query,
+                        after,
+                        after,
                         limit,
                     ),
                 )
@@ -364,9 +377,10 @@ def register_knowledge_routes(app: FastAPI, store: Store) -> None:
         entity_type: Entity | None = None,
         include_archived: bool = False,
         limit: int = Query(default=20, ge=1, le=50),
+        after: str | None = Query(default=None, max_length=64),
     ) -> list[KnowledgeEntry]:
         return knowledge.entries(
-            project_id, query.strip(), entity_type, limit, include_archived
+            project_id, query.strip(), entity_type, limit, include_archived, after
         )
 
     @app.post("/api/projects/{project_id}/knowledge/{entry_id}/edits", status_code=201)

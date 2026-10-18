@@ -127,3 +127,51 @@ test('verification cannot apply to unsaved displayed content', async ({ page, re
   expect(history[0].text).toBe('Claim B is an unsaved edit.');
   expect(history[0].kind).toBe('verified');
 });
+
+test('all knowledge records, versions and artifact revisions remain reachable after twenty', async ({ page, request }) => {
+  const send = async (path: string, data: unknown) => {
+    const response = await request.post(`${api}${path}`, { headers: authHeaders(), data });
+    expect(response.ok()).toBeTruthy();
+    return response.json();
+  };
+  const project = await send('/projects', { name: `Paged knowledge ${Date.now()}` });
+  const base = `/projects/${project.id}`;
+  const entryBody = { entity_type: 'goal', text: 'Original version one.', kind: 'assumption', source_ids: [], archived: false };
+  for (let i = 0; i < 21; i++) await send(`${base}/knowledge`, { ...entryBody, title: `Paged record ${i}` });
+  const records = await (await request.get(`${api}${base}/knowledge?limit=50`, { headers: authHeaders() })).json();
+  let entry = records[0];
+  for (let version = 2; version <= 21; version++) entry = await send(`${base}/knowledge/${entry.id}/edits`, { expected_digest: entry.digest, entry: { ...entryBody, title: entry.title, text: `Changed version ${version}.` } });
+  const source = await send(`${base}/sources`, { text: 'A feature with persistent revision history.' });
+  let run = await send(`${base}/runs`, { source_ids: [source.id], skill_id: 'feature-handoff', intent: 'PRD', acknowledged_destination: 'fixture' });
+  for (let stage = 0; stage < 6; stage++) run = await send(`${base}/runs/${run.id}/advance`, {});
+  let revision = await (await request.get(`${api}${base}/revisions/${run.revision_id}`, { headers: authHeaders() })).json();
+  for (let version = 2; version <= 21; version++) revision = await send(`${base}/revisions/${revision.id}/edits`, { expected_digest: revision.digest, artifact: { ...revision.artifact, title: `Paged revision ${version}` } });
+  await signInLocal(page);
+  await page.getByLabel('Existing project', { exact: true }).selectOption(project.id);
+  await page.getByText('Project knowledge', { exact: true }).click();
+  const editButtons = page.getByRole('button', { name: /^Edit Paged record / });
+  await expect(editButtons).toHaveCount(20);
+  // Unsubmitted search text must not change the cursor's current result set.
+  await page.getByLabel('Context search', { exact: true }).fill('no matching records');
+  await page.getByRole('button', { name: 'Load more records', exact: true }).click();
+  await expect(editButtons).toHaveCount(21);
+  await expect(page.getByRole('button', { name: `Edit ${records[20].title}`, exact: true })).toHaveCount(1);
+  await page.getByRole('button', { name: 'Search context', exact: true }).click();
+  await expect(editButtons).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Load more records', exact: true })).toHaveCount(0);
+  await page.getByLabel('Context search', { exact: true }).fill('');
+  await page.getByRole('button', { name: 'Search context', exact: true }).click();
+  await expect(editButtons).toHaveCount(20);
+  await page.getByRole('button', { name: `History ${entry.title}`, exact: true }).click();
+  const history = page.getByRole('region', { name: 'Knowledge version history' });
+  await expect(history.getByRole('heading', { name: 'Version 1 · assumption', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Load older knowledge versions', exact: true }).click();
+  await expect(history.getByRole('heading', { name: /^Version \d+ ·/ })).toHaveCount(21);
+  await expect(history.getByRole('heading', { name: 'Version 1 · assumption', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Load artifact history', exact: true }).click();
+  await expect(page.getByRole('button', { name: /^View revision / })).toHaveCount(20);
+  await page.getByRole('button', { name: 'Load older artifact revisions', exact: true }).click();
+  await expect(page.getByRole('button', { name: /^View revision / })).toHaveCount(21);
+  await page.getByRole('button', { name: /^View revision 1:/ }).click();
+  await expect(page.getByRole('heading', { name: 'Saved revision 1', exact: true })).toBeVisible();
+});

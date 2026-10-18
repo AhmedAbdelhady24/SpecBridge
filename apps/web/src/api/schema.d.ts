@@ -1015,6 +1015,7 @@ export interface operations {
                 entity_type?: ("goal" | "stakeholder" | "decision" | "risk" | "dependency" | "api_reference" | "conversation") | null;
                 include_archived?: boolean;
                 limit?: number;
+                after?: string | null;
             };
             header?: never;
             path: {

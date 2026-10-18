@@ -407,3 +407,31 @@ def test_v1_migration_preserves_artifacts_checkpoints_reviews_and_approved_zip(
         reconnected.get(b + f"/candidates/{candidate['id']}/download").content
         == original_zip
     )
+
+
+def test_current_records_page_after_cursor_preserves_search_order(tmp_path):
+    c, base, _ = setup(tmp_path)
+    for title in ["target title", "other alpha", "target second", "other beta"]:
+        assert (
+            c.post(
+                base + "/knowledge", json=body(title=title, text="target content")
+            ).status_code
+            == 201
+        )
+    all_items = c.get(
+        base + "/knowledge", params={"query": "target", "limit": 50}
+    ).json()
+    first = c.get(base + "/knowledge", params={"query": "target", "limit": 2}).json()
+    second = c.get(
+        base + "/knowledge",
+        params={"query": "target", "limit": 2, "after": first[-1]["id"]},
+    ).json()
+    assert [x["id"] for x in first + second] == [x["id"] for x in all_items]
+    assert all("target" in x["title"] for x in first)
+    assert all("target" not in x["title"] for x in second)
+    assert (
+        c.get(
+            base + "/knowledge", params={"query": "target", "after": second[-1]["id"]}
+        ).json()
+        == []
+    )
