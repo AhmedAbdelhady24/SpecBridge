@@ -226,3 +226,42 @@ def test_source_picker_excludes_non_original_kinds_and_authenticates(workspace):
         c.get(base + "/sources", headers={"Authorization": "Bearer wrong"}).status_code
         == 401
     )
+
+
+def test_run_summary_does_not_require_full_historical_artifact_validation(workspace):
+    """A list label can read historical title metadata without parsing obsolete bodies."""
+    c, store, project, base = workspace
+    run = Run(
+        id="historic-body",
+        project_id=project,
+        source_ids=[],
+        skill_id="feature-handoff",
+        intent="Historical fallback",
+        destination="fixture",
+        stage="human_review",
+        revision_id="historic-revision",
+    )
+    with store.transaction() as db:
+        db.execute(
+            "INSERT INTO revisions(id,project_id,number,digest,data) VALUES (?,?,?,?,?)",
+            (
+                "historic-revision",
+                project,
+                1,
+                "0" * 64,
+                '{"artifact":{"title":"Historical title"},"obsolete_body":true}',
+            ),
+        )
+        db.execute(
+            "INSERT INTO runs(id,project_id,data) VALUES (?,?,?)",
+            (run.id, project, run.model_dump_json()),
+        )
+    response = c.get(base + "/runs")
+    assert response.status_code == 200
+    assert response.json()[0]["title"] == "Historical title"
+    assert response.json()[0]["revision_number"] == 1
+
+
+def test_source_cursor_input_is_bounded(workspace):
+    c, _store, _project, base = workspace
+    assert c.get(base + "/sources", params={"after": "x" * 101}).status_code == 422

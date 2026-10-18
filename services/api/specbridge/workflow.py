@@ -98,30 +98,37 @@ class Workflow:
                     (project_id,),
                 )
             ]
+            revisions = {
+                row["id"]: (row["title"], row["number"])
+                for row in db.execute(
+                    "SELECT DISTINCT r.id,r.number,json_extract(r.data,'$.artifact.title') AS title "
+                    "FROM revisions r JOIN runs w "
+                    "ON r.id=json_extract(w.data,'$.revision_id') AND w.project_id=r.project_id "
+                    "WHERE r.project_id=?",
+                    (project_id,),
+                )
+            }
+            creation_times = {
+                row["subject"]: row["at"]
+                for row in db.execute(
+                    "SELECT a.subject,a.at FROM audit a JOIN "
+                    "(SELECT min(id) AS first_id FROM audit "
+                    "WHERE project_id=? AND action='workflow_created' GROUP BY subject) first "
+                    "ON a.id=first.first_id",
+                    (project_id,),
+                )
+            }
         summaries = []
         for run_id in ids:
+            # Keep the existing expired-lease presentation and its lack of writes.
             run = self.get(project_id, run_id)
-            title = run.intent
-            revision_number = None
-            if run.revision_id:
-                try:
-                    revision = self.store.get_revision(project_id, run.revision_id)
-                except NotFound:
-                    pass  # Historical runs may have no surviving linked revision.
-                else:
-                    title = revision.artifact.title
-                    revision_number = revision.number
-            with self.store.transaction() as db:
-                created = db.execute(
-                    "SELECT at FROM audit WHERE project_id=? AND action='workflow_created' "
-                    "AND subject=? ORDER BY id LIMIT 1",
-                    (project_id, run_id),
-                ).fetchone()
+            title, revision_number = revisions.get(run.revision_id, (run.intent, None))
+            created = creation_times.get(run_id)
             created_at = None
             if created:
                 # SQLite CURRENT_TIMESTAMP records UTC without a timezone suffix.
                 created_at = (
-                    datetime.fromisoformat(created[0])
+                    datetime.fromisoformat(created)
                     .replace(tzinfo=UTC)
                     .isoformat()
                     .replace("+00:00", "Z")

@@ -201,7 +201,7 @@ def create_app(
         project_id: str,
         query: str = Query(default="", max_length=200),
         limit: int = Query(default=20, ge=1, le=50),
-        after: str | None = None,
+        after: str | None = Query(default=None, max_length=100),
     ) -> list[SourceSummary]:
         with store.transaction() as db:
             store.require_project(db, project_id)
