@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { api, authHeaders, createFeatureDraft, preparePackage, recordReview, signInLocal } from './helpers';
+import { api, authHeaders, editDraft, createFeatureDraft, preparePackage, recordReview, signInLocal } from './helpers';
 
 test('human review binds the exact package before download', async ({ page, request }, testInfo) => {
   await signInLocal(page);
@@ -51,6 +51,7 @@ test('reload recovers an existing run without repeating generation', async ({ pa
   await page.getByLabel('Existing project', { exact: true }).selectOption(projectId);
   await page.getByLabel('Existing run', { exact: true }).selectOption(runId);
   await page.getByRole('button', { name: 'Open run', exact: true }).click();
+  await editDraft(page);
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(/DEMO fixture/);
   await page.getByText('Selected source evidence', { exact: true }).click();
   await expect(page.getByText('Allow a customer to export their saved report.', { exact: true })).toBeVisible();
@@ -118,6 +119,7 @@ test('a transport failure preserves the run and requires an acknowledged retry',
   const retried = page.waitForRequest(r => r.url().endsWith('/advance'));
   await retry.click();
   expect((await retried).postDataJSON().retry_acknowledged).toBe(true);
+  await editDraft(page);
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(/DEMO fixture/);
 });
 
@@ -170,6 +172,7 @@ test('review correction adds missing questions and criteria with fresh approval 
   await page.getByLabel('Existing project', { exact: true }).selectOption(projectId);
   await page.getByLabel('Existing run', { exact: true }).selectOption(runId);
   await page.getByRole('button', { name: 'Open run', exact: true }).click();
+  await editDraft(page);
   await expect(page.getByLabel('Open question 4', { exact: true })).toHaveValue(question);
   await expect(page.getByLabel('Acceptance criterion 1.2', { exact: true })).toHaveValue(criterion);
   await recordReview(page);
@@ -250,6 +253,7 @@ test('review correction respects question and criterion bounds', async ({ page, 
   expect(saved.status()).toBe(201);
   await page.getByLabel('Existing run', { exact: true }).selectOption(runId);
   await page.getByRole('button', { name: 'Open run', exact: true }).click();
+  await editDraft(page);
   await expect(page.getByRole('button', { name: 'Add open question', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Add open question', exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Add acceptance criterion to story 1', exact: true })).toBeDisabled();
@@ -284,6 +288,7 @@ test('review correction repairs a saved model omission without regenerating', as
   const imported = await importedResponse.json();
   await page.getByLabel('Existing run', { exact: true }).selectOption(runId);
   await page.getByRole('button', { name: 'Open run', exact: true }).click();
+  await editDraft(page);
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(originalArtifact.title);
   const add = page.getByRole('button', { name: 'Add acceptance criterion to story 1', exact: true });
   await expect(add).toBeVisible();

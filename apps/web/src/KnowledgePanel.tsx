@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { components } from "./api/schema";
 import { request } from "./api/client";
+import { EvidencePicker } from "./EvidencePicker";
 
 type S = components["schemas"];
 type Input = S["KnowledgeInput"];
@@ -14,7 +15,7 @@ export function KnowledgePanel({ token, project, disabled, onSelect }: {
   const [entryFilter, setEntryFilter] = useState({ query: "", archived: false });
   const [selected, setSelected] = useState<S["KnowledgeEntry"]>();
   const [draft, setDraft] = useState<Input>(empty);
-  const [evidence, setEvidence] = useState("");
+  const [evidence, setEvidence] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [archived, setArchived] = useState(false);
   const [context, setContext] = useState<S["ContextItem"][]>([]);
@@ -42,7 +43,7 @@ export function KnowledgePanel({ token, project, disabled, onSelect }: {
   function edit(entry: S["KnowledgeEntry"]) {
     setSelected(entry);
     setDraft({ entity_type: entry.entity_type, title: entry.title, text: entry.text, kind: entry.kind === "verified" ? "user_provided" : entry.kind, source_ids: entry.source_ids, archived: entry.archived });
-    setEvidence(entry.source_ids.join(", ")); setNote(""); setConfirm(false); setHistory([]);
+    setEvidence(entry.source_ids); setNote(""); setConfirm(false); setHistory([]);
   }
   function changeDraft(change: Partial<Input>) {
     setDraft(current => ({ ...current, ...change }));
@@ -51,9 +52,10 @@ export function KnowledgePanel({ token, project, disabled, onSelect }: {
   const unsaved = selected !== undefined && (
     draft.title !== selected.title || draft.text !== selected.text ||
     draft.entity_type !== selected.entity_type || draft.archived !== selected.archived ||
-    draft.kind !== (selected.kind === "verified" ? "user_provided" : selected.kind)
+    draft.kind !== (selected.kind === "verified" ? "user_provided" : selected.kind) ||
+    [...evidence].sort().join() !== [...selected.source_ids].sort().join()
   );
-  const sourceIds = () => evidence.split(",").map(s => s.trim()).filter(Boolean);
+  const sourceIds = () => evidence;
   async function loadEntries(after?: string, filter = entryFilter) {
     const values = await api<S["KnowledgeEntry"][]>(`/knowledge?query=${encodeURIComponent(filter.query)}&include_archived=${filter.archived}${after ? `&after=${encodeURIComponent(after)}` : ""}`);
     setEntries(current => after ? [...current, ...values] : values);
@@ -95,10 +97,10 @@ export function KnowledgePanel({ token, project, disabled, onSelect }: {
         <label htmlFor="knowledge-kind">Evidence kind</label><select id="knowledge-kind" value={draft.kind} onChange={e => changeDraft({ kind: e.target.value as Input["kind"] })}>
           {(["user_provided", "recommendation", "assumption", "unknown"] as const).map(t => <option key={t} value={t}>{t.replaceAll("_", " ")}</option>)}
         </select>
-        <label>Evidence source IDs<input value={evidence} onChange={e => { setEvidence(e.target.value); setConfirm(false); }} placeholder="Comma-separated source IDs from this project" /></label>
+        <EvidencePicker token={token} project={project} ids={evidence} disabled={disabled || working} onChange={ids => { setEvidence(ids); setConfirm(false); }} />
         <label className="check"><input type="checkbox" checked={draft.archived} onChange={e => changeDraft({ archived: e.target.checked })} />Archive entry</label>
         <button disabled={!draft.title.trim() || !draft.text.trim()}>Save knowledge</button>{" "}
-        <button type="button" className="secondary" onClick={() => { setSelected(undefined); setDraft(empty); setEvidence(""); setHistory([]); setNote(""); setConfirm(false); }}>New entry</button>
+        <button type="button" className="secondary" onClick={() => { setSelected(undefined); setDraft(empty); setEvidence([]); setHistory([]); setNote(""); setConfirm(false); }}>New entry</button>
       </form>
       {selected && <div>
         <p>Human verification records your judgment against original source evidence. It does not approve an artifact. Saving an edit removes prior verification.</p>

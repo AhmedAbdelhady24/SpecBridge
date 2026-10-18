@@ -338,7 +338,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Sources */
+        get: operations["sources_api_projects__project_id__sources_get"];
         put?: never;
         /** Create Source */
         post: operations["create_source_api_projects__project_id__sources_post"];
@@ -700,6 +701,48 @@ export interface components {
             /** Source Ids */
             source_ids: string[];
         };
+        /** RunSummary */
+        RunSummary: {
+            /**
+             * Attempts
+             * @default 0
+             */
+            attempts: number;
+            /** Base Digest */
+            base_digest?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Destination */
+            destination: string;
+            /** Error */
+            error?: string | null;
+            /** History */
+            history?: string[];
+            /** Id */
+            id: string;
+            /** Intent */
+            intent: string;
+            /** Project Id */
+            project_id: string;
+            /** Revision Id */
+            revision_id?: string | null;
+            /** Revision Number */
+            revision_number?: number | null;
+            /** Skill Id */
+            skill_id: string;
+            /** Source Ids */
+            source_ids: string[];
+            /** Stage */
+            stage: string;
+            /**
+             * Status
+             * @default ready
+             * @enum {string}
+             */
+            status: "ready" | "running" | "failed" | "review" | "published";
+            /** Title */
+            title: string;
+        };
         /** SkillMetadata */
         SkillMetadata: {
             /** Description */
@@ -743,6 +786,23 @@ export interface components {
         SourceCreate: {
             /** Text */
             text: string;
+        };
+        /** SourceSummary */
+        SourceSummary: {
+            /** Digest */
+            digest: string;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @default user_provided
+             * @constant
+             */
+            kind: "user_provided";
+            /** Preview */
+            preview: string;
+            /** Project Id */
+            project_id: string;
         };
         /** Statement */
         Statement: {
@@ -1442,7 +1502,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Run"][];
+                    "application/json": components["schemas"]["RunSummary"][];
                 };
             };
             /** @description Validation Error */
@@ -1546,6 +1606,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Run"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sources_api_projects__project_id__sources_get: {
+        parameters: {
+            query?: {
+                query?: string;
+                limit?: number;
+                after?: string | null;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceSummary"][];
                 };
             };
             /** @description Validation Error */

@@ -1,11 +1,13 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { components } from "./api/schema";
 import { ApiError, request } from "./api/client";
 import { KnowledgePanel } from "./KnowledgePanel";
-import { ArtifactEditor } from "./ArtifactEditor";
+import { ArtifactWorkspace } from "./ArtifactWorkspace";
 type Schema = components["schemas"];
 export default function App() {
   const [token, setToken] = useState("");
+  const tokenInput = useRef<HTMLInputElement>(null);
+  const [authError, setAuthError] = useState(false);
   const [config, setConfig] = useState<Schema["ProviderInfo"]>();
   const [projects, setProjects] = useState<Schema["Project"][]>([]);
   const [project, setProject] = useState("");
@@ -15,7 +17,7 @@ export default function App() {
   const [idea, setIdea] = useState("");
   const [ack, setAck] = useState(false);
   const [retry, setRetry] = useState(false);
-  const [runs, setRuns] = useState<Schema["Run"][]>([]);
+  const [runs, setRuns] = useState<Schema["RunSummary"][]>([]);
   const [selectedRun, setSelectedRun] = useState("");
   const [selectedSources, setSelectedSources] = useState<Schema["Source"][]>([]);
   const [run, setRun] = useState<Schema["Run"]>();
@@ -29,6 +31,15 @@ export default function App() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  useEffect(() => { if (authError) tokenInput.current?.focus(); }, [authError]);
+  useEffect(() => {
+    if (!dirty) return;
+    const preventLoss = (event: BeforeUnloadEvent) => { event.preventDefault(); };
+    window.addEventListener('beforeunload', preventLoss);
+    return () => window.removeEventListener('beforeunload', preventLoss);
+  }, [dirty]);
+  useEffect(() => { if (revision) document.getElementById("draft-heading")?.focus(); }, [revision]);
+  const mayLeaveDraft = () => !dirty || window.confirm('Discard unsaved draft edits and continue?');
   const base = `/projects/${project}`;
   const api = <T,>(
     path: string,
@@ -45,7 +56,7 @@ export default function App() {
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
         setConfig(undefined);
-        setToken("");
+        setAuthError(true);
       }
       setError(
         e instanceof Error ? e.message : "The request could not be completed.",
@@ -69,7 +80,8 @@ export default function App() {
     setRevision(value);
     setArtifact(value.artifact);
   }
-  async function chooseProject(id: string) {
+  async function chooseProject(id: string, discardConfirmed = false) {
+    if (!discardConfirmed && !mayLeaveDraft()) return;
     projectRef.current = id;
     setProject(id);
     setContextSources([]);
@@ -78,7 +90,7 @@ export default function App() {
     setSelectedRun("");
     setSelectedSources([]);
     clearRevision();
-    if (id) setRuns(await api<Schema["Run"][]>(`/projects/${id}/runs`));
+    if (id) setRuns(await api<Schema["RunSummary"][]>(`/projects/${id}/runs`));
   }
   async function progress(initial: Schema["Run"], retryAcknowledged = false) {
     let current = initial;
@@ -105,10 +117,11 @@ export default function App() {
     } finally {
       setRetry(false);
     }
-    setRuns(await api<Schema["Run"][]>(`${base}/runs`));
+    setRuns(await api<Schema["RunSummary"][]>(`${base}/runs`));
     if (current.revision_id) await loadRevision(current.revision_id);
   }
   async function generate() {
+    if (!mayLeaveDraft()) return;
     const sources = [...contextSources];
     if (idea.trim()) sources.push(await api<Schema["Source"]>(`${base}/sources`, { text: idea }));
     const skills = await api<Schema["SkillMetadata"][]>(
@@ -124,7 +137,7 @@ export default function App() {
     clearRevision();
     setRun(created);
     setSelectedSources(sources);
-    setRuns((current) => [...current, created]);
+    setRuns((current) => [...current, { ...created, title: created.intent, revision_number: null, created_at: null }]);
     setSelectedRun(created.id);
     await progress(created);
   }
@@ -156,7 +169,7 @@ export default function App() {
         </a>
         <span className="local">● Local workspace</span>
       </header>
-      <main id="workspace">
+      <main id="workspace" tabIndex={-1}>
         <div className="intro">
           <p className="eyebrow">IDEA → REQUIREMENTS → HANDOFF</p>
           <h1>Make the next step clear.</h1>
@@ -181,10 +194,12 @@ export default function App() {
               The API session token stays in this tab’s memory. Enter it again
               after refreshing.
             </p>
+            <p id="token-help">Find your private token in <code>.data/session-token</code>. Keep it out of chat and shared screenshots.</p>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 void act(async () => {
+                  setAuthError(false);
                   const value = await api<Schema["ProviderInfo"]>("/config");
                   const list = await api<Schema["Project"][]>("/projects");
                   setConfig(value);
@@ -195,13 +210,17 @@ export default function App() {
               <label>
                 Session token
                 <input
+                  ref={tokenInput}
                   type="password"
                   autoComplete="off"
+                  aria-invalid={authError}
+                  aria-describedby={authError ? 'token-help token-error' : 'token-help'}
                   value={token}
-                  onChange={(e) => setToken(e.target.value)}
+                  onChange={(e) => { setToken(e.target.value); setAuthError(false); }}
                   required
                 />
               </label>
+              {authError && <p id="token-error" className="error">Connection was not authorized. Check the token and try again.</p>}
               <button disabled={busy || !token}>Connect</button>
             </form>
           </section>
@@ -216,10 +235,15 @@ export default function App() {
                 </span>
               </aside>
             )}
+            <nav className="workspace-jumps" aria-label="Workspace sections">
+              <a href="#intake-heading">Jump to feature intake</a>
+              <a href="#draft-heading">Jump to draft review</a>
+              {revision && <a href="#package-heading">Jump to review and package</a>}
+            </nav>
             <div className="workspace-grid">
               <aside className="intake panel">
                 <p className="step">01 / START WITH CONTEXT</p>
-                <h2>Feature workspace</h2>
+                <h2 id="intake-heading" tabIndex={-1}>Feature workspace</h2>
                 <fieldset disabled={disabled}>
                   <legend>Project</legend>
                   <div>
@@ -243,13 +267,14 @@ export default function App() {
                     onSubmit={(e) => {
                       e.preventDefault();
                       void act(async () => {
+                        if (!mayLeaveDraft()) return;
                         const created = await api<Schema["Project"]>(
                           "/projects",
                           { name },
                         );
                         setProjects([...projects, created]);
                         setName("");
-                        await chooseProject(created.id);
+                        await chooseProject(created.id, true);
                       });
                     }}
                   >
@@ -267,6 +292,52 @@ export default function App() {
                     </button>
                   </form>
                 </fieldset>
+                {project && runs.length > 0 && (
+                  <fieldset disabled={disabled}>
+                    <legend>Resume saved work</legend>
+                    <div>
+                      <label htmlFor="existing-run">Existing run</label>
+                      <select
+                        id="existing-run"
+                        value={selectedRun}
+                        onChange={(e) => setSelectedRun(e.target.value)}
+                      >
+                        <option value="">Choose a run</option>
+                        {runs.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            {r.title || r.intent}{r.revision_number ? ` · Revision ${r.revision_number}` : ''}{r.created_at ? ` · ${new Date(r.created_at).toLocaleDateString()}` : ''} · {r.status.replaceAll('_', ' ')}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <button
+                      className="secondary"
+                      disabled={!selectedRun}
+                      onClick={() =>
+                        void act(async () => {
+                          if (!mayLeaveDraft()) return;
+                          clearRevision();
+                          setSelectedSources([]);
+                          const saved = await api<Schema["Run"]>(
+                            `${base}/runs/${selectedRun}`,
+                          );
+                          setRun(saved);
+                          setSelectedSources(
+                            await Promise.all(saved.source_ids.map(id =>
+                              api<Schema["Source"]>(`${base}/sources/${id}`)
+                            )),
+                          );
+                          if (saved.revision_id)
+                            await loadRevision(saved.revision_id);
+                        })
+                      }
+                    >
+                      Open run
+                    </button>
+                  </fieldset>
+                )}
+                {project && <details className="new-feature" open={!run}>
+                  <summary>Start a new feature</summary>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -314,55 +385,13 @@ export default function App() {
                     </button>
                   </fieldset>
                 </form>
-                {project && (
-                  <fieldset disabled={disabled}>
-                    <legend>Resume saved work</legend>
-                    <div>
-                      <label htmlFor="existing-run">Existing run</label>
-                      <select
-                        id="existing-run"
-                        value={selectedRun}
-                        onChange={(e) => setSelectedRun(e.target.value)}
-                      >
-                        <option value="">Choose a run</option>
-                        {runs.map((r) => (
-                          <option key={r.id} value={r.id}>
-                            {r.id.slice(0, 8)} · {r.stage} · {r.status}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <button
-                      className="secondary"
-                      disabled={!selectedRun}
-                      onClick={() =>
-                        void act(async () => {
-                          clearRevision();
-                          setSelectedSources([]);
-                          const saved = await api<Schema["Run"]>(
-                            `${base}/runs/${selectedRun}`,
-                          );
-                          setRun(saved);
-                          setSelectedSources(
-                            await Promise.all(saved.source_ids.map(id =>
-                              api<Schema["Source"]>(`${base}/sources/${id}`)
-                            )),
-                          );
-                          if (saved.revision_id)
-                            await loadRevision(saved.revision_id);
-                        })
-                      }
-                    >
-                      Open run
-                    </button>
-                  </fieldset>
-                )}
+                </details>}
               </aside>
               <div className="review-column">
                 {project && <KnowledgePanel key={project} token={token} project={project} disabled={disabled} onSelect={source => { if (source.project_id === projectRef.current) setContextSources(current => current.some(s => s.id === source.id) ? current : [...current, source]); }} />}
-                <section className="panel">
+                <section className="panel" aria-labelledby="draft-heading">
                   <p className="step">02 / INSPECT & REFINE</p>
-                  <h2>Draft review</h2>
+                  <h2 id="draft-heading" tabIndex={-1}>Draft review</h2>
                   {!run ? (
                     <div className="empty">
                       <span aria-hidden="true">↗</span>
@@ -375,12 +404,12 @@ export default function App() {
                   ) : (
                     <>
                       <p>
-                        Current stage: <strong>{run.stage}</strong> ·{" "}
+                        Current stage: <strong>{run.stage.replaceAll("_", " ")}</strong> ·{" "}
                         {run.status} · Attempts: {run.attempts}
                       </p>
                       <ol aria-label="Stage history" className="history">
                         {(run.history ?? []).map((stage, i) => (
-                          <li key={`${stage}-${i}`}>{stage}</li>
+                          <li key={`${stage}-${i}`}>{stage.replaceAll("_", " ")}</li>
                         ))}
                       </ol>
                       <details className="source-evidence">
@@ -449,38 +478,28 @@ export default function App() {
                           </p>
                         )}
                       </section>
-                      <form
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          void act(async () => {
-                            const saved = await api<Schema["Revision"]>(
-                              `${base}/revisions/${revision.id}/edits`,
-                              { expected_digest: revision.digest, artifact },
-                            );
-                            clearRevision();
-                            setRevision(saved);
-                            setArtifact(saved.artifact);
-                            setNotice(
-                              "New revision saved. Review and approve it again.",
-                            );
-                          });
+                      <ArtifactWorkspace
+                        key={run!.id}
+                        revision={revision}
+                        value={artifact}
+                        disabled={disabled}
+                        dirty={dirty}
+                        onChange={value => {
+                          setArtifact(value);
+                          setDirty(JSON.stringify(value) !== JSON.stringify(revision.artifact));
                         }}
-                      >
-                        <ArtifactEditor
-                          value={artifact}
-                          disabled={disabled}
-                          onChange={(value) => {
-                            setArtifact(value);
-                            setDirty(true);
-                            setCandidate(undefined);
-                            setReviewed(false);
-                            setReviewStatus("");
-                          }}
-                        />
-                        <button type="submit" disabled={disabled || !dirty}>
-                          Save revision
-                        </button>
-                      </form>
+                        onSave={() => void act(async () => {
+                          const saved = await api<Schema["Revision"]>(
+                            `${base}/revisions/${revision.id}/edits`,
+                            { expected_digest: revision.digest, artifact },
+                          );
+                          clearRevision();
+                          setRevision(saved);
+                          setArtifact(saved.artifact);
+                          setRuns(await api<Schema["RunSummary"][]>(`${base}/runs`));
+                          setNotice('New revision saved. Review and approve it again.');
+                        })}
+                      />
                       <details>
                         <summary>Revision provenance</summary>
                         <dl>
@@ -497,9 +516,10 @@ export default function App() {
                     </>
                   )}
                 </section>
-                <section className="panel">
+                {revision && <section className="panel" aria-labelledby="package-heading">
                   <p className="step">03 / REVIEW & PACKAGE</p>
-                  <h2>A deliberate handoff</h2>
+                  <h2 id="package-heading" tabIndex={-1}>A deliberate handoff</h2>
+                  {dirty && <p className="unsaved-notice">Review and package controls are unavailable until you save or discard your unsaved draft edits.</p>}
                   <p>
                     Record your review, inspect the exact package, then approve
                     its digest.
@@ -627,7 +647,7 @@ export default function App() {
                       Download package
                     </button>
                   </div>
-                </section>
+                </section>}
               </div>
             </div>
           </>

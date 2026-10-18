@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, useRef } from "react";
 import type { components } from "./api/schema";
 type Artifact = components["schemas"]["Artifact"];
 type EvidenceKind = components["schemas"]["Statement"]["kind"];
@@ -30,10 +30,11 @@ export function ArtifactEditor({
   disabled,
 }: {
   value: Artifact;
-  onChange: (value: Artifact) => void;
+  onChange: (value: Artifact, removal?: boolean) => void;
   disabled: boolean;
 }) {
   const editorId = useId();
+  const root = useRef<HTMLDivElement>(null);
   const field = (
     label: string,
     text: string,
@@ -86,14 +87,18 @@ export function ArtifactEditor({
     );
   };
   return (
-    <div className="artifact">
+    <div className="artifact" ref={root}>
+      <nav className="actions" aria-label="Edit sections">
+        <button type="button" className="secondary" onClick={() => root.current?.querySelectorAll('details.editor-section').forEach(item => { (item as HTMLDetailsElement).open = true; })}>Expand all sections</button>
+        <button type="button" className="secondary" onClick={() => root.current?.querySelectorAll('details.editor-section').forEach(item => { (item as HTMLDetailsElement).open = false; })}>Collapse all sections</button>
+      </nav>
       {field("Title", value.title, (title) => onChange({ ...value, title }))}
       {field("Purpose", value.purpose, (purpose) =>
         onChange({ ...value, purpose }),
       )}
       {sections.map((section) => (
-        <section key={section}>
-          <h3>{section.replaceAll("_", " ")}</h3>
+        <details key={section} className="editor-section">
+          <summary>{section.replaceAll("_", " ")} ({value[section].length})</summary>
           {value[section].length === 0 && (
             <p className="muted">None supplied.</p>
           )}
@@ -121,10 +126,10 @@ export function ArtifactEditor({
               </p>
             </div>
           ))}
-        </section>
+        </details>
       ))}
-      <section>
-        <h3>Requirements</h3>
+      <details className="editor-section">
+        <summary>Requirements ({value.requirements.length})</summary>
         {value.requirements.map((item, i) => (
           <div key={item.id}>
             <p>
@@ -153,9 +158,9 @@ export function ArtifactEditor({
             </p>
           </div>
         ))}
-      </section>
-      <section>
-        <h3>User stories & acceptance criteria</h3>
+      </details>
+      <details className="editor-section">
+        <summary>User stories &amp; acceptance criteria ({value.stories.length})</summary>
         {value.stories.map((item, i) => (
           <div key={item.id}>
             <p>
@@ -214,7 +219,7 @@ export function ArtifactEditor({
                         ),
                       } : s,
                     ),
-                  })}
+                  }, true)}
                 >
                   Remove acceptance criterion {i + 1}.{k + 1}
                 </button>
@@ -237,9 +242,9 @@ export function ArtifactEditor({
             </button>
           </div>
         ))}
-      </section>
-      <section>
-        <h3>Open questions</h3>
+      </details>
+      <details className="editor-section">
+        <summary>Open questions ({value.open_questions.length})</summary>
         {value.open_questions.length === 0 && (
           <p className="muted">None supplied.</p>
         )}
@@ -259,7 +264,7 @@ export function ArtifactEditor({
               onClick={() => onChange({
                 ...value,
                 open_questions: value.open_questions.filter((_, j) => j !== i),
-              })}
+              }, true)}
             >
               Remove open question {i + 1}
             </button>
@@ -275,7 +280,7 @@ export function ArtifactEditor({
         >
           Add open question
         </button>
-      </section>
+      </details>
     </div>
   );
 }

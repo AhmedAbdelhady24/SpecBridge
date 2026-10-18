@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { api, authHeaders, signInLocal } from './helpers';
+import { api, authHeaders, editDraft, signInLocal } from './helpers';
 
 test('knowledge persists, versions remain visible and selected context is immutable', async ({ page, request }) => {
   await page.setViewportSize({ width: 360, height: 900 });
@@ -33,6 +33,7 @@ test('knowledge persists, versions remain visible and selected context is immuta
   await page.getByRole('button', { name: 'Generate draft', exact: true }).click();
   const run = await (await runResponse).json();
   expect(run.source_ids).toHaveLength(2);
+  await editDraft(page);
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(/DEMO fixture/);
   const sources = await Promise.all(run.source_ids.map(async (id: string) => (await request.get(`${api}/projects/${project.id}/sources/${id}`, { headers: authHeaders() })).json()));
   expect(sources.some(s => s.kind === 'assumption' && s.knowledge_ref.endsWith('@2'))).toBeTruthy();
@@ -98,6 +99,7 @@ test('a delayed context selection cannot cross into another project', async ({ p
   const sent = page.waitForRequest(r => r.url().endsWith(`/projects/${second.id}/runs`) && r.method() === 'POST');
   await page.getByRole('button', { name: 'Generate draft', exact: true }).click();
   expect((await sent).postDataJSON().source_ids).toHaveLength(1);
+  await editDraft(page);
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(/DEMO fixture/);
 });
 

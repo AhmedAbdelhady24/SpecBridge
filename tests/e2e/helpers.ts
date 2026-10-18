@@ -16,6 +16,12 @@ export async function signInLocal(page: Page) {
   await expect(page.getByLabel('Project name', { exact: true })).toBeVisible();
 }
 
+export async function editDraft(page: Page) {
+  const edit = page.getByRole('button', { name: 'Edit draft', exact: true });
+  if (await edit.getAttribute('aria-pressed') !== 'true') await edit.click();
+  await page.getByRole('button', { name: 'Expand all sections', exact: true }).click();
+}
+
 export async function createFeatureDraft(page: Page, idea = 'Allow a customer to export their saved report.') {
   await page.getByLabel('Project name', { exact: true }).fill(`Browser handoff ${Date.now()}`);
   const projectResponse = page.waitForResponse(r => r.url().endsWith('/api/projects') && r.request().method() === 'POST');
@@ -26,6 +32,7 @@ export async function createFeatureDraft(page: Page, idea = 'Allow a customer to
   const runResponse = page.waitForResponse(r => r.url().endsWith(`/projects/${project.id}/runs`) && r.request().method() === 'POST');
   await page.getByRole('button', { name: 'Generate draft', exact: true }).click();
   const run = await (await runResponse).json();
+  await editDraft(page);
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(/DEMO fixture/);
   return { projectId: project.id as string, runId: run.id as string };
 }
