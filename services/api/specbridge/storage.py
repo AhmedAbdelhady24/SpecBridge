@@ -5,6 +5,7 @@ from copy import deepcopy
 from pathlib import Path
 from uuid import uuid4
 
+from .migrations import LINEAGE_TABLES, migrate_lineage, require_tables
 from .models import (
     Artifact,
     Finding,
@@ -30,10 +31,12 @@ class Store:
         path.parent.mkdir(parents=True, exist_ok=True)
         with self.transaction() as db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version not in (0, 1, 2):
+            if version not in (0, 1, 2, 3):
                 raise ValueError(
                     "Unsupported database schema; database was not changed"
                 )
+            if version == 3:
+                require_tables(db, LINEAGE_TABLES)
             db.execute(
                 "CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, name TEXT NOT NULL)"
             )
@@ -67,7 +70,8 @@ class Store:
             db.execute(
                 "CREATE INDEX IF NOT EXISTS knowledge_project ON knowledge(project_id,id,version)"
             )
-            db.execute("PRAGMA user_version=2")
+            if version < 3:
+                migrate_lineage(db)
 
     @contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:
