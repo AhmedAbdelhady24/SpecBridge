@@ -49,4 +49,5 @@ jobs:
       - run: npm audit --audit-level=high
       - run: npm --prefix apps/web audit --audit-level=high
       - run: npm --prefix packages/docs-template audit --audit-level=moderate
+      - run: npm --prefix docs/media audit --audit-level=high
       - run: git show --format= --check HEAD

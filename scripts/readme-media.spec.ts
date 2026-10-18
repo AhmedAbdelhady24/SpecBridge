@@ -5,7 +5,7 @@ import { mkdirSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { createServer } from 'node:net';
 import { resolve } from 'node:path';
-import { preparePackage, signInLocal } from '../tests/e2e/helpers';
+import { editDraft, preparePackage, signInLocal } from '../tests/e2e/helpers';
 
 const root = resolve(__dirname, '..');
 const output = resolve(root, 'docs/media');
@@ -27,13 +27,16 @@ test('capture an isolated fixture handoff and its independently built documentat
   await page.evaluate(() => scrollTo(0, 0));
   await page.screenshot({ path: resolve(output, 'intake.png'), animations: 'disabled' });
   await page.getByRole('button', { name: 'Generate draft', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Edit draft', exact: true })).toBeVisible();
+  await page.getByRole('heading', { name: 'Draft review', exact: true }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: resolve(output, 'review.png'), animations: 'disabled' });
+  await editDraft(page);
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(/DEMO fixture/);
   await expect(page.getByRole('button', { name: 'Download package', exact: true })).toBeDisabled();
   const requirementLabel = await page.getByText('Requirement ID:', { exact: false }).first().textContent();
   const requirementId = requirementLabel?.match(/REQ-[a-z0-9-]+/i)?.[0];
   expect(requirementId).toBeTruthy();
-  await page.getByRole('heading', { name: 'Draft review', exact: true }).scrollIntoViewIfNeeded();
-  await page.screenshot({ path: resolve(output, 'review.png'), animations: 'disabled' });
+  await page.getByRole('button', { name: 'Read draft', exact: true }).click();
   await page.getByLabel('Review notes', { exact: true }).fill(
     'Demo review only: fixture assertions remain proposals. Resolve ownership, permissions and size limits before implementation.',
   );

@@ -1,6 +1,6 @@
 # Engineering plans
 
-Substantial changes have one self-contained plan in `docs/plans/`. The current execution record is the [fresh post-audit paid retest](../plans/2026-10-18-post-audit-live-retest.md), following the [Ponytail audit and repairs](../plans/2026-10-18-ponytail-audit.md). [Milestone2](../plans/2026-10-17-milestone-2.md) and the [first-slice implementation plan](../plans/2026-10-15-first-slice-implementation.md) preserve earlier execution; the [roadmap](../plans/bootstrap-and-first-slice.md) tracks milestone status. The first-slice design and implementation plan were approved on 2026-10-15. Earlier qualification notes below are chronological history, superseded by the latest checkpoint.
+Substantial changes have one self-contained plan in `docs/plans/`. The current execution record is the [approved review-workspace UX repairs](../plans/2026-10-18-review-workspace-ux.md), following [README media](../plans/2026-10-18-readme-media.md), the [fresh post-audit paid retest](../plans/2026-10-18-post-audit-live-retest.md) and [Ponytail audit and repairs](../plans/2026-10-18-ponytail-audit.md). [Milestone2](../plans/2026-10-17-milestone-2.md) and the [first-slice implementation plan](../plans/2026-10-15-first-slice-implementation.md) preserve earlier execution; the [roadmap](../plans/bootstrap-and-first-slice.md) tracks milestone status. The first-slice design and implementation plan were approved on 2026-10-15. Earlier qualification notes below are chronological history, superseded by the latest checkpoint.
 
 Each plan records:
 

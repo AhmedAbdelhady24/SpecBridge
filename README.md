@@ -48,7 +48,7 @@ flowchart LR
 
 ### Inspect the draft
 
-![Draft review showing unresolved questions, revision identity and the editable demo artifact](docs/media/review.png)
+![Readable draft review showing unresolved questions, revision identity and explicit read/edit controls](docs/media/review.png)
 
 ### Review the exact package
 
@@ -110,7 +110,7 @@ Fixture mode needs no model credentials and makes no model calls. Its output is 
 
 1. Create or select a project. Add knowledge records and select any context to include.
 2. Enter a feature idea, acknowledge the displayed generation destination, and generate a draft.
-3. Inspect source evidence, requirements, story links, acceptance criteria, findings, and open questions. Save corrections as a new revision.
+3. Read the draft and inspect its evidence, requirements, story links, acceptance criteria and questions. Select **Edit draft** to make corrections; the persistent **Save revision / Discard changes** bar keeps actions reachable. Saving requires fresh review.
 4. Record human review, prepare the package, inspect its manifest and digest, and approve that exact package.
 5. Download and extract the documentation ZIP into a new directory.
 
