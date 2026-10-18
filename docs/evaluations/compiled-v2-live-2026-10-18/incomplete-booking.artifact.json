@@ -1,0 +1,56 @@
+{
+  "title": "Visitor Workshop Reservation",
+  "purpose": "Proposed handoff assembled from source-linked outcomes; human source review and approval required.",
+  "scope": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    }
+  ],
+  "stories": [
+    {
+      "text": "Let visitors reserve a place in a workshop.",
+      "source_ids": [
+        "booking-note"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "A visitor can indicate a workshop and submit a reservation request.",
+        "The workshop's list of reserved places includes the requesting visitor after submission."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [],
+  "success_metrics": [],
+  "open_questions": [
+    "Should reservations require payment?",
+    "Should reservations require an account?",
+    "Should reservations have a capacity limit?",
+    "Should reservations support cancellation?",
+    "How does a visitor submit a reservation request for a workshop, and what inputs identify the visitor and workshop?",
+    "How does the system respond to indicate whether the reservation was accepted, and how are rejected or error results interpreted?",
+    "Which user or UI behaviors apply to the reservation submission under the selected interface contract?",
+    "Who owns the visitor workshop reservation feature?",
+    "What is the release date for the visitor workshop reservation feature?"
+  ]
+}

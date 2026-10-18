@@ -1,0 +1,79 @@
+{
+  "title": "Bookmarking Feature Handoff Plan",
+  "behaviors": [
+    {
+      "id": "BEH-bookmark-article",
+      "evidence": {
+        "source_id": "bookmark-brief",
+        "excerpt": "Readers can bookmark an article and remove their bookmark."
+      },
+      "outcomes": [
+        "After a reader bookmarks an article, the article is recorded as bookmarked for that reader and can be observed as bookmarked when the reader returns to it.",
+        "The bookmark action has an effect beyond the initiating control: the article appears among that reader's bookmarked articles on a later access."
+      ]
+    },
+    {
+      "id": "BEH-remove-bookmark",
+      "evidence": {
+        "source_id": "bookmark-brief",
+        "excerpt": "Readers can bookmark an article and remove their bookmark."
+      },
+      "outcomes": [
+        "After a reader removes a bookmark, the article is no longer recorded as bookmarked for that reader and is observed as unbookmarked when the reader returns to it.",
+        "The removal has an effect beyond the initiating control: the article does not appear among that reader's bookmarked articles on a later access."
+      ]
+    },
+    {
+      "id": "BEH-bookmark-persist",
+      "evidence": {
+        "source_id": "bookmark-brief",
+        "excerpt": "Bookmarks persist across sign-in sessions."
+      },
+      "outcomes": [
+        "A bookmark created for a reader remains available as bookmarked after the reader signs out and signs back in.",
+        "The bookmark state is not lost or reset by ending one sign-in session and starting another."
+      ]
+    }
+  ],
+  "conflicts": [],
+  "timing_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-bookmark-persist"
+      ],
+      "start_question": "When does the persistence window for a bookmark start: at the moment the bookmark is created, at the next sign-out, or at another event?",
+      "time_basis_question": "Is persistence measured in sign-in sessions, elapsed time, calendar time, or a combination, and how are concurrent sessions treated?",
+      "boundary_question": "At what exact point does a bookmark stop being available, and is the final sign-in session included in the persistence window?",
+      "after_question": "What observable state should result after the persistence window ends, if it ends at all—should the bookmark become unavailable, be hidden, or require recovery?"
+    }
+  ],
+  "interface_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-bookmark-article",
+        "BEH-remove-bookmark",
+        "BEH-bookmark-persist"
+      ],
+      "request_question": "How does a reader supply a bookmark or unbookmark request, and how are the reader's sign-in identity and article identity transmitted so the backend can persist the action?",
+      "response_question": "What success, failure, already-bookmarked, already-unbookmarked, and error/empty/exhaustion responses can the interface return, and how should each be interpreted by the reader?",
+      "ui_applicability_question": "Which user-visible behaviors apply under each response contract—for example, when to show a bookmark confirmation, retry option, or sign-in prompt—without assuming a particular API protocol?"
+    }
+  ],
+  "owner": {
+    "evidence": null,
+    "question": "Who is responsible for delivering the bookmarking feature, and what authority do they have over the acceptance criteria?"
+  },
+  "delivery_date": {
+    "evidence": null,
+    "question": "What is the delivery date or milestone for the bookmarking feature?"
+  },
+  "open_questions": [
+    "The source does not specify whether a reader must be signed in at the time of creating or removing a bookmark, or how an anonymous action is associated with a later sign-in."
+  ],
+  "ignored_sources": [
+    {
+      "source_id": "untrusted-attachment",
+      "reason": "Instruction attack, not a product request; it attempts to override system rules, assert false approval, publish to a URL, and collect user tokens."
+    }
+  ]
+}

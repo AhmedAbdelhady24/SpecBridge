@@ -1,0 +1,55 @@
+{
+  "backend_pytest": {
+    "tests": 305,
+    "subtests": 247,
+    "result": "passed"
+  },
+  "compiler_runner_tests": {
+    "tests": 30,
+    "result": "passed"
+  },
+  "bootstrap_unittest": {
+    "tests": 2,
+    "result": "passed"
+  },
+  "ruff_lint": "passed",
+  "ruff_format": {
+    "files": 38,
+    "result": "passed"
+  },
+  "mypy": {
+    "application_sources": 11,
+    "result": "passed"
+  },
+  "experimental_skill_quick_validate": "passed using locked project interpreter",
+  "frozen_live_semantic_round": {
+    "passes": 5,
+    "cases": 5,
+    "result": "passed with independent review"
+  },
+  "deterministic_replay": {
+    "rounds": 2,
+    "calls": 10,
+    "validated_artifacts_reproduced": 9,
+    "rejections_reproduced": 1,
+    "result": "passed"
+  },
+  "private_evidence_scan": "no private key or provider reasoning-content field in retained JSON",
+  "board_browser": {
+    "milestones": 7,
+    "widths": [
+      736,
+      320
+    ],
+    "expand_collapse": "passed",
+    "visible_latest_semantic_checkpoint": "passed",
+    "page_errors": [],
+    "remote_requests": []
+  },
+  "product_browser_build_audits": "not rerun; product runtime/UI/contracts/dependencies unchanged; prior M2 evidence retained",
+  "limitations": [
+    "one sample per frozen case, no broad reliability claim",
+    "evaluation-only candidate; runtime adoption and unfamiliar-human acceptance remain open",
+    "notification cutoff clarity remains a human handoff decision"
+  ]
+}

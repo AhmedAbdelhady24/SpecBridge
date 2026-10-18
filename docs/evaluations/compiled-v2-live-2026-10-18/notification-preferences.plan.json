@@ -1,0 +1,104 @@
+{
+  "title": "Weekly email digest notification preference",
+  "behaviors": [
+    {
+      "id": "BEH-weekly-digest-toggle",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "Members can switch weekly email digests on or off in notification settings."
+      },
+      "outcomes": [
+        "When a member switches weekly email digests on in notification settings, the member is included in the next weekly email digest.",
+        "When a member switches weekly email digests off in notification settings, the member is excluded from the next weekly email digest."
+      ]
+    },
+    {
+      "id": "BEH-persistence",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "The setting must persist after sign-out and sign-in."
+      },
+      "outcomes": [
+        "After a member switches weekly email digests on, signs out, and signs back in, the member is included in the next weekly email digest without switching it on again.",
+        "After a member switches weekly email digests off, signs out, and signs back in, the member is excluded from the next weekly email digest without switching it off again."
+      ]
+    },
+    {
+      "id": "BEH-security-unaffected",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "Switching digests off does not disable account-security messages."
+      },
+      "outcomes": [
+        "When a member has weekly email digests switched off, an account-security message is still delivered to the member."
+      ]
+    },
+    {
+      "id": "BEH-new-member-default",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "A newly created member starts with weekly digests off."
+      },
+      "outcomes": [
+        "When a new member account is created, the member is excluded from weekly email digests until the member switches weekly email digests on."
+      ]
+    }
+  ],
+  "conflicts": [],
+  "timing_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-weekly-digest-toggle",
+        "BEH-new-member-default"
+      ],
+      "start_question": "What event starts the weekly email digest period for a member whose weekly digests are on?",
+      "time_basis_question": "What is the basis for measuring 'weekly' for the email digest, such as calendar week, elapsed seven days, or member time zone?",
+      "boundary_question": "Which exact moment determines whether a member's current weekly digest setting is included in a particular weekly digest send?",
+      "after_question": "What happens after a weekly digest period ends or when the setting changes during a period?"
+    }
+  ],
+  "interface_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-weekly-digest-toggle"
+      ],
+      "request_question": "How does a member's on/off choice from notification settings get submitted to the system?",
+      "response_question": "How does the system indicate whether the weekly digest preference change succeeded or failed?",
+      "ui_applicability_question": "Which member types and notification settings states see the weekly digest on/off control?"
+    },
+    {
+      "behavior_ids": [
+        "BEH-persistence"
+      ],
+      "request_question": "How does the sign-out/sign-in flow read the existing weekly digest preference?",
+      "response_question": "How does the system report the persisted weekly digest preference back to the signed-in member?",
+      "ui_applicability_question": "Which sign-out and sign-in surfaces must reflect the persisted setting?"
+    },
+    {
+      "behavior_ids": [
+        "BEH-security-unaffected"
+      ],
+      "request_question": "How are account-security messages triggered and addressed when weekly digests are off?",
+      "response_question": "How is delivery of an account-security message confirmed independent of the weekly digest preference?",
+      "ui_applicability_question": "Which account-security message types are covered by the statement that they remain enabled?"
+    },
+    {
+      "behavior_ids": [
+        "BEH-new-member-default"
+      ],
+      "request_question": "How is the weekly digest preference initialized during new member creation?",
+      "response_question": "How does the system expose the initial off state to the new member or to the downstream digest send?",
+      "ui_applicability_question": "Which new member creation flows must start with weekly digests off?"
+    }
+  ],
+  "owner": {
+    "evidence": null,
+    "question": "Who is the owner of the weekly email digest notification preference?"
+  },
+  "delivery_date": {
+    "evidence": null,
+    "question": "What is the delivery date for the weekly email digest notification preference?"
+  },
+  "open_questions": [],
+  "ignored_sources": []
+}

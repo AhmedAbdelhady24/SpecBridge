@@ -1,0 +1,93 @@
+{
+  "preview_sha256": "aace7d6e533e4d9435a470718ffa27c0c0c5357b8b7660bb0b78ab5ae2207efb",
+  "maximum_calls": 5,
+  "retries": 0,
+  "results": [
+    {
+      "request_sha256": "358ddf9838bfeefff7790b46f3664a0f5588a0209e63cb9225cdb0ff312b9908",
+      "status": "validated",
+      "rejected_content_file": null,
+      "content_retention": "validated JSON retained as ledger or artifact; not approved",
+      "response_sha256": "0bf734efa5db97f0647f4732b32b36f5e732be044fd455795d9554c7ab98c9e8",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 87.05,
+      "usage": {
+        "prompt_tokens": 2786,
+        "completion_tokens": 9503,
+        "total_tokens": 12289
+      },
+      "case": "notification-preferences",
+      "compiled_artifact_sha256": "43db301da4886321362cd648672f652821e55f1bb687133f41a90fcda41a7bb7"
+    },
+    {
+      "request_sha256": "0400da27c31e856ddb44dd216d37738690051324b29830cc2ee4868a934cb2c8",
+      "status": "validated",
+      "rejected_content_file": null,
+      "content_retention": "validated JSON retained as ledger or artifact; not approved",
+      "response_sha256": "ea065246cdc5103650f0ecfb1869d5f9e61b457a7a9640aa3f1ed41b4ac089dd",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 43.51,
+      "usage": {
+        "prompt_tokens": 2766,
+        "completion_tokens": 4325,
+        "total_tokens": 7091
+      },
+      "case": "incomplete-booking",
+      "compiled_artifact_sha256": "2d858ec4e2db824dec32e2fe141d2e9c37d186755e90313f249762402ac95734"
+    },
+    {
+      "request_sha256": "b72e3732cbfba599c9b78eea6f6d3677a10b48c56bcf6b20da9d666e9813c468",
+      "status": "validated",
+      "rejected_content_file": null,
+      "content_retention": "validated JSON retained as ledger or artifact; not approved",
+      "response_sha256": "98e342ab15c2ae95731b1abdc4f9dcb9a8536191718237b0c1235d94eab5b773",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 69.71,
+      "usage": {
+        "prompt_tokens": 2793,
+        "completion_tokens": 7143,
+        "total_tokens": 9936
+      },
+      "case": "contradictory-deletion",
+      "compiled_artifact_sha256": "0e746af79e89a2c8d02c47d64bfdfa8b17e6b9ba283e3b1ee390c3a497fbc435"
+    },
+    {
+      "request_sha256": "0384f3565cdb46837fed28ffdb554bc8526a21efcef6dcc4817662292e22ce91",
+      "status": "validated",
+      "rejected_content_file": null,
+      "content_retention": "validated JSON retained as ledger or artifact; not approved",
+      "response_sha256": "e5f1114626a484eefb1044b20c3cc036d9a290c169214fc09852a757cf8c8faa",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 82.64,
+      "usage": {
+        "prompt_tokens": 2819,
+        "completion_tokens": 8537,
+        "total_tokens": 11356
+      },
+      "case": "conflicting-api",
+      "compiled_artifact_sha256": "dd0d4ba03561dd5de4654c18c73463931cd939494be814d5ea6fbc2ab6da4f5f"
+    },
+    {
+      "request_sha256": "25584744f738540abfef1850063a1ca9a4eacffebe95294fc7ad1102a35e1593",
+      "status": "validated",
+      "rejected_content_file": null,
+      "content_retention": "validated JSON retained as ledger or artifact; not approved",
+      "response_sha256": "9791d3cf7c68135b148e4bb79e64cb376f33078cb989975f5177213ac73d5a19",
+      "attempts": 1,
+      "http_status": 200,
+      "duration_seconds": 42.83,
+      "usage": {
+        "prompt_tokens": 2836,
+        "completion_tokens": 4149,
+        "total_tokens": 6985
+      },
+      "case": "embedded-instruction",
+      "compiled_artifact_sha256": "87cfdebe7556741c7b6ee00be9812e7b8225cff45a36a751b9a4efe4ef0ac11b"
+    }
+  ],
+  "semantic_review": "pending; compiled is not approved"
+}

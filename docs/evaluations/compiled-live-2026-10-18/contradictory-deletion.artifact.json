@@ -1,0 +1,97 @@
+{
+  "title": "Uploaded Image Delete and Recovery Handoff Plan",
+  "purpose": "Proposed handoff assembled from source-linked outcomes; human source review and approval required.",
+  "scope": [
+    {
+      "text": "Privacy stakeholder requests immediate permanent deletion of an uploaded image when its owner selects Delete.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Support stakeholder requests that the same deleted image remain recoverable by its owner for 30 days after Delete.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Privacy stakeholder requests immediate permanent deletion of an uploaded image when its owner selects Delete.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "Support stakeholder requests that the same deleted image remain recoverable by its owner for 30 days after Delete.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    }
+  ],
+  "stories": [
+    {
+      "text": "Only if an authorized human selects alternative BEH-PRIVACY-IMMEDIATE-DELETE in unresolved decision DEC-PRIVACY-SUPPORT-DELETE: Privacy stakeholder requests immediate permanent deletion of an uploaded image when its owner selects Delete.",
+      "source_ids": [
+        "privacy-request"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Only if an authorized human selects alternative BEH-PRIVACY-IMMEDIATE-DELETE in unresolved decision DEC-PRIVACY-SUPPORT-DELETE: When an uploaded image's owner selects Delete, the image is immediately and permanently removed such that no copy remains available to the owner or to any other user through any interface.",
+        "Only if an authorized human selects alternative BEH-PRIVACY-IMMEDIATE-DELETE in unresolved decision DEC-PRIVACY-SUPPORT-DELETE: Any attempt by the owner to view, retrieve, or recover the image after the deletion has been initiated returns an error or not-found result and includes no image content.",
+        "Only if an authorized human selects alternative BEH-PRIVACY-IMMEDIATE-DELETE in unresolved decision DEC-PRIVACY-SUPPORT-DELETE: After immediate permanent deletion completes, there is no recoverability window and no action by the owner or any other actor can restore the image."
+      ]
+    },
+    {
+      "text": "Only if an authorized human selects alternative BEH-SUPPORT-30DAY-RECOVER in unresolved decision DEC-PRIVACY-SUPPORT-DELETE: Support stakeholder requests that the same deleted image remain recoverable by its owner for 30 days after Delete.",
+      "source_ids": [
+        "support-request"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Only if an authorized human selects alternative BEH-SUPPORT-30DAY-RECOVER in unresolved decision DEC-PRIVACY-SUPPORT-DELETE: When an uploaded image's owner selects Delete, the image enters a deleted state that remains recoverable by that owner for 30 days after Delete.",
+        "Only if an authorized human selects alternative BEH-SUPPORT-30DAY-RECOVER in unresolved decision DEC-PRIVACY-SUPPORT-DELETE: During the 30-day recoverability period, the owner can invoke a recovery action and, on successful recovery, the image becomes accessible again as the same uploaded image.",
+        "Only if an authorized human selects alternative BEH-SUPPORT-30DAY-RECOVER in unresolved decision DEC-PRIVACY-SUPPORT-DELETE: If the owner does not recover the image before the end of the 30-day period, the image is no longer recoverable by the owner.",
+        "Only if an authorized human selects alternative BEH-SUPPORT-30DAY-RECOVER in unresolved decision DEC-PRIVACY-SUPPORT-DELETE: Recovery is available only to the owner of the deleted image; non-owner users cannot recover or view the image through the recovery interface."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [],
+  "success_metrics": [],
+  "open_questions": [
+    "Under the support alternative, is a recovered image restored with its original metadata, permissions, and upload timestamp, or are defaults reapplied?",
+    "Does the privacy stakeholder's request require deletion of all derived copies, thumbnails, backups, and logs that contain the image?",
+    "When an uploaded image's owner selects Delete, which requested behavior should apply: immediate permanent deletion with no recoverability, or owner recoverability for 30 days after Delete?",
+    "Which stakeholder or role has authority to choose between the privacy stakeholder's immediate permanent deletion request and the support stakeholder's 30-day recoverability request?",
+    "What event starts the immediate permanent deletion: the owner's selection of Delete, the deletion request reaching the service, or the service's completion of authorization checks?",
+    "What observable timing standard defines 'immediate': is there an allowable maximum elapsed time from the start event to deletion completion, or must there be no intentional delay?",
+    "Is there an exact endpoint by which deletion must be complete after the start event, and is that endpoint inclusive or exclusive when judging whether deletion was immediate?",
+    "After immediate permanent deletion completes, what response must be returned to the owner, and what must subsequent retrieval attempts through any interface return?",
+    "What event starts the 30-day recoverability period: the owner's selection of Delete, the deletion request reaching the system, the system's confirmation of deletion, or another observable event?",
+    "Is the 30-day period measured in 24-hour elapsed periods, calendar days, or another calendar/time-zone basis, and whose time zone applies if calendar days are used?",
+    "When exactly does recoverability end: after 30 complete elapsed days from the start event, at the start of the 30th calendar day after the start event, at the same local time 30 days later, or at another defined endpoint?",
+    "After the recoverability window ends according to the selected boundary, what should happen to the deleted image, and what response should an owner's recovery attempt return?",
+    "For the owner's Delete action and any recovery action, what interface supplies the request: a UI control, an HTTP API, or another channel, and what parameters identify the uploaded image and the owner?",
+    "What interface responses distinguish successful deletion, successful recovery, already-permanently-deleted images, already-recovered images, and recovery attempts outside the 30-day window, and what error or exhaustion semantics apply when repeated attempts are made?",
+    "Which user/UI behaviors should be presented under each alternative contract: should the UI expose a recovery action only in the 30-day recoverability alternative, and what should the UI show for the deleted image under immediate permanent deletion versus recoverability?",
+    "Who is the owner accountable for resolving the conflict between the privacy and support requests and approving this handoff plan, since the input does not state an owner?",
+    "What is the delivery date or date by which the selected deletion/recovery behavior must be implemented, since the input does not state a delivery date?"
+  ]
+}

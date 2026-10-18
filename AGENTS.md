@@ -10,7 +10,7 @@ Purpose: turn product ideas and project evidence into validated requirements, re
 
 - Technical first slice implemented: local FastAPI/SQLite workflow, React review UI and standalone Starlight export. Fixture/browser verification is separate from pending semantic, live-provider and unfamiliar-human acceptance. See `docs/evaluations/first-slice-results.md` for current evidence and limits.
 - `services/api/specbridge/`: backend security, contracts, persistence, knowledge, skills, providers, workflow and publication.
-- Milestone2 knowledge/versioning/context and backup recovery are implemented; see `docs/evaluations/milestone-2.md`. M1 live-semantic/unfamiliar-human gates remain open; do not infer acceptance from component checks.
+- Milestone2 knowledge/versioning/context and backup recovery are implemented; see `docs/evaluations/milestone-2.md`. The evaluation-only typed-plan0.2 candidate passed5/5 frozen live semantic cases; see `docs/evaluations/compiled-handoff.md`. Runtime adoption and unfamiliar-human acceptance remain open; do not infer M1 completion or broader reliability from that round.
 - `apps/web/`: React/Vite UI and generated OpenAPI types; `packages/contracts/openapi.json` is generated from the backend.
 - `packages/docs-template/`: fixed independently runnable documentation template.
 - `skills/runtime/feature-handoff/`: original data-only runtime guidance and hashed provenance.

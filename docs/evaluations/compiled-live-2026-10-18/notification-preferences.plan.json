@@ -1,0 +1,89 @@
+{
+  "title": "Weekly Email Digest Notification Settings",
+  "behaviors": [
+    {
+      "id": "BEH-weekly-digest-toggle",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "Members can switch weekly email digests on or off in notification settings."
+      },
+      "outcomes": [
+        "A member can change the weekly email digest setting between on and off in notification settings.",
+        "When the setting is changed to on, the member begins receiving weekly email digest emails according to the weekly schedule.",
+        "When the setting is changed to off, the member stops receiving weekly email digest emails after the change.",
+        "Changing this setting does not affect delivery of account-security messages (see BEH-security-messages-unaffected)."
+      ]
+    },
+    {
+      "id": "BEH-digest-persist",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "The setting must persist after sign-out and sign-in."
+      },
+      "outcomes": [
+        "After a member sets weekly email digests to a chosen state, signs out, and signs back in, the notification settings display that same state.",
+        "The persisted state controls email delivery after sign-in: if on, the member receives weekly digests; if off, the member does not receive weekly digests.",
+        "The setting is not reset to a default or previous value by sign-out/sign-in."
+      ]
+    },
+    {
+      "id": "BEH-security-messages-unaffected",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "Switching digests off does not disable account-security messages."
+      },
+      "outcomes": [
+        "When weekly email digests are switched off, account-security messages are still delivered.",
+        "The weekly email digest off state does not alter the delivery or frequency of account-security messages.",
+        "Account-security messages continue according to their own existing triggers/settings regardless of the weekly digest setting."
+      ]
+    },
+    {
+      "id": "BEH-new-member-default-off",
+      "evidence": {
+        "source_id": "preferences-brief",
+        "excerpt": "A newly created member starts with weekly digests off."
+      },
+      "outcomes": [
+        "A newly created member has the weekly email digest setting set to off automatically.",
+        "The new member does not receive weekly email digest emails until they manually switch the setting to on.",
+        "The default off state is visible in notification settings on the member's first access."
+      ]
+    }
+  ],
+  "conflicts": [],
+  "timing_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-weekly-digest-toggle"
+      ],
+      "start_question": "When a member switches weekly email digests on, what event starts the weekly schedule (e.g., immediately after the switch, the next calendar week, the next configured send time)?",
+      "time_basis_question": "Is the weekly interval based on calendar weeks, seven elapsed days, or a configured schedule, and in which time zone?",
+      "boundary_question": "On what exact day and time is a weekly digest sent each week, and is that send time included in the current cycle?",
+      "after_question": "If a member switches weekly email digests off mid-cycle or before the next scheduled send, what happens to any digest that was already queued or scheduled?"
+    }
+  ],
+  "interface_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-weekly-digest-toggle",
+        "BEH-digest-persist"
+      ],
+      "request_question": "How does the member supply the weekly email digest on/off choice in notification settings (e.g., a toggle, radio buttons, an API call), and what exact values represent on and off?",
+      "response_question": "How is the result of the change communicated (e.g., success confirmation, saved state, error message), and what happens if the update fails or the setting cannot be saved?",
+      "ui_applicability_question": "Which signed-in member roles or account states see and can modify the weekly email digest control, and what does the control show when the setting is off versus on?"
+    }
+  ],
+  "owner": {
+    "evidence": null,
+    "question": "Who owns the decisions and acceptance for these weekly email digest behaviors?"
+  },
+  "delivery_date": {
+    "evidence": null,
+    "question": "What is the delivery date or release target for these weekly email digest behaviors?"
+  },
+  "open_questions": [
+    "What specific message types count as account-security messages for the BEH-security-messages-unaffected behavior?"
+  ],
+  "ignored_sources": []
+}

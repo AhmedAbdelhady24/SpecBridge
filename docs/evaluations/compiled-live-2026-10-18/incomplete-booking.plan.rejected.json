@@ -1,0 +1,50 @@
+{
+  "title": "Workshop Reservation Capability",
+  "behaviors": [
+    {
+      "id": "BEH-booking-note-reserve",
+      "evidence": {
+        "source_id": "booking-note",
+        "excerpt": "Let visitors reserve a place in a workshop."
+      },
+      "outcomes": [
+        "A visitor can submit a reservation for one place in a specified workshop.",
+        "A successful reservation creates a persistent record that associates the visitor with the workshop.",
+        "The reservation is observable through subsequent reservation-related views or queries available to the visitor."
+      ]
+    }
+  ],
+  "conflicts": [],
+  "timing_reviews": [],
+  "interface_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-booking-note-reserve"
+      ],
+      "request_question": "What request mechanics should the reservation capability expose: which inputs must a visitor provide (e.g., workshop identifier, visitor identity, number of places), and how are they submitted?",
+      "response_question": "What response should the system return after a reservation attempt, including success, failure, and exhaustion/error semantics when payment, account, capacity limit, or cancellation constraints are later introduced?",
+      "ui_applicability_question": "Which user or UI behaviors apply to visitors under each alternative contract (e.g., anonymous visitors, account-holders, paid reservations)?"
+    }
+  ],
+  "owner": {
+    "evidence": {
+      "source_id": "booking-note",
+      "excerpt": "No owner or release date is assigned."
+    },
+    "question": "Who is the owner responsible for the workshop reservation capability?"
+  },
+  "delivery_date": {
+    "evidence": {
+      "source_id": "booking-note",
+      "excerpt": "No owner or release date is assigned."
+    },
+    "question": "What is the release date for the workshop reservation capability?"
+  },
+  "open_questions": [
+    "Does a reservation require payment?",
+    "Does a reservation require an account?",
+    "Is there a capacity limit for reservations?",
+    "Can a reservation be cancelled?"
+  ],
+  "ignored_sources": []
+}

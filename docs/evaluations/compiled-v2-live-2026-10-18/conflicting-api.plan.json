@@ -1,0 +1,88 @@
+{
+  "title": "Catalog API pagination contract selection and next-page UI behavior",
+  "behaviors": [
+    {
+      "id": "BEH-CATALOG-DRAFT-A-API",
+      "evidence": {
+        "source_id": "api-spec-a",
+        "excerpt": "GET /v1/items returns a JSON object with an items array and next_cursor string."
+      },
+      "outcomes": [
+        "The response body for GET /v1/items is a JSON object with an `items` property whose value is an array and a `next_cursor` property whose value is a string."
+      ]
+    },
+    {
+      "id": "BEH-CATALOG-DRAFT-A-UI-NEXT",
+      "evidence": {
+        "source_id": "api-spec-a",
+        "excerpt": "UI must support moving to the next page."
+      },
+      "outcomes": [
+        "The UI provides an action that moves the user from the current catalog page to the next catalog page; after that action, the UI displays the items from the next page."
+      ]
+    },
+    {
+      "id": "BEH-CATALOG-DRAFT-B-API",
+      "evidence": {
+        "source_id": "api-spec-b",
+        "excerpt": "GET /v1/items returns a top-level JSON array and uses page and page_size query parameters."
+      },
+      "outcomes": [
+        "A GET /v1/items request uses `page` and `page_size` as query parameters.",
+        "The response body for GET /v1/items is a top-level JSON array."
+      ]
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "DEC-CATALOG-API-CONTRACT",
+      "alternatives": [
+        {
+          "id": "ALT-CATALOG-DRAFT-A",
+          "behavior_ids": [
+            "BEH-CATALOG-DRAFT-A-API",
+            "BEH-CATALOG-DRAFT-A-UI-NEXT"
+          ]
+        },
+        {
+          "id": "ALT-CATALOG-DRAFT-B",
+          "behavior_ids": [
+            "BEH-CATALOG-DRAFT-B-API"
+          ]
+        }
+      ],
+      "question": "Which catalog API contract should govern GET /v1/items: draft A's JSON object with `items` array and `next_cursor` string, or draft B's top-level JSON array with `page` and `page_size` query parameters?",
+      "authority_question": "Who has the authority to select the authoritative catalog API contract when neither draft is approved?"
+    }
+  ],
+  "timing_reviews": [],
+  "interface_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-CATALOG-DRAFT-A-API",
+        "BEH-CATALOG-DRAFT-A-UI-NEXT"
+      ],
+      "request_question": "Under draft A, after GET /v1/items returns a `next_cursor`, how must the next-page request supply that cursor back to GET /v1/items?",
+      "response_question": "Under draft A, how should clients interpret the response when `next_cursor` is an empty string, absent, or null, and what indicates there is no next page?",
+      "ui_applicability_question": "Under draft A, which user action or actions must trigger next-page movement, and what UI state must be observable before and after the items list updates?"
+    },
+    {
+      "behavior_ids": [
+        "BEH-CATALOG-DRAFT-B-API"
+      ],
+      "request_question": "Under draft B, how must `page` and `page_size` query parameters be supplied, validated, and bounded for GET /v1/items?",
+      "response_question": "Under draft B, how should clients interpret a top-level JSON array response to determine pagination exhaustion or error when `page` and `page_size` are supplied?",
+      "ui_applicability_question": "Under draft B, which user actions or UI behaviors, if any, apply when the API returns a top-level JSON array?"
+    }
+  ],
+  "owner": {
+    "evidence": null,
+    "question": "Who owns the catalog API contract decision?"
+  },
+  "delivery_date": {
+    "evidence": null,
+    "question": "What is the delivery date for the selected catalog API contract and its dependent UI next-page support?"
+  },
+  "open_questions": [],
+  "ignored_sources": []
+}

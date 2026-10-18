@@ -1,0 +1,152 @@
+{
+  "title": "Weekly Email Digest Notification Settings",
+  "purpose": "Proposed handoff assembled from source-linked outcomes; human source review and approval required.",
+  "scope": [
+    {
+      "text": "Members can switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "The setting must persist after sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Switching digests off does not disable account-security messages.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "A newly created member starts with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Members can switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "The setting must persist after sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "Switching digests off does not disable account-security messages.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    },
+    {
+      "text": "A newly created member starts with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-4"
+    }
+  ],
+  "stories": [
+    {
+      "text": "Members can switch weekly email digests on or off in notification settings.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "A member can change the weekly email digest setting between on and off in notification settings.",
+        "When the setting is changed to on, the member begins receiving weekly email digest emails according to the weekly schedule.",
+        "When the setting is changed to off, the member stops receiving weekly email digest emails after the change.",
+        "Changing this setting does not affect delivery of account-security messages (see BEH-security-messages-unaffected)."
+      ]
+    },
+    {
+      "text": "The setting must persist after sign-out and sign-in.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "After a member sets weekly email digests to a chosen state, signs out, and signs back in, the notification settings display that same state.",
+        "The persisted state controls email delivery after sign-in: if on, the member receives weekly digests; if off, the member does not receive weekly digests.",
+        "The setting is not reset to a default or previous value by sign-out/sign-in."
+      ]
+    },
+    {
+      "text": "Switching digests off does not disable account-security messages.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-3",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "When weekly email digests are switched off, account-security messages are still delivered.",
+        "The weekly email digest off state does not alter the delivery or frequency of account-security messages.",
+        "Account-security messages continue according to their own existing triggers/settings regardless of the weekly digest setting."
+      ]
+    },
+    {
+      "text": "A newly created member starts with weekly digests off.",
+      "source_ids": [
+        "preferences-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-4",
+      "requirement_ids": [
+        "REQ-4"
+      ],
+      "acceptance_criteria": [
+        "A newly created member has the weekly email digest setting set to off automatically.",
+        "The new member does not receive weekly email digest emails until they manually switch the setting to on.",
+        "The default off state is visible in notification settings on the member's first access."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [],
+  "success_metrics": [],
+  "open_questions": [
+    "What specific message types count as account-security messages for the BEH-security-messages-unaffected behavior?",
+    "When a member switches weekly email digests on, what event starts the weekly schedule (e.g., immediately after the switch, the next calendar week, the next configured send time)?",
+    "Is the weekly interval based on calendar weeks, seven elapsed days, or a configured schedule, and in which time zone?",
+    "On what exact day and time is a weekly digest sent each week, and is that send time included in the current cycle?",
+    "If a member switches weekly email digests off mid-cycle or before the next scheduled send, what happens to any digest that was already queued or scheduled?",
+    "How does the member supply the weekly email digest on/off choice in notification settings (e.g., a toggle, radio buttons, an API call), and what exact values represent on and off?",
+    "How is the result of the change communicated (e.g., success confirmation, saved state, error message), and what happens if the update fails or the setting cannot be saved?",
+    "Which signed-in member roles or account states see and can modify the weekly email digest control, and what does the control show when the setting is off versus on?",
+    "Who owns the decisions and acceptance for these weekly email digest behaviors?",
+    "What is the delivery date or release target for these weekly email digest behaviors?"
+  ]
+}

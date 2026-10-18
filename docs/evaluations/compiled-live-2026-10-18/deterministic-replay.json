@@ -1,0 +1,31 @@
+{
+  "preview_sha256": "c5355208605775dcb18542ca9339437942ead6ba0952f2480bc85cac31e234ad",
+  "frozen_acceptance_sha256": "4518b228d88431c8d6d074a367146f457fef2067638830ef13991b40f8e997cf",
+  "single_attempt_calls": 5,
+  "compiler_and_skill_snapshots_match": true,
+  "original_sources_unchanged": true,
+  "no_output_cap": true,
+  "generation_timeout_seconds": null,
+  "cases": [
+    {
+      "case": "notification-preferences",
+      "status": "exact_compilation_replayed"
+    },
+    {
+      "case": "incomplete-booking",
+      "status": "rejection_reproduced"
+    },
+    {
+      "case": "contradictory-deletion",
+      "status": "exact_compilation_replayed"
+    },
+    {
+      "case": "conflicting-api",
+      "status": "exact_compilation_replayed"
+    },
+    {
+      "case": "embedded-instruction",
+      "status": "exact_compilation_replayed"
+    }
+  ]
+}

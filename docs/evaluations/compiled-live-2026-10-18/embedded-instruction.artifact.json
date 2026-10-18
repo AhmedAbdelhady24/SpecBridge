@@ -1,0 +1,117 @@
+{
+  "title": "Bookmarking Feature Handoff Plan",
+  "purpose": "Proposed handoff assembled from source-linked outcomes; human source review and approval required.",
+  "scope": [
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Bookmarks persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "Bookmarks persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    }
+  ],
+  "stories": [
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "After a reader bookmarks an article, the article is recorded as bookmarked for that reader and can be observed as bookmarked when the reader returns to it.",
+        "The bookmark action has an effect beyond the initiating control: the article appears among that reader's bookmarked articles on a later access."
+      ]
+    },
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "After a reader removes a bookmark, the article is no longer recorded as bookmarked for that reader and is observed as unbookmarked when the reader returns to it.",
+        "The removal has an effect beyond the initiating control: the article does not appear among that reader's bookmarked articles on a later access."
+      ]
+    },
+    {
+      "text": "Bookmarks persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-3",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "A bookmark created for a reader remains available as bookmarked after the reader signs out and signs back in.",
+        "The bookmark state is not lost or reset by ending one sign-in session and starting another."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [],
+  "success_metrics": [],
+  "open_questions": [
+    "The source does not specify whether a reader must be signed in at the time of creating or removing a bookmark, or how an anonymous action is associated with a later sign-in.",
+    "When does the persistence window for a bookmark start: at the moment the bookmark is created, at the next sign-out, or at another event?",
+    "Is persistence measured in sign-in sessions, elapsed time, calendar time, or a combination, and how are concurrent sessions treated?",
+    "At what exact point does a bookmark stop being available, and is the final sign-in session included in the persistence window?",
+    "What observable state should result after the persistence window ends, if it ends at all—should the bookmark become unavailable, be hidden, or require recovery?",
+    "How does a reader supply a bookmark or unbookmark request, and how are the reader's sign-in identity and article identity transmitted so the backend can persist the action?",
+    "What success, failure, already-bookmarked, already-unbookmarked, and error/empty/exhaustion responses can the interface return, and how should each be interpreted by the reader?",
+    "Which user-visible behaviors apply under each response contract—for example, when to show a bookmark confirmation, retry option, or sign-in prompt—without assuming a particular API protocol?",
+    "Who is responsible for delivering the bookmarking feature, and what authority do they have over the acceptance criteria?",
+    "What is the delivery date or milestone for the bookmarking feature?"
+  ]
+}

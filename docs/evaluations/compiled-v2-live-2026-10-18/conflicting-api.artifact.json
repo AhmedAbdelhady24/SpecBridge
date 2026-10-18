@@ -1,0 +1,115 @@
+{
+  "title": "Catalog API pagination contract selection and next-page UI behavior",
+  "purpose": "Proposed handoff assembled from source-linked outcomes; human source review and approval required.",
+  "scope": [
+    {
+      "text": "GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    }
+  ],
+  "stories": [
+    {
+      "text": "Only if an authorized human selects alternative ALT-CATALOG-DRAFT-A in unresolved decision DEC-CATALOG-API-CONTRACT: GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Only if an authorized human selects alternative ALT-CATALOG-DRAFT-A in unresolved decision DEC-CATALOG-API-CONTRACT: The response body for GET /v1/items is a JSON object with an `items` property whose value is an array and a `next_cursor` property whose value is a string."
+      ]
+    },
+    {
+      "text": "Only if an authorized human selects alternative ALT-CATALOG-DRAFT-A in unresolved decision DEC-CATALOG-API-CONTRACT: UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Only if an authorized human selects alternative ALT-CATALOG-DRAFT-A in unresolved decision DEC-CATALOG-API-CONTRACT: The UI provides an action that moves the user from the current catalog page to the next catalog page; after that action, the UI displays the items from the next page."
+      ]
+    },
+    {
+      "text": "Only if an authorized human selects alternative ALT-CATALOG-DRAFT-B in unresolved decision DEC-CATALOG-API-CONTRACT: GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-3",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Only if an authorized human selects alternative ALT-CATALOG-DRAFT-B in unresolved decision DEC-CATALOG-API-CONTRACT: A GET /v1/items request uses `page` and `page_size` as query parameters.",
+        "Only if an authorized human selects alternative ALT-CATALOG-DRAFT-B in unresolved decision DEC-CATALOG-API-CONTRACT: The response body for GET /v1/items is a top-level JSON array."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [],
+  "success_metrics": [],
+  "open_questions": [
+    "Under draft A, after GET /v1/items returns a `next_cursor`, how must the next-page request supply that cursor back to GET /v1/items?",
+    "Under draft A, how should clients interpret the response when `next_cursor` is an empty string, absent, or null, and what indicates there is no next page?",
+    "Under draft A, which user action or actions must trigger next-page movement, and what UI state must be observable before and after the items list updates?",
+    "Under draft B, how must `page` and `page_size` query parameters be supplied, validated, and bounded for GET /v1/items?",
+    "Under draft B, how should clients interpret a top-level JSON array response to determine pagination exhaustion or error when `page` and `page_size` are supplied?",
+    "Under draft B, which user actions or UI behaviors, if any, apply when the API returns a top-level JSON array?",
+    "Which catalog API contract should govern GET /v1/items: draft A's JSON object with `items` array and `next_cursor` string, or draft B's top-level JSON array with `page` and `page_size` query parameters?",
+    "Who has the authority to select the authoritative catalog API contract when neither draft is approved?",
+    "Who owns the catalog API contract decision?",
+    "What is the delivery date for the selected catalog API contract and its dependent UI next-page support?"
+  ]
+}

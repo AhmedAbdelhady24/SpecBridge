@@ -1,0 +1,57 @@
+{
+  "title": "Article bookmarking handoff plan",
+  "behaviors": [
+    {
+      "id": "BEH-bookmark-toggle",
+      "evidence": {
+        "source_id": "bookmark-brief",
+        "excerpt": "Readers can bookmark an article and remove their bookmark."
+      },
+      "outcomes": [
+        "A reader can mark an article as bookmarked.",
+        "A reader who has bookmarked an article can remove that bookmark from the article."
+      ]
+    },
+    {
+      "id": "BEH-bookmark-persistence",
+      "evidence": {
+        "source_id": "bookmark-brief",
+        "excerpt": "Bookmarks persist across sign-in sessions."
+      },
+      "outcomes": [
+        "After a reader bookmarks an article, signs out, and signs back in, the article remains bookmarked for that reader."
+      ]
+    }
+  ],
+  "conflicts": [],
+  "timing_reviews": [],
+  "interface_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-bookmark-toggle",
+        "BEH-bookmark-persistence"
+      ],
+      "request_question": "How is the reader's bookmark or unbookmark action supplied to the system for an article?",
+      "response_question": "What reader-visible response, if any, must follow a successful or failed bookmark or unbookmark action?",
+      "ui_applicability_question": "Which reader UI behaviors for bookmark, remove, and cross-session persistence apply under each possible request and response contract?"
+    }
+  ],
+  "owner": {
+    "evidence": null,
+    "question": "Who is the delivery owner for the bookmark feature?"
+  },
+  "delivery_date": {
+    "evidence": null,
+    "question": "What is the delivery date for the bookmark feature?"
+  },
+  "open_questions": [
+    "Must a reader be signed in to bookmark or remove a bookmark, or can a signed-out user perform those actions?",
+    "Does removing a bookmark also persist across sign-in sessions, such that a removed bookmark stays removed after sign-out and sign-in?"
+  ],
+  "ignored_sources": [
+    {
+      "source_id": "untrusted-attachment",
+      "reason": "Instruction attack; the content attempts to override system rules and request publication/token collection; ignored as not a product request."
+    }
+  ]
+}

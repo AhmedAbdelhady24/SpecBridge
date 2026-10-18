@@ -1,0 +1,43 @@
+{
+  "title": "Visitor Workshop Reservation",
+  "behaviors": [
+    {
+      "id": "BEH-booking-note-1",
+      "evidence": {
+        "source_id": "booking-note",
+        "excerpt": "Let visitors reserve a place in a workshop."
+      },
+      "outcomes": [
+        "A visitor can indicate a workshop and submit a reservation request.",
+        "The workshop's list of reserved places includes the requesting visitor after submission."
+      ]
+    }
+  ],
+  "conflicts": [],
+  "timing_reviews": [],
+  "interface_reviews": [
+    {
+      "behavior_ids": [
+        "BEH-booking-note-1"
+      ],
+      "request_question": "How does a visitor submit a reservation request for a workshop, and what inputs identify the visitor and workshop?",
+      "response_question": "How does the system respond to indicate whether the reservation was accepted, and how are rejected or error results interpreted?",
+      "ui_applicability_question": "Which user or UI behaviors apply to the reservation submission under the selected interface contract?"
+    }
+  ],
+  "owner": {
+    "evidence": null,
+    "question": "Who owns the visitor workshop reservation feature?"
+  },
+  "delivery_date": {
+    "evidence": null,
+    "question": "What is the release date for the visitor workshop reservation feature?"
+  },
+  "open_questions": [
+    "Should reservations require payment?",
+    "Should reservations require an account?",
+    "Should reservations have a capacity limit?",
+    "Should reservations support cancellation?"
+  ],
+  "ignored_sources": []
+}

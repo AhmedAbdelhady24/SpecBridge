@@ -1,0 +1,118 @@
+{
+  "title": "Catalog API Pagination Contract Handoff Plan",
+  "purpose": "Proposed handoff assembled from source-linked outcomes; human source review and approval required.",
+  "scope": [
+    {
+      "text": "GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    },
+    {
+      "text": "GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-3"
+    }
+  ],
+  "stories": [
+    {
+      "text": "Only if an authorized human selects alternative BEH-api-a-response-shape in unresolved decision DEC-catalog-api-pagination: GET /v1/items returns a JSON object with an items array and next_cursor string.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Only if an authorized human selects alternative BEH-api-a-response-shape in unresolved decision DEC-catalog-api-pagination: When GET /v1/items is called under Draft A, the HTTP response body is a single JSON object, not a top-level array.",
+        "Only if an authorized human selects alternative BEH-api-a-response-shape in unresolved decision DEC-catalog-api-pagination: The JSON object contains an items array field.",
+        "Only if an authorized human selects alternative BEH-api-a-response-shape in unresolved decision DEC-catalog-api-pagination: The JSON object contains a next_cursor string field whose value may be used to request a subsequent page.",
+        "Only if an authorized human selects alternative BEH-api-a-response-shape in unresolved decision DEC-catalog-api-pagination: Draft A does not define page or page_size query parameters for pagination."
+      ]
+    },
+    {
+      "text": "UI must support moving to the next page.",
+      "source_ids": [
+        "api-spec-a"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Under the Draft A contract, the UI exposes an observable next-page action that transitions the user to the next set of items using the supplied next_cursor value."
+      ]
+    },
+    {
+      "text": "Only if an authorized human selects alternative BEH-api-b-response-shape in unresolved decision DEC-catalog-api-pagination: GET /v1/items returns a top-level JSON array and uses page and page_size query parameters.",
+      "source_ids": [
+        "api-spec-b"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-3",
+      "requirement_ids": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Only if an authorized human selects alternative BEH-api-b-response-shape in unresolved decision DEC-catalog-api-pagination: When GET /v1/items is called under Draft B, the HTTP response body is a top-level JSON array, not an object with an items field.",
+        "Only if an authorized human selects alternative BEH-api-b-response-shape in unresolved decision DEC-catalog-api-pagination: Pagination is requested using page and page_size query parameters; the response does not include a next_cursor string."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [],
+  "success_metrics": [],
+  "open_questions": [
+    "Which GET /v1/items pagination contract should apply: Draft A, which returns a JSON object with an items array and next_cursor string, or Draft B, which returns a top-level JSON array using page and page_size query parameters?",
+    "Who has authority to select the authoritative Catalog API contract, given api-spec-b states 'Neither draft is approved; the authoritative contract has not been selected'?",
+    "For the Draft A contract, how does a client supply the next_cursor value on a subsequent GET /v1/items request (for example, query parameter, header, or request body), and what request format is used for the first page when no cursor exists?",
+    "For the Draft A contract, what is the exact meaning of an empty, null, or absent next_cursor, and what response or error semantics indicate that no further pages are available?",
+    "Does BEH-api-a-ui-next-page apply only when the Draft A cursor contract is selected? If Draft B is selected, what UI pagination behavior is expected, given api-spec-b does not define a UI next-page requirement?",
+    "For the Draft B contract, how are page and page_size query parameters supplied, including their names, whether they are required or optional, and any default or maximum values?",
+    "For the Draft B contract, how should the client interpret an empty top-level JSON array or an out-of-range page value, and what exhaustion or error semantics must be handled?",
+    "Which user/UI behavior should apply under Draft B's page/page_size contract, given the source specifies only the API and not a UI pagination behavior? Is BEH-api-a-ui-next-page also required under Draft B, or is a different UI required?",
+    "Who owns or approves the Catalog API pagination contract and the UI pagination behavior delivery?",
+    "What is the delivery date or milestone for the selected Catalog API pagination contract and UI pagination behavior?"
+  ]
+}

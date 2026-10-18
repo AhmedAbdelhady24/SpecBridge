@@ -1,0 +1,83 @@
+{
+  "title": "Article bookmarking handoff plan",
+  "purpose": "Proposed handoff assembled from source-linked outcomes; human source review and approval required.",
+  "scope": [
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided"
+    },
+    {
+      "text": "Bookmarks persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided"
+    }
+  ],
+  "non_goals": [],
+  "requirements": [
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-1"
+    },
+    {
+      "text": "Bookmarks persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "user_provided",
+      "id": "REQ-2"
+    }
+  ],
+  "stories": [
+    {
+      "text": "Readers can bookmark an article and remove their bookmark.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-1",
+      "requirement_ids": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "A reader can mark an article as bookmarked.",
+        "A reader who has bookmarked an article can remove that bookmark from the article."
+      ]
+    },
+    {
+      "text": "Bookmarks persist across sign-in sessions.",
+      "source_ids": [
+        "bookmark-brief"
+      ],
+      "kind": "recommendation",
+      "id": "STORY-2",
+      "requirement_ids": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "After a reader bookmarks an article, signs out, and signs back in, the article remains bookmarked for that reader."
+      ]
+    }
+  ],
+  "edge_cases": [],
+  "dependencies": [],
+  "risks": [],
+  "success_metrics": [],
+  "open_questions": [
+    "Must a reader be signed in to bookmark or remove a bookmark, or can a signed-out user perform those actions?",
+    "Does removing a bookmark also persist across sign-in sessions, such that a removed bookmark stays removed after sign-out and sign-in?",
+    "How is the reader's bookmark or unbookmark action supplied to the system for an article?",
+    "What reader-visible response, if any, must follow a successful or failed bookmark or unbookmark action?",
+    "Which reader UI behaviors for bookmark, remove, and cross-session persistence apply under each possible request and response contract?",
+    "Who is the delivery owner for the bookmark feature?",
+    "What is the delivery date for the bookmark feature?"
+  ]
+}
