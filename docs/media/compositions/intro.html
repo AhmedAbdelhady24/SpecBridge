@@ -1,0 +1,17 @@
+<template>
+<style>#intro-root {position:absolute;inset:0;width:100%;height:100%;}</style>
+<div data-hf-id="hf-25ar" id="intro-root" data-composition-id="intro" data-width="1440" data-height="1000" data-duration="3">
+    <div data-hf-id="hf-2qlc" class="scene hero">
+      <p data-hf-id="hf-lbch" class="eyebrow">SPECBRIDGE / LOCAL PRODUCT WALKTHROUGH</p>
+      <h1 data-hf-id="hf-umrb">Make the next step clear.</h1>
+      <p data-hf-id="hf-wq61">From an idea to a reviewed engineering handoff, with evidence and human approval attached.</p>
+      <div data-hf-id="hf-70xd" class="steps"><div data-hf-id="hf-e1y3" class="step"><b data-hf-id="hf-8scw">01 / CONTEXT</b>Start with evidence</div><div data-hf-id="hf-zahm" class="step"><b data-hf-id="hf-uwxu">02 / REVIEW</b>Inspect the draft</div><div data-hf-id="hf-c50j" class="step"><b data-hf-id="hf-lge7">03 / HANDOFF</b>Approve exact files</div></div>
+      <p data-hf-id="hf-kgfb" class="note">Actual Playwright captures · synthetic fixture data · no live-model quality claim</p>
+    </div>
+</div>
+<script>
+const tl = gsap.timeline({paused:true});
+tl.fromTo('#intro-root .scene', {opacity:0,y:12}, {opacity:1,y:0,duration:0.35,ease:'power2.out'}, 0);
+window.__timelines['intro'] = tl;
+</script>
+</template>

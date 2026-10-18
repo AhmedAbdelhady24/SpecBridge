@@ -1,0 +1,13 @@
+{
+  "name": "specbridge-readme-media",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "HYPERFRAMES_NO_TELEMETRY=1 hyperframes check . --strict",
+    "render": "HYPERFRAMES_NO_TELEMETRY=1 hyperframes render . --fps 24 --quality delivery --output specbridge-demo.mp4"
+  },
+  "devDependencies": {
+    "gsap": "3.15.0",
+    "hyperframes": "0.8.171"
+  }
+}

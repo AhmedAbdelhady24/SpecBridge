@@ -21,3 +21,6 @@ exports/
 *.db
 *.pem
 *.key
+
+# Local Hyperframes editing/render state; source and final media are tracked.
+.hyperframes/

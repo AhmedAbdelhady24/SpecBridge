@@ -6,6 +6,12 @@ SpecBridge turns feature ideas and selected project evidence into persisted PRDs
 
 The current release is a **local, single-owner MVP** with a React review workspace, a FastAPI/SQLite backend, and standalone Astro Starlight exports. Milestones 0 and 2 are delivered locally. Runtime integration of the qualified generation candidate and an unfamiliar-engineer handoff remain before full Milestone 1 acceptance. See the [phase status](docs/plans/roadmap-status-2026-10-16.md).
 
+## Demo
+
+[![SpecBridge demo: intake, draft review, exact-package approval and independently built documentation](docs/media/specbridge-demo.gif)](docs/media/specbridge-demo.mp4)
+
+[Watch or download the 30-second MP4](docs/media/specbridge-demo.mp4). Captured with Playwright and composed with Hyperframes using synthetic fixture data. This is a captioned walkthrough of the local MVP, not a live-model quality demonstration. For static views, see the screenshots below; [reproduction instructions](scripts/readme-media/README.md) include the editable video source.
+
 ## Workflow overview
 
 ```mermaid
@@ -18,7 +24,10 @@ flowchart LR
 
 ## Contents
 
+- [Demo](#demo)
 - [Workflow overview](#workflow-overview)
+- [Screenshots](#screenshots)
+- [Architecture](#architecture)
 - [Components](#components)
 - [Install](#install)
 - [Create a handoff](#create-a-handoff)
@@ -30,6 +39,32 @@ flowchart LR
 - [Contributing](#contributing)
 - [License](#license)
 - [Limitations](#limitations)
+
+## Screenshots
+
+### Start with an idea
+
+![SpecBridge feature intake with a synthetic CSV export brief and the demo-provider notice](docs/media/intake.png)
+
+### Inspect the draft
+
+![Draft review showing unresolved questions, revision identity and the editable demo artifact](docs/media/review.png)
+
+### Review the exact package
+
+![Recorded demo review with the exact package digest and file manifest](docs/media/approval.png)
+
+### Open the independent documentation
+
+![Built Starlight export showing a requirement and its linked story](docs/media/documentation.png)
+
+These are actual fixture captures. Product assertions remain proposals; demo approval is for this synthetic local package only.
+
+## Architecture
+
+![Current architecture: React calls a single FastAPI backend owning workflow, SQLite, data-only runtime skills and exact-package approval; the optional model API receives selected evidence, and approved Starlight exports run independently](docs/media/architecture.svg)
+
+The dashed box marks local application state. A configured hosted provider receives selected evidence; the exported website runs independently. GitHub/Jira writes and multi-user hosting remain future work. See the [architecture details](docs/architecture/first-slice.md).
 
 ## Components
 

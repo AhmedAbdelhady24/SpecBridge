@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SpecBridge · from idea to reviewed handoff</title>
+<script src="node_modules/gsap/dist/gsap.min.js"></script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#f5f5ee;font-family:sans-serif;color:#1d302f}
+#film{position:relative;width:100%;height:100%;overflow:hidden;background:#f5f5ee}
+.clip{position:absolute;inset:0}.scene{position:absolute;inset:0;padding:52px 64px}
+.eyebrow{font-size:17px;letter-spacing:3px;color:#477763;font-weight:700;margin:0 0 16px}
+h1{font-size:76px;line-height:1.1;letter-spacing:-3px;margin:0 0 30px;max-width:1200px}
+h2{font-size:42px;line-height:1.15;letter-spacing:-1px;margin:0 0 14px}
+p{font-size:23px;line-height:1.4;margin:0;max-width:1220px}
+.shot{position:absolute;left:64px;right:64px;top:200px;bottom:66px;display:flex;align-items:center;justify-content:center;background:#e8ede4;border:1px solid #c0cdc2;border-radius:14px;overflow:hidden}
+.shot img{display:block;width:100%;height:100%;object-fit:contain}
+.footer{position:absolute;bottom:22px;left:64px;right:64px;display:flex;justify-content:space-between;font-size:15px;color:#536661;letter-spacing:1px}
+.hero{padding-top:160px}.hero p{font-size:29px;max-width:1050px}.steps{display:flex;gap:16px;margin-top:74px}.step{flex:1;padding:28px 22px;border:1px solid #a8bcb0;border-radius:12px;background:#fffef8;font-size:24px;line-height:1.5}.step b{display:block;color:#477763;font-size:17px;margin-bottom:12px}.note{margin-top:42px!important;font-size:21px!important;color:#536661}
+</style>
+</head>
+<body>
+<div data-hf-id="hf-7cz2" id="film" data-composition-id="specbridge" data-width="1440" data-height="1000" data-duration="30" data-fps="24">
+  <div data-hf-id="hf-ledq" id="intro" class="clip" data-composition-id="intro" data-composition-src="compositions/intro.html" data-start="0" data-duration="3" data-track-index="0" data-width="1440" data-height="1000"></div>
+  <div data-hf-id="hf-wn2j" id="intake" class="clip" data-composition-id="intake" data-composition-src="compositions/intake.html" data-start="3" data-duration="5" data-track-index="0" data-width="1440" data-height="1000"></div>
+  <div data-hf-id="hf-ij7j" id="review" class="clip" data-composition-id="review" data-composition-src="compositions/review.html" data-start="8" data-duration="6" data-track-index="0" data-width="1440" data-height="1000"></div>
+  <div data-hf-id="hf-wxx7" id="approval" class="clip" data-composition-id="approval" data-composition-src="compositions/approval.html" data-start="14" data-duration="5" data-track-index="0" data-width="1440" data-height="1000"></div>
+  <div data-hf-id="hf-ew4v" id="docs" class="clip" data-composition-id="docs" data-composition-src="compositions/docs.html" data-start="19" data-duration="6" data-track-index="0" data-width="1440" data-height="1000"></div>
+  <div data-hf-id="hf-5cnn" id="architecture" class="clip" data-composition-id="architecture" data-composition-src="compositions/architecture.html" data-start="25" data-duration="5" data-track-index="0" data-width="1440" data-height="1000"></div>
+  <div data-hf-id="hf-yh7l" class="footer"><span data-hf-id="hf-tm80">SPECBRIDGE · LOCAL MVP</span><span data-hf-id="hf-1ozq">DEMO FIXTURE · SYNTHETIC DATA · HUMAN REVIEW REQUIRED</span></div>
+</div>
+<script>
+window.__timelines = window.__timelines || {};
+window.__timelines.specbridge = gsap.timeline({paused:true});
+</script>
+</body>
+</html>

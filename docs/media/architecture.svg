@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+<title id="title">SpecBridge current architecture</title>
+<desc id="desc">A local React workspace calls one FastAPI backend. The backend owns workflow, validation, SQLite persistence, data-only runtime skills and exact-package human approval. An optional configured model receives selected evidence. Approved packages become independently runnable Starlight websites. External GitHub and Jira writes remain future work.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10" fill="none" stroke="#477763" stroke-width="1.5"/></marker></defs>
+<rect width="1440" height="900" rx="20" fill="#f5f5ee"/>
+<g font-family="sans-serif" fill="#1d302f">
+<text x="64" y="64" font-size="16" letter-spacing="3" fill="#477763">SPECBRIDGE / CURRENT LOCAL MVP</text>
+<text x="64" y="120" font-size="40" font-weight="700">One backend. Explicit human authority.</text>
+<text x="64" y="158" font-size="21" fill="#536661">Selected evidence in → reviewed, independently runnable documentation out</text>
+<rect x="48" y="200" width="970" height="570" rx="20" fill="#e8ede4" stroke="#a8bcb0" stroke-dasharray="8 6"/>
+<text x="76" y="236" font-size="16" letter-spacing="2">LOCAL MACHINE · SINGLE OWNER · LOOPBACK + SESSION TOKEN</text>
+<rect x="76" y="270" width="270" height="154" rx="12" fill="#fffef8" stroke="#c0cdc2"/>
+<text x="100" y="312" font-size="24" font-weight="700">React workspace</text>
+<text x="100" y="350" font-size="18">Intake · evidence · revisions</text>
+<text x="100" y="380" font-size="18">Human review + approval</text>
+<rect x="432" y="270" width="554" height="230" rx="12" fill="#213e35"/>
+<g fill="#fffef8"><text x="460" y="312" font-size="26" font-weight="700">FastAPI modular monolith</text>
+<text x="460" y="354" font-size="20">Checkpointed workflow + local validation</text>
+<text x="460" y="390" font-size="20">Immutable artifact revisions + source links</text>
+<text x="460" y="426" font-size="20">Review → preview digest → exact approval</text>
+<text x="460" y="462" font-size="17">Only the backend can authorize package download</text></g>
+<path d="M346 347 H420" stroke="#477763" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="355" y="329" font-size="16">API</text>
+<rect x="76" y="570" width="370" height="146" rx="12" fill="#fffef8" stroke="#c0cdc2"/>
+<text x="100" y="610" font-size="24" font-weight="700">SQLite</text>
+<text x="100" y="648" font-size="18">Projects · versioned knowledge · runs</text>
+<text x="100" y="678" font-size="18">Checkpoints · reviews · audit records</text>
+<rect x="510" y="570" width="476" height="146" rx="12" fill="#fffef8" stroke="#c0cdc2"/>
+<text x="534" y="610" font-size="24" font-weight="700">Runtime PM skills</text>
+<text x="534" y="648" font-size="18">Validated SKILL.md + hashed provenance</text>
+<text x="534" y="678" font-size="18">Data only · no shell or unrestricted filesystem</text>
+<path d="M610 500 V536 H260 V558 M750 500 V558" fill="none" stroke="#477763" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1070" y="270" width="310" height="174" rx="12" fill="#fffef8" stroke="#c0cdc2"/>
+<text x="1094" y="310" font-size="24" font-weight="700">Optional model API</text>
+<text x="1094" y="348" font-size="18">OpenAI-compatible adapter</text>
+<text x="1094" y="378" font-size="18">Selected evidence leaves device</text>
+<text x="1094" y="410" font-size="17" fill="#536661">Fixture mode makes no model call</text>
+<path d="M986 355 H1058" stroke="#477763" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1070" y="536" width="310" height="180" rx="12" fill="#fffef8" stroke="#477763" stroke-width="2"/>
+<text x="1094" y="577" font-size="24" font-weight="700">Starlight source ZIP</text>
+<text x="1094" y="615" font-size="18">Fixed template + approved revision</text>
+<text x="1094" y="645" font-size="18">Run and build independently</text>
+<text x="1094" y="680" font-size="17" fill="#536661">No SpecBridge or LLM required</text>
+<path d="M986 470 H1035 V625 H1058" fill="none" stroke="#477763" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="64" y="822" font-size="20" font-weight="700">Trust boundary: retrieved text and model output never grant approval.</text>
+<text x="64" y="858" font-size="18" fill="#536661">GitHub/Jira writes, public hosting and multi-user access remain future work. Development agents are outside the runtime.</text>
+</g></svg>

@@ -87,3 +87,9 @@ Ponytail was already installed and discoverable in this Codex session. Reused th
 | ponytail-review | Read-only review of connected changes and callers | `33fe4ebe22a460924e5d4a261e223df22e409cc94ab76182bee9fb91a3ef022e` | Applied to repairs; confirmed findings addressed and independently retested |
 
 Source: [Ponytail repository](https://github.com/DietrichGebert/ponytail). No plugin hook or installation script was executed as part of installation work. [Audit, repairs and actual verification](../evaluations/ponytail-audit-2026-10-18.md).
+
+## README media tooling — 18 October 2026
+
+Read official Hyperframes entrypoint, core composition, CLI and product-launch guidance from [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes/tree/dc0e80e73af185cc892ea90d5a9f1412a055e9a1/skills), revision `dc0e80e73af185cc892ea90d5a9f1412a055e9a1`. These were read-only references, not installed native skills or runtime PM instructions. The repository's Apache-2.0 license was inspected; no skill collection, installation hook or upstream asset was copied into SpecBridge. Applied composition/validation rules within the user's approved local media scope; interactive review, global skill updates, feedback submission and hosted services were not invoked.
+
+The separately pinned Hyperframes 0.8.171 CLI and GSAP 3.15.0 are media-only development dependencies in `docs/media/`, installed with lifecycle scripts disabled. Permissions: synthetic local files, Chrome capture, FFmpeg encoding and dependency/font retrieval; telemetry disabled, no owner data, hosted LLM or publication. Discoverability is through the local npm scripts, not the Codex skill catalog. Strict composition checks, rendering and dependency audit are recorded in the [media plan](../plans/2026-10-18-readme-media.md); [reproduction instructions](../../scripts/readme-media/README.md) preserve source and license links.
