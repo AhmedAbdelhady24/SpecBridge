@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from .models import Artifact, Finding, Run, RunSummary, canonical, digest
+from .providers import SAFE_FAILURE_CODES, ProviderFailure
 from .storage import Conflict, NotFound, Store
 
 if TYPE_CHECKING:
@@ -306,7 +307,7 @@ class Workflow:
                     (run.model_dump_json(), run.id),
                 )
                 return run
-        except Exception:  # noqa: BLE001 -- Persist failures without potentially secret exception text.
+        except Exception as failure:  # noqa: BLE001 -- Never retain arbitrary exception text.
             with self.store.transaction() as db:
                 _, current_row = self._row(db, project_id, run_id)
                 if current_row["lease"] != lease:
@@ -315,6 +316,13 @@ class Workflow:
                 run.error = (
                     "generation_failed" if run.stage == "execute" else "stage_failed"
                 )
+                if (
+                    run.stage == "execute"
+                    and isinstance(failure, ProviderFailure)
+                    and isinstance(failure.code, str)
+                    and failure.code in SAFE_FAILURE_CODES
+                ):
+                    run.error = failure.code
                 db.execute(
                     "UPDATE runs SET data=?,lease=NULL,lease_until=NULL WHERE id=?",
                     (run.model_dump_json(), run.id),

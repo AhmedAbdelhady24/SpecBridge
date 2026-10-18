@@ -43,6 +43,24 @@ def strict_artifact_schema() -> dict[str, Any]:
     return schema
 
 
+# Only these static categories may cross the workflow failure boundary.
+SAFE_FAILURE_CODES = frozenset(
+    {
+        "invalid_configuration",
+        "invalid_sources",
+        "secret_in_request",
+        "secret_in_response",
+        "provider_timeout",
+        "provider_transport_error",
+        "provider_http_error",
+        "response_too_large",
+        "incomplete_response",
+        "invalid_response",
+        "invalid_artifact",
+    }
+)
+
+
 class ProviderFailure(ValueError):
     def __init__(self, code: str):
         self.code = code

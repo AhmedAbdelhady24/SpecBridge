@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { components } from "./api/schema";
 import { ApiError, request } from "./api/client";
 import { KnowledgePanel } from "./KnowledgePanel";
+import { generationError, generationErrors } from "./generationErrors";
 import { ArtifactWorkspace } from "./ArtifactWorkspace";
 type Schema = components["schemas"];
 export default function App() {
@@ -59,7 +60,9 @@ export default function App() {
         setAuthError(true);
       }
       setError(
-        e instanceof Error ? e.message : "The request could not be completed.",
+        e instanceof ApiError && Object.hasOwn(generationErrors, e.code)
+          ? generationError(e.code)
+          : e instanceof Error ? e.message : "The request could not be completed.",
       );
     } finally {
       setBusy(false);
@@ -116,8 +119,12 @@ export default function App() {
       throw e;
     } finally {
       setRetry(false);
+      try {
+        setRuns(await api<Schema["RunSummary"][]>(`${base}/runs`));
+      } catch {
+        /* Preserve the original stage error if summary recovery is unavailable. */
+      }
     }
-    setRuns(await api<Schema["RunSummary"][]>(`${base}/runs`));
     if (current.revision_id) await loadRevision(current.revision_id);
   }
   async function generate() {
@@ -426,7 +433,7 @@ export default function App() {
                       </details>
                       {run.error && (
                         <p className="error" role="alert">
-                          Stage error: {run.error}
+                          {generationError(run.error)}
                         </p>
                       )}
                       {!["review", "published"].includes(run.status) && (

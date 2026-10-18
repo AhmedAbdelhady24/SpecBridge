@@ -467,3 +467,46 @@ def test_renewal_checks_expiry_after_acquiring_database(
 
     monkeypatch.setattr(store, "transaction", delayed_transaction)
     assert workflow._renew_lease(run.id, "test") is False
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "incomplete_response",
+        "invalid_artifact",
+        "invalid_response",
+        "provider_timeout",
+        "provider_http_error",
+        "provider_transport_error",
+        "response_too_large",
+        "secret_in_request",
+        "secret_in_response",
+        "invalid_sources",
+        "invalid_configuration",
+        "SECRET_UNTRUSTED_CODE",
+    ],
+)
+def test_safe_provider_failure_category_survives_reload_without_raw_errors(
+    tmp_path, artifact_dict, monkeypatch, code
+):
+    from specbridge.providers import ProviderFailure
+
+    store, workflow, provider, run = setup(tmp_path, artifact_dict)
+    for _ in range(4):
+        run = workflow.advance(run.project_id, run.id)
+
+    def fail(**kwargs):
+        raise ProviderFailure(code)
+
+    monkeypatch.setattr(provider, "generate", fail)
+    failed = workflow.advance(run.project_id, run.id)
+    expected = "generation_failed" if code.startswith("SECRET_") else code
+    assert failed.status == "failed"
+    assert failed.error == expected
+    assert workflow.get(run.project_id, run.id).error == expected
+    with store.transaction() as db:
+        audit = [tuple(row) for row in db.execute("SELECT action, subject FROM audit")]
+    assert "SECRET_UNTRUSTED_CODE" not in failed.model_dump_json() + str(audit)
+    assert any(action == expected for action, _ in audit)
+    with pytest.raises(RetryAcknowledgmentRequired):
+        workflow.advance(run.project_id, run.id)
