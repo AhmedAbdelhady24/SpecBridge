@@ -142,7 +142,7 @@ def test_active_output_contract_is_in_actual_model_request(tmp_path):
     provider = CompatibleProvider(
         base_url="https://test.example",
         model="test",
-        api_key="test",
+        api_key="synthetic-contract-provider-key",
         transport=httpx.MockTransport(handler),
     )
     with TestClient(

@@ -49,6 +49,20 @@ class ProviderFailure(ValueError):
         super().__init__(code)
 
 
+def contains_credential(value: Any, key: str) -> bool:
+    """Reject the configured credential, including decoded JSON escapes."""
+    if isinstance(value, str):
+        return key in value
+    if isinstance(value, dict):
+        return any(
+            contains_credential(k, key) or contains_credential(v, key)
+            for k, v in value.items()
+        )
+    if isinstance(value, list):
+        return any(contains_credential(v, key) for v in value)
+    return False
+
+
 def _validate_timeout(value: float | None) -> float | None:
     if value is None:
         return None
@@ -280,6 +294,8 @@ class CompatibleProvider:
         }
         if self.reasoning_effort is not None:
             payload["reasoning_effort"] = self.reasoning_effort
+        if contains_credential(payload, self._key):
+            raise ProviderFailure("secret_in_request")
         try:
             chunks = asyncio.run(self._request(payload))
             data = json.loads(chunks)
@@ -303,7 +319,12 @@ class CompatibleProvider:
             content = message["content"]
             if not isinstance(content, str):
                 raise ProviderFailure("invalid_response")
-            return validate_artifact(Artifact.model_validate_json(content), sources)
+            if self._key in content:
+                raise ProviderFailure("secret_in_response")
+            decoded = json.loads(content)
+            if contains_credential(decoded, self._key):
+                raise ProviderFailure("secret_in_response")
+            return validate_artifact(Artifact.model_validate(decoded), sources)
         except (TimeoutError, httpx.TimeoutException):
             raise ProviderFailure("provider_timeout") from None
         except httpx.HTTPError:
@@ -321,6 +342,8 @@ class CompatibleProvider:
             raise ProviderFailure("invalid_response") from None
 
     async def _request(self, payload: dict[str, Any]) -> bytes:
+        if contains_credential(payload, self._key):
+            raise ProviderFailure("secret_in_request")
         async with asyncio.timeout(self.timeout_seconds):
             async with (
                 httpx.AsyncClient(

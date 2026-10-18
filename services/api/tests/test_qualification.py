@@ -135,7 +135,12 @@ def test_success_and_rejected_draft_keep_usage_and_evidence(
     assert "private-provider-envelope-id" not in (output / "results.json").read_text()
 
 
-def test_secret_response_is_not_saved_as_artifact(tmp_path, monkeypatch, artifact_dict):
+@pytest.mark.parametrize("escaped", [False, True])
+@pytest.mark.parametrize("malformed", [False, True])
+@pytest.mark.parametrize("tool_call", [False, True])
+def test_secret_response_is_not_saved_as_artifact(
+    tmp_path, monkeypatch, artifact_dict, escaped, malformed, tool_call
+):
     module = runner()
     for name, value in {
         "BASE_URL": "https://api.deepseek.com",
@@ -149,18 +154,31 @@ def test_secret_response_is_not_saved_as_artifact(tmp_path, monkeypatch, artifac
     artifact_dict["purpose"] = "private-test-key"
 
     async def respond(self, request):
-        return httpx.Response(
-            200,
-            request=request,
-            json={
+        envelope = json.dumps(
+            {
                 "choices": [
                     {
                         "finish_reason": "stop",
-                        "message": {"content": json.dumps(artifact_dict)},
+                        "message": {
+                            "content": (
+                                "not JSON private-test-key"
+                                if malformed
+                                else json.dumps(artifact_dict)
+                            )
+                        },
                     }
                 ]
-            },
+            }
         )
+        if tool_call:
+            value = json.loads(envelope)
+            value["choices"][0]["message"]["tool_calls"] = [
+                {"function": {"name": "shell"}}
+            ]
+            envelope = json.dumps(value)
+        if escaped:
+            envelope = envelope.replace("private-test-key", "\\u0070rivate-test-key")
+        return httpx.Response(200, request=request, content=envelope.encode())
 
     monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", respond)
     output = tmp_path / "secret-response"
@@ -442,3 +460,38 @@ def test_execution_uses_the_previewed_wait_policy(
     assert result["results"][0]["status"] == expected
     assert result["results"][0]["attempts"] == 1
     assert result["generation_timeout_seconds"] == preview["generation_timeout_seconds"]
+
+
+def test_deep_rejected_content_keeps_metadata_without_crashing(tmp_path, monkeypatch):
+    module = runner()
+    for name, value in {
+        "BASE_URL": "https://model.example/v1",
+        "MODEL": "test-model",
+        "API_KEY": "private-test-key",
+        "OUTPUT_MODE": "json_object",
+    }.items():
+        monkeypatch.setenv("SPECBRIDGE_LLM_" + name, value)
+    preview = module.prepare(case_ids=["incomplete-booking"])
+    calls = []
+
+    async def respond(self, request):
+        calls.append(request)
+        return httpx.Response(
+            200,
+            request=request,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": "[" * 2000 + "]" * 2000},
+                    }
+                ],
+            },
+        )
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", respond)
+    output = tmp_path / "deep-rejection"
+    result = module.execute(preview, module.preview_digest(preview), output)
+    assert len(calls) == 1
+    assert result["results"][0]["status"] == "invalid_response"
+    assert sorted(p.name for p in output.iterdir()) == ["preview.json", "results.json"]

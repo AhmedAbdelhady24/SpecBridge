@@ -10,7 +10,12 @@ from typing import Any
 
 import httpx
 from specbridge.models import Source
-from specbridge.providers import CompatibleProvider, ProviderFailure, timeout_from_env
+from specbridge.providers import (
+    CompatibleProvider,
+    ProviderFailure,
+    contains_credential,
+    timeout_from_env,
+)
 from specbridge.skills import SkillRegistry
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -206,7 +211,10 @@ def execute(preview: dict[str, Any], approval: str, output: Path) -> dict[str, A
         record["http_status"] = transport.http_status
         record["duration_seconds"] = round(time.monotonic() - started, 2)
         if provider.raw is not None:
-            if provider._key.encode() in provider.raw:
+            if (
+                provider._key.encode() in provider.raw
+                or record["status"] == "secret_in_response"
+            ):
                 record["status"] = "secret_in_response"
                 (output / (case["id"] + ".json")).unlink(missing_ok=True)
             else:
@@ -242,10 +250,27 @@ def execute(preview: dict[str, Any], approval: str, output: Path) -> dict[str, A
                     )
                     if record["status"] != "validated":
                         # Retain bounded synthetic content for diagnosing rejection.
-                        (output / (case["id"] + ".rejected.txt")).write_text(
-                            str(choice["message"].get("content", ""))
-                        )
-                except (ValueError, KeyError, IndexError, TypeError, AttributeError):
+                        content = str(message.get("content", ""))
+                        try:
+                            decoded = json.loads(content)
+                        except ValueError:
+                            decoded = content
+                        if contains_credential(
+                            message, provider._key
+                        ) or contains_credential(decoded, provider._key):
+                            record["status"] = "secret_in_response"
+                        else:
+                            (output / (case["id"] + ".rejected.txt")).write_text(
+                                content
+                            )
+                except (
+                    ValueError,
+                    KeyError,
+                    IndexError,
+                    TypeError,
+                    AttributeError,
+                    RecursionError,
+                ):
                     pass
         result["results"].append(record)
         (output / "results.json").write_text(json.dumps(result, indent=2) + "\n")

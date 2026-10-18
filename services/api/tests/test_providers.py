@@ -775,3 +775,61 @@ def test_finite_timeout_reaches_http_boundary(timeout_seconds):
         timeout_seconds=timeout_seconds,
     )
     assert generate(instance).requirements
+
+
+def test_configured_credential_in_source_never_reaches_model():
+    calls = []
+    sentinel = "private-synthetic-provider-key"
+
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(
+            200, json={"choices": [{"message": {"content": json.dumps(output())}}]}
+        )
+
+    instance = CompatibleProvider(
+        base_url="https://model.example/v1",
+        model="test",
+        api_key=sentinel,
+        transport=httpx.MockTransport(handler),
+    )
+    with pytest.raises(ProviderFailure, match="secret_in_request") as error:
+        instance.generate(
+            skill=skill_fixture(),
+            sources=[
+                Source(
+                    id="source-1",
+                    project_id="p",
+                    text=f"Accidental key: {sentinel}",
+                    digest="d",
+                )
+            ],
+        )
+    assert calls == []
+    assert sentinel not in str(error.value)
+
+
+@pytest.mark.parametrize("encoded", [False, True])
+def test_reflected_credential_is_rejected_before_artifact_acceptance(encoded):
+    sentinel = "private-synthetic-provider-key"
+    artifact = output()
+    artifact["purpose"] = sentinel
+    content = json.dumps(artifact)
+    if encoded:
+        content = content.replace(
+            sentinel, "".join(f"\\u{ord(c):04x}" for c in sentinel)
+        )
+    instance = CompatibleProvider(
+        base_url="https://model.example/v1",
+        model="test",
+        api_key=sentinel,
+        transport=httpx.MockTransport(
+            lambda req: httpx.Response(
+                200,
+                json={"choices": [{"message": {"content": content}}]},
+            )
+        ),
+    )
+    with pytest.raises(ProviderFailure, match="secret_in_response") as error:
+        generate(instance)
+    assert sentinel not in str(error.value)
