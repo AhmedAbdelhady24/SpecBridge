@@ -13,7 +13,13 @@ ROOT = Path(__file__).resolve().parents[1]
 class BootstrapIntegrityTests(unittest.TestCase):
     def test_local_markdown_links_resolve_inside_repository(self):
         documents = [ROOT / "README.md", ROOT / "AGENTS.md"]
-        documents.extend((ROOT / "docs").rglob("*.md"))
+        # Media tooling installs vendored documentation and private render state here.
+        # Only maintained project Markdown belongs to this integrity check.
+        documents.extend(
+            path
+            for path in (ROOT / "docs").rglob("*.md")
+            if not {"node_modules", ".hyperframes"}.intersection(path.relative_to(ROOT).parts)
+        )
         for document in documents:
             # shortcut: inline links only, adopt a Markdown parser if richer syntax is introduced.
             for target in re.findall(r"\[[^\]\n]+\]\(([^)\n]+)\)", document.read_text()):
