@@ -1,0 +1,103 @@
+{
+  "baseline_commit": "ac6a5d5",
+  "scope": "whole-codebase local single-owner audit and justified repairs",
+  "skills": {
+    "plugin": "ponytail",
+    "version": "5.3.2",
+    "already_installed": true,
+    "duplicate_install": false,
+    "new_permissions": false
+  },
+  "confirmed_findings": {
+    "total": 4,
+    "resolved": 4,
+    "remaining_material_review_findings": 0
+  },
+  "backend": {
+    "passed": 317,
+    "bootstrap_subtests": 257
+  },
+  "browser": {
+    "passed": 19,
+    "retries": 0
+  },
+  "web_unit": {
+    "passed": 2
+  },
+  "static": {
+    "ruff_lint": "passed",
+    "ruff_format_files": 38,
+    "mypy_sources": 11,
+    "web_typecheck": "passed",
+    "web_lint": "passed"
+  },
+  "builds": {
+    "web": "passed",
+    "docs_template": "passed",
+    "standalone_handoff": {
+      "status": "passed",
+      "seconds": 15.92,
+      "modes": [
+        "dev",
+        "preview"
+      ],
+      "fresh_locked_install": true
+    }
+  },
+  "workspace_recovery": "passed; seven knowledge types, private backup, restore and resumed checkpoint",
+  "contracts": "optional after cursor generated; second regeneration no drift",
+  "audits": {
+    "python_dependencies": 57,
+    "python_vulnerabilities": 0,
+    "npm_root_vulnerabilities": 0,
+    "npm_web_vulnerabilities": 0,
+    "npm_docs_vulnerabilities": 0
+  },
+  "independent_review": {
+    "pagination_tests_passed": 16,
+    "provider_caller_tests_passed": 31,
+    "remaining_material_findings": 0
+  },
+  "recorded_live_evidence": {
+    "original_rounds_replayed": 2,
+    "unchanged_frozen_sources_and_rubric": true,
+    "historical_successful_semantic_round": {
+      "passes": 5,
+      "cases": 5
+    },
+    "new_paid_model_calls": 0
+  },
+  "changes": {
+    "new_dependencies": 0,
+    "lockfiles_changed": false,
+    "sqlite_schema_changed": false,
+    "private_env_read": false,
+    "real_workspace_data_accessed": false
+  },
+  "warnings": [
+    "Non-failing Astro optional i18n/custom404 and unset public sitemap site warnings",
+    "Existing Playwright NO_COLOR/FORCE_COLOR environment warning"
+  ],
+  "not_checked": [
+    "graph completeness; graph tools unavailable",
+    "new paid live-model qualification",
+    "hosted CI/remote protections/deployment",
+    "production load/multiuser behavior",
+    "unfamiliar-human handoff",
+    "general secret detection beyond configured credential"
+  ],
+  "board_browser": {
+    "milestones": 7,
+    "widths": [
+      736,
+      320
+    ],
+    "expand_collapse": "passed",
+    "page_errors": [],
+    "remote_requests": []
+  },
+  "bootstrap_unittest": {
+    "passed": 2
+  },
+  "diff_check": "passed"
+}

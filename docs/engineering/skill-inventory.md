@@ -75,3 +75,15 @@ Original `skills/experiments/source-analysis/SKILL.md` version0.1.0 (schema1) is
 ## Typed handoff-plan experiment — 2026-10-17
 
 Original `skills/experiments/handoff-plan/SKILL.md` version0.2.0 uses empty tool permissions and hashed provenance, no third-party text or new dependency. System skill-creator validation and explicit experimental registry discovery pass. A typed plan compiles deterministically into an Artifact. The original0.1 live round remained2/5; corrected0.2 groups dependent behaviors under one alternative, advertises Context exclusivity, and restricts criteria to supported source-local effects.30component/runner checks pass and one complete live round passed5/5 frozen semantic cases with independent review/replay. [Actual evidence and limits](../evaluations/compiled-handoff.md); [resumable scope](../plans/2026-10-17-compiled-handoff.md). No separate original-content redistribution license is asserted. Production runtime skill remains1.2.0; runtime adoption and unfamiliar-human acceptance remain open.
+
+## Ponytail development review — 18 October 2026
+
+Ponytail was already installed and discoverable in this Codex session. Reused the versioned plugin at release **5.3.2**; no duplicate collection, installer, permission change or hook installation was needed. Installed package metadata identifies `DietrichGebert/ponytail` as its source and MIT as its license; the existing LICENSE notice was inspected and preserved. No upstream Git commit is exposed by this cache, so this records the installed release and exact instruction hashes rather than inventing a revision or claiming a fresh upstream verification. These are development instructions, never runtime PM skills.
+
+| Skill | Purpose and permissions | SKILL.md SHA256 | Verification |
+| --- | --- | --- | --- |
+| ponytail | Minimal complete fixes within the user's authorized scope; no new tool grant | `9badd22a32e19cb884e46dfa8d3aae82bb81dfa5484105b8b4f0262df823a509` | Full entrypoint read and applied |
+| ponytail-audit | Read-only whole-repository quality/security review | `2b3223a02c386d1263e1b08343cb8eb3a53e444cdafb1d79e26c8ec2a8fcad28` | Applied independently to backend and web/operations, with lead integration |
+| ponytail-review | Read-only review of connected changes and callers | `33fe4ebe22a460924e5d4a261e223df22e409cc94ab76182bee9fb91a3ef022e` | Applied to repairs; confirmed findings addressed and independently retested |
+
+Source: [Ponytail repository](https://github.com/DietrichGebert/ponytail). No plugin hook or installation script was executed as part of installation work. [Audit, repairs and actual verification](../evaluations/ponytail-audit-2026-10-18.md).
