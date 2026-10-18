@@ -1,8 +1,8 @@
 """Evaluation-only typed plan -> Artifact, with no generative rewrite or authority."""
 
-from typing import Annotated, Any
+from typing import Annotated, Any, ClassVar
 
-from pydantic import Field, StringConstraints, model_validator
+from pydantic import ConfigDict, Field, StringConstraints, model_validator
 from specbridge.models import Artifact, Model, Source
 from specbridge.providers import validate_artifact, validate_sources
 
@@ -23,9 +23,14 @@ class PlanBehavior(Model):
     outcomes: list[Text] = Field(min_length=1, max_length=30)
 
 
+class Alternative(Model):
+    id: str = Field(pattern=r"^ALT-[a-zA-Z0-9-]{1,64}$")
+    behavior_ids: IDs
+
+
 class Conflict(Model):
     id: str = Field(pattern=r"^DEC-[a-zA-Z0-9-]{1,64}$")
-    behavior_ids: list[Text] = Field(min_length=2, max_length=100)
+    alternatives: list[Alternative] = Field(min_length=2, max_length=20)
     question: Text
     authority_question: Text
 
@@ -46,6 +51,24 @@ class InterfaceReview(Model):
 
 
 class Context(Model):
+    model_config: ClassVar[ConfigDict] = {
+        "json_schema_extra": {
+            "oneOf": [
+                {
+                    "properties": {
+                        "evidence": {"type": "object"},
+                        "question": {"type": "null"},
+                    }
+                },
+                {
+                    "properties": {
+                        "evidence": {"type": "null"},
+                        "question": {"type": "string"},
+                    }
+                },
+            ]
+        }
+    }
     evidence: Evidence | None
     question: Text | None
 
@@ -98,7 +121,7 @@ def compile_plan(value: Any, sources: list[Source]) -> Artifact:
     groups = {}
     conflict_ids = set()
     questions = list(p.open_questions)
-    for c in [*p.conflicts, *p.timing_reviews, *p.interface_reviews]:
+    for c in [*p.timing_reviews, *p.interface_reviews]:
         if (
             len(set(c.behavior_ids)) != len(c.behavior_ids)
             or not set(c.behavior_ids) <= behaviors.keys()
@@ -106,10 +129,22 @@ def compile_plan(value: Any, sources: list[Source]) -> Artifact:
             raise ValueError("invalid_behavior_reference")
         questions.extend(v for k, v in c.model_dump().items() if k.endswith("question"))
     for c in p.conflicts:
-        if c.id in conflict_ids or groups.keys() & set(c.behavior_ids):
+        if c.id in conflict_ids:
             raise ValueError("overlapping_or_duplicate_conflict")
         conflict_ids.add(c.id)
-        groups.update({i: c.id for i in c.behavior_ids})
+        alternative_ids = set()
+        for alternative in c.alternatives:
+            ids = alternative.behavior_ids
+            if (
+                alternative.id in alternative_ids
+                or len(set(ids)) != len(ids)
+                or not set(ids) <= behaviors.keys()
+                or groups.keys() & set(ids)
+            ):
+                raise ValueError("invalid_or_overlapping_alternative")
+            alternative_ids.add(alternative.id)
+            groups.update({i: (c.id, alternative.id) for i in ids})
+        questions.extend([c.question, c.authority_question])
     dependencies = []
     for c in (p.owner, p.delivery_date):
         if c.question is not None:
@@ -126,7 +161,7 @@ def compile_plan(value: Any, sources: list[Source]) -> Artifact:
     for index, b in enumerate(p.behaviors, 1):
         ids = [b.evidence.source_id]
         condition = (
-            f"Only if an authorized human selects alternative {b.id} in unresolved decision {groups[b.id]}: "
+            f"Only if an authorized human selects alternative {groups[b.id][1]} in unresolved decision {groups[b.id][0]}: "
             if b.id in groups
             else ""
         )

@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "authorship": "Original SpecBridge evaluation guidance. No third-party skill text copied.",
   "license_observation": "Original project content; no separate distribution license asserted.",
   "rationale": "Evaluation-only typed outcomes and decisions compiled without a second generative rewrite.",
   "tool_allowlist": [],
   "files": {
-    "SKILL.md": "4345cd88820e19e8d0b66435e640ce5486938175b4c2683b25c043637683159e"
+    "SKILL.md": "63dee68e69e63b64d876157f3b4727662f423599385311d4c26de80288294b9c"
   }
 }

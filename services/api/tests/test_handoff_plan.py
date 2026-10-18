@@ -111,7 +111,10 @@ def test_all_conflicting_criteria_are_conditional(monkeypatch):
     p["conflicts"] = [
         {
             "id": "DEC-policy",
-            "behavior_ids": ["BEH-toggle", "BEH-other"],
+            "alternatives": [
+                {"id": "ALT-first", "behavior_ids": ["BEH-toggle"]},
+                {"id": "ALT-other", "behavior_ids": ["BEH-other"]},
+            ],
             "question": "Which policy is authoritative?",
             "authority_question": "Who can select this policy?",
         }
@@ -205,7 +208,10 @@ def test_invalid_plan_never_becomes_artifact(monkeypatch, change):
         p["conflicts"] = [
             {
                 "id": "DEC-x",
-                "behavior_ids": ["BEH-toggle", "BEH-absent"],
+                "alternatives": [
+                    {"id": "ALT-first", "behavior_ids": ["BEH-toggle"]},
+                    {"id": "ALT-other", "behavior_ids": ["BEH-absent"]},
+                ],
                 "question": "Which?",
                 "authority_question": "Who?",
             }
@@ -240,3 +246,97 @@ def test_supported_context_is_verbatim_not_ai_verified(monkeypatch):
         s.text == "Owner: Sam." and s.kind == "user_provided" for s in a.dependencies
     )
     assert not any(s.kind == "verified" for s in a.statements())
+
+
+def test_alternative_selection_conditions_every_dependent_behavior(monkeypatch):
+    m = module(monkeypatch)
+    p = sample()
+    for behavior_id in ("BEH-next", "BEH-other"):
+        p["behaviors"].append(
+            {
+                "id": behavior_id,
+                "evidence": {
+                    "source_id": "brief",
+                    "excerpt": "Enable or disable reminders.",
+                },
+                "outcomes": ["An observable proposed effect."],
+            }
+        )
+    p["conflicts"] = [
+        {
+            "id": "DEC-policy",
+            "alternatives": [
+                {"id": "ALT-first", "behavior_ids": ["BEH-toggle", "BEH-next"]},
+                {"id": "ALT-other", "behavior_ids": ["BEH-other"]},
+            ],
+            "question": "Which alternative is selected?",
+            "authority_question": "Who can select it?",
+        }
+    ]
+    a = m.compile_plan(p, sources())
+    for story in a.stories[:2]:
+        assert story.text.startswith(
+            "Only if an authorized human selects alternative ALT-first in unresolved decision DEC-policy:"
+        )
+        assert all(
+            c.startswith("Only if an authorized human selects alternative ALT-first")
+            for c in story.acceptance_criteria
+        )
+    assert "ALT-other" in a.stories[2].text
+    assert all("alternative BEH-next" not in s.text for s in a.stories)
+
+
+def test_context_schema_exposes_exclusive_evidence_or_question(monkeypatch):
+    m = module(monkeypatch)
+    schema = m.HandoffPlan.model_json_schema()["$defs"]["Context"]
+    # These two branches are the contract the provider actually receives.
+    branches = schema["oneOf"]
+    assert {b["properties"]["evidence"]["type"] for b in branches} == {"null", "object"}
+    assert {b["properties"]["question"]["type"] for b in branches} == {"null", "string"}
+    p = sample()
+    p["owner"]["evidence"] = {
+        "source_id": "brief",
+        "excerpt": "Enable or disable reminders.",
+    }
+    with pytest.raises(ValueError, match="context_requires_evidence_or_question"):
+        m.compile_plan(p, sources())
+
+
+@pytest.mark.parametrize(
+    "change", ["overlap", "duplicate_id", "unknown", "repeated_member"]
+)
+def test_invalid_alternative_groups_cannot_authorize_a_story(monkeypatch, change):
+    m = module(monkeypatch)
+    p = sample()
+    p["behaviors"].append(
+        {
+            "id": "BEH-other",
+            "evidence": {
+                "source_id": "brief",
+                "excerpt": "Enable or disable reminders.",
+            },
+            "outcomes": ["Keep the previous reminder policy."],
+        }
+    )
+    groups = [
+        {"id": "ALT-first", "behavior_ids": ["BEH-toggle"]},
+        {"id": "ALT-other", "behavior_ids": ["BEH-other"]},
+    ]
+    if change == "overlap":
+        groups[1]["behavior_ids"] = ["BEH-toggle"]
+    elif change == "duplicate_id":
+        groups[1]["id"] = "ALT-first"
+    elif change == "unknown":
+        groups[1]["behavior_ids"] = ["BEH-absent"]
+    else:
+        groups[0]["behavior_ids"] = ["BEH-toggle", "BEH-toggle"]
+    p["conflicts"] = [
+        {
+            "id": "DEC-policy",
+            "alternatives": groups,
+            "question": "Which?",
+            "authority_question": "Who?",
+        }
+    ]
+    with pytest.raises(ValueError, match="invalid_or_overlapping_alternative"):
+        m.compile_plan(p, sources())
