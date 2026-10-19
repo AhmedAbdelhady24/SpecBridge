@@ -5923,6 +5923,28 @@
         "summary": "Source"
       }
     },
+    "/api/session/bootstrap": {
+      "get": {
+        "operationId": "bootstrap_session_api_session_bootstrap_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Bootstrap Session Api Session Bootstrap Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Bootstrap Session"
+      }
+    },
     "/api/skills": {
       "get": {
         "operationId": "skills_api_skills_get",
