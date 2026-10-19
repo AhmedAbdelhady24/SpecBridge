@@ -3,9 +3,8 @@ import type { components } from "./api/schema";
 import { ApiError, request } from "./api/client";
 import { KnowledgePanel } from "./KnowledgePanel";
 import { generationError, generationErrors } from "./generationErrors";
-import { PackagePreview } from "./PackagePreview";
 import { FeatureWorkspace } from "./FeatureWorkspace";
-import { GitCollaboration } from "./GitCollaboration";
+import { ReviewExportPanel } from "./ReviewExportPanel";
 type Schema = components["schemas"];
 export default function App() {
   const [token, setToken] = useState("");
@@ -212,74 +211,71 @@ export default function App() {
       : "Revision rejected. Edit and save a new revision to continue.");
   }
   const disabled = busy || !config;
-  const reviewPanel = revision ? (<section className="panel" aria-labelledby="package-heading">
-    <p className="step">03 / REVIEW & PACKAGE</p>
-    <h2 id="package-heading" tabIndex={-1}>Review & export</h2>
-    {dirty && <p className="unsaved-notice">Review and package controls are unavailable until you save or discard your unsaved draft edits.</p>}
-    <p>
-      Record your review, inspect the exact package, then approve
-      its digest.
-    </p>
-    <label>
-      Review notes
-      <textarea aria-label="Review notes" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={16384} disabled={disabled || !revision || dirty} rows={3} placeholder="Record conflicts, decisions, or remaining uncertainty." />
-    </label>
-    <div className="actions">
-      <button disabled={disabled || !revision || dirty} onClick={() => void act(() => review("reviewed"))}>
-        Record review
-      </button>
-      <button className="secondary" disabled={disabled || !revision || dirty} onClick={() => void act(() => review("rejected"))}>
-        Reject revision
-      </button>
-    </div>
-    <p role="status">{reviewStatus}</p>
-    <button className="secondary" disabled={disabled || !revision || !reviewed || dirty} onClick={() => void act(async () => setCandidate(await api<Schema["Candidate"]>(`${base}/revisions/${revision!.id}/candidates`, undefined, false, "POST")))}>
-      Prepare package
-    </button>
-    {candidate && <PackagePreview token={token} project={project} candidate={candidate} />}
-    <div className="actions export-actions">
-      <button disabled={disabled ||
-        !candidate ||
-        !reviewed ||
-        candidate.approved ||
-        dirty} onClick={() => void act(async () => {
-          const approved = await api<Schema["Candidate"]>(`${base}/candidates/${candidate!.id}/approve`, { digest: candidate!.digest });
-          setCandidate(approved);
-          setNotice("This exact package is approved.");
-        })}>
-        Approve this package
-      </button>
-      <button className="secondary" disabled={disabled || !candidate?.approved || dirty} onClick={() => void act(async () => {
-        try {
-          const blob = await api<Blob>(`${base}/candidates/${candidate!.id}/download`, undefined, true);
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = "specbridge-handoff.zip";
-          link.click();
-          setTimeout(() => URL.revokeObjectURL(url), 1000);
-          setNotice("Approved package downloaded.");
-        }
-        catch (e) {
-          if (e instanceof ApiError && e.status === 409) {
-            setCandidate(undefined);
-            setReviewed(false);
-            setReviewStatus("Package changed or became stale. Reopen the run, review, and prepare it again.");
-          }
-          throw e;
-        }
-      })}>
-        Download package
-      </button>
-    </div>
-    <GitCollaboration
+  const reviewPanel = (
+    <ReviewExportPanel
+      revision={revision}
+      candidate={candidate}
+      dirty={dirty}
+      disabled={disabled}
+      notes={notes}
+      setNotes={setNotes}
+      reviewStatus={reviewStatus}
+      reviewed={reviewed}
       token={token}
       project={project}
-      candidate={candidate}
-      disabled={disabled}
+      onRecordReview={(disposition) => act(() => review(disposition))}
+      onPreparePackage={() =>
+        act(async () => {
+          setCandidate(
+            await api<Schema["Candidate"]>(
+              `${base}/revisions/${revision!.id}/candidates`,
+              undefined,
+              false,
+              "POST"
+            )
+          );
+        })
+      }
+      onApprovePackage={() =>
+        act(async () => {
+          const approved = await api<Schema["Candidate"]>(
+            `${base}/candidates/${candidate!.id}/approve`,
+            { digest: candidate!.digest }
+          );
+          setCandidate(approved);
+          setNotice("This exact package is approved.");
+        })
+      }
+      onDownloadPackage={() =>
+        act(async () => {
+          try {
+            const blob = await api<Blob>(
+              `${base}/candidates/${candidate!.id}/download`,
+              undefined,
+              true
+            );
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "specbridge-handoff.zip";
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            setNotice("Approved package downloaded.");
+          } catch (e) {
+            if (e instanceof ApiError && e.status === 409) {
+              setCandidate(undefined);
+              setReviewed(false);
+              setReviewStatus(
+                "Package changed or became stale. Reopen the run, review, and prepare it again."
+              );
+            }
+            throw e;
+          }
+        })
+      }
       onAuthError={requireAuth}
     />
-  </section>) : null;
+  );
   return (<>
     <a className="skip" href="#workspace">
       Skip to workspace
