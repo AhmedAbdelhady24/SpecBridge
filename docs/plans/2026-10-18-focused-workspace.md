@@ -10,7 +10,7 @@
 
 **Spec:** [Approved focused requirements workspace](../architecture/review-workspace-design.md).
 
-**Status:** design and detailed plan approved; implementation Tasks1–7 delivered in the isolated `codex/focused-workspace` worktree. Task8 code verification and operational handoff preparation completed on19 October2026; backend367/291subtests and browser49/49 pass. See [current evidence](../evaluations/focused-workspace.md). Owner rollout remains a separately approved final step; no paid call/publication is included.
+**Status:** design and detailed plan approved; implementation Tasks1–7 delivered in the isolated `codex/focused-workspace` worktree. Task8 code verification and operational handoff preparation completed on19 October2026; backend367/291subtests and browser49/49 pass. See [current evidence](../evaluations/focused-workspace.md). Owner rollout was separately authorized by "okay restart the app" and verified on19 October2026; no paid call/publication is included.
 
 ## Global Constraints
 
@@ -298,4 +298,4 @@ The approved design is preserved. Implementation proceeded using the existing le
 
 ## Execution result
 
-Tasks1–4: feature lineage, feature-local authority, saved answers/requests and atomic recoverable commits implemented and reviewed. Tasks5–7: responsive two-pane UI, section editing, decision queue, history/diff/context and verified exact package preview/export implemented. Task8: combined checks, private migration/restore rehearsal, media and maintained documentation recorded in the evaluation report. User approval is required only for upgrading/restarting the owner app under the explicit design boundary.
+Tasks1–4: feature lineage, feature-local authority, saved answers/requests and atomic recoverable commits implemented and reviewed. Tasks5–7: responsive two-pane UI, section editing, decision queue, history/diff/context and verified exact package preview/export implemented. Task8: combined checks, private migration/restore rehearsal, media and maintained documentation recorded in the evaluation report. The owner separately approved upgrading/restarting; integration, backup, schema4, data-preservation and read-only browser checks passed. See the upgrade procedure for the actual record.

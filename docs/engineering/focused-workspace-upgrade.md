@@ -1,6 +1,6 @@
 # Focused workspace: upgrade and rollback
 
-Status: code verified in `codex/focused-workspace`; owner app/schema2 remain unchanged. The approved design explicitly reserves owner rollout for a separate approval. This procedure makes that final decision reviewable. No hosted provider request, remote push or external publication is part of upgrade.
+Status: owner rollout authorized by the user ("okay restart the app") and verified on19 October2026. Reviewed branch fast-forwarded into `codex/phase-zero`; owner schema upgraded2→4 after a stopped-write backup. No hosted provider request, remote push or external publication occurred. The procedure below remains the upgrade/rollback reference.
 
 ## What changes
 
@@ -42,3 +42,10 @@ Run the matching recorded preupgrade code with `SPECBRIDGE_DATA_DIR=NEW_PRIVATE_
 ## Acceptance limits
 
 See [actual verification](../evaluations/focused-workspace.md). Local fixture verification does not establish clinical correctness, live-model quality, unfamiliar-human acceptance or multi-user security. The rollout decision is separate from approving generated product requirements.
+
+
+## Actual rollout record —19 October2026
+
+Preupgrade code755462e; integrated code0d3a3dd. Verified original owner listeners25540/25548 and their repository working directories, confirmed no running workflow stage, then stopped them gracefully. Private consistent backup: `.data/backups/focused-workspace-20261019T073701Z/preupgrade.db` (0600); baseline table fingerprints retained in that private directory. No credential or private content was printed.
+
+Started the same compatible/deepseek-flash configuration using the existing private `.env` and session token. API listener29194 on127.0.0.1:8000; Vite listener29242 on127.0.0.1:5173 (process IDs can change later). API/config and web returned200. Both projects, five runs and three saved feature histories loaded. Schema4, SQLite integrity/foreign keys and all preexisting table fingerprints passed. Read-only Chromium loaded a saved draft and Questions/Changes panes; zero JavaScript errors, writes or model calls. No full fixture suite was rerun against owner data.

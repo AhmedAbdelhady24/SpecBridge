@@ -106,7 +106,7 @@ Open `http://127.0.0.1:5173`. Copy the contents of the newly created `.data/sess
 
 Fixture mode needs no model credentials and makes no model calls. Its output is labeled **DEMO** and does not interpret arbitrary product requests. For hosted generation or serving the built UI from the API, see [provider setup](docs/engineering/model-providers.md).
 
-Existing workspaces require an additive schema upgrade before running this branch. See the [verified upgrade and rollback procedure](docs/engineering/focused-workspace-upgrade.md). The owner app has not been upgraded automatically.
+Existing workspaces require an additive schema upgrade before running this branch. See the [verified upgrade and rollback procedure](docs/engineering/focused-workspace-upgrade.md). The local owner workspace upgrade was separately authorized and verified; the procedure records backup and rollback details.
 
 ## Create a handoff
 

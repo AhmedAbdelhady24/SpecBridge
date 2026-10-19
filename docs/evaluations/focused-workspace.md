@@ -1,6 +1,6 @@
 # Focused requirements workspace: verification
 
-Date:19 October2026. Scope: approved focused workspace plan, isolated branch `codex/focused-workspace` from baseline755462e. No owner rollout, model call, paid test, remote push or external publication occurred.
+Date:19 October2026. Scope: approved focused workspace plan, isolated branch `codex/focused-workspace` from baseline755462e. Engineering checks used isolated data and made no model call, paid test, remote push or external publication. Subsequent authorized owner rollout is recorded below.
 
 ## Delivered behavior
 
@@ -64,7 +64,7 @@ For backup/rehearsal/rollback see [upgrade procedure](../engineering/focused-wor
 
 ## Limits and next action
 
-The owner app still runs its prior code/schema. Upgrade/restart requires the separately reserved owner approval. Live-provider semantic quality was not retested or changed. Human answers and manual amendments are user input/proposals; no automatic contradiction detection or AI rewrite is claimed. Unknown historical parents/timestamps/authors remain unknown. Unacknowledged tab-memory text cannot survive browser closure; acknowledged private previews recover from the backend. SQLite remains local single-owner, not encrypted multi-user storage. Full assistive-technology certification and an unfamiliar engineer's acceptance remain separate. No overall milestone is promoted solely by these checks.
+The user subsequently authorized restart. Owner rollout passed on19 October2026: schema4, all historical table fingerprints unchanged,2projects/5runs/3histories accessible, API/web200 and read-only Chromium with0errors/writes/model calls. See the [rollout record](../engineering/focused-workspace-upgrade.md). Live-provider semantic quality was not retested or changed. Human answers and manual amendments are user input/proposals; no automatic contradiction detection or AI rewrite is claimed. Unknown historical parents/timestamps/authors remain unknown. Unacknowledged tab-memory text cannot survive browser closure; acknowledged private previews recover from the backend. SQLite remains local single-owner, not encrypted multi-user storage. Full assistive-technology certification and an unfamiliar engineer's acceptance remain separate. No overall milestone is promoted solely by these checks.
 
 
 ## Files, skills and reviewers
