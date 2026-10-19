@@ -1,0 +1,20 @@
+services:
+  specbridge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: specbridge:latest
+    container_name: specbridge
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - SPECBRIDGE_PROVIDER=fixture
+      - SPECBRIDGE_UI_ORIGIN=http://127.0.0.1:8000
+      - SPECBRIDGE_DATA_DIR=/data
+    volumes:
+      - specbridge-data:/data
+
+volumes:
+  specbridge-data:
+    name: specbridge-data

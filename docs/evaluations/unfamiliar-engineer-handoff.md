@@ -34,7 +34,7 @@ The automated verification script `scripts/verify_unfamiliar_handoff.py` execute
 
 ### Step 2: Specification Inspection and Traceability
 - Checked generated markdown files under `src/content/docs/`:
-  - `requirements.md`: Verified presence of `Requirement 1`, cited source references (`[Source 1](../provenance/#source-1)`), and bi-directional links to user stories (`[Story 1](../stories/#story-1)`).
+  - `requirements.md`: Verified presence of `Requirement 1`, cited source references (Source 1 linking to `../provenance/#source-1`), and bi-directional links to user stories (Story 1 linking to `../stories/#story-1`).
   - `stories.md`: Verified acceptance criteria and user journey steps.
   - `edge-cases.md`: Verified QA scenarios and failure behavior.
   - `questions.md`: Verified that unapproved API contracts and open questions are labeled explicitly, not invented.

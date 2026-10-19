@@ -5,6 +5,7 @@ import { KnowledgePanel } from "./KnowledgePanel";
 import { generationError, generationErrors } from "./generationErrors";
 import { PackagePreview } from "./PackagePreview";
 import { FeatureWorkspace } from "./FeatureWorkspace";
+import { GitCollaboration } from "./GitCollaboration";
 type Schema = components["schemas"];
 export default function App() {
   const [token, setToken] = useState("");
@@ -251,6 +252,13 @@ export default function App() {
         Download package
       </button>
     </div>
+    <GitCollaboration
+      token={token}
+      project={project}
+      candidate={candidate}
+      disabled={disabled}
+      onAuthError={requireAuth}
+    />
   </section>) : null;
   return (<>
     <a className="skip" href="#workspace">
@@ -267,6 +275,24 @@ export default function App() {
       <span className="local">● Local workspace</span>
     </header>
     <main id="workspace" tabIndex={-1}>
+      <nav className="workflow-stepper" aria-label="Workflow progress">
+        <div className={`step-item ${!project ? 'current' : 'completed'}`}>
+          <span className="step-num">1</span>
+          <span className="step-name">Project & Session</span>
+        </div>
+        <div className={`step-item ${project && !run ? 'current' : project && run ? 'completed' : ''}`}>
+          <span className="step-num">2</span>
+          <span className="step-name">Context & Intake</span>
+        </div>
+        <div className={`step-item ${run && revision && !reviewed ? 'current' : run && revision && reviewed ? 'completed' : ''}`}>
+          <span className="step-num">3</span>
+          <span className="step-name">Amend & Clarify</span>
+        </div>
+        <div className={`step-item ${revision && reviewed ? 'current' : ''}`}>
+          <span className="step-num">4</span>
+          <span className="step-name">Review & Export</span>
+        </div>
+      </nav>
       <div className={`intro ${revision ? "compact" : ""}`}>
         <p className="eyebrow">IDEA → REQUIREMENTS → HANDOFF</p>
         <h1>{revision ? revision.artifact.title : "Make the next step clear."}</h1>

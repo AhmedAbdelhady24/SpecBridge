@@ -105,7 +105,7 @@ export function ArtifactPreview({ value, onEditSection, renderSectionEditor, ori
       {renderSectionEditor?.("open_questions") ?? <>
         {onEditSection && <button type="button" className="secondary" onClick={() => onEditSection("open_questions")}>Edit question list</button>}
         {value.open_questions.length ? (<ul>
-          {value.open_questions.map((question, i) => (<li key={i}>{question}</li>))}
+          {value.open_questions.map((question, i) => (<li key={i} id={`read-question-${i}`} tabIndex={-1}>{question}</li>))}
         </ul>) : (<p>None supplied.</p>)}
       </>}
     </details>

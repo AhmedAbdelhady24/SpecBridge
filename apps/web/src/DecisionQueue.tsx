@@ -7,7 +7,7 @@ export type Amendment = {
   story: string;
   criteria: string;
 };
-export function DecisionQueue({ questions, selected, onSelect, answer, onAnswer, amendment, onAmendment, artifact, disabled, onSave, onPreview, onStatus, onReopen, history, onHistory, pending, onRequest, onPending, messages }: {
+export function DecisionQueue({ questions, selected, onSelect, answer, onAnswer, amendment, onAmendment, artifact, disabled, onSave, onPreview, onStatus, onReopen, history, onHistory, pending, onRequest, onPending, messages, onLocateQuestion, onLocateClause }: {
   questions: S['QuestionView'][];
   selected?: S['QuestionView'];
   onSelect: (id: string) => void;
@@ -27,6 +27,8 @@ export function DecisionQueue({ questions, selected, onSelect, answer, onAnswer,
   onRequest: (text: string) => Promise<boolean>;
   onPending: (pending: boolean) => void;
   messages: S["RequestView"][];
+  onLocateQuestion?: (q: S['QuestionView']) => void;
+  onLocateClause?: (targetId: string) => void;
 }) {
   return <section aria-label="Questions and decisions"><h3>Conversation</h3>
     <p>Save your answer first. Preview an amendment, then save a revision to incorporate it.</p>
@@ -36,7 +38,7 @@ export function DecisionQueue({ questions, selected, onSelect, answer, onAnswer,
       {questions.filter(q => q.latest_answer).sort((a, b) => a.latest_answer!.created_at.localeCompare(b.latest_answer!.created_at)).map(q => <li key={q.id}><div className="guide-message"><small>SpecBridge · question</small><p>{q.text}</p></div><div className="user-message"><small>You · saved answer</small><p>{q.latest_answer!.text}</p><button type="button" className="text-link" onClick={() => onSelect(q.id)}>Review this decision</button></div></li>)}
       {[...messages].reverse().map(message => <li key={message.id} className="user-message"><small>You · change requested</small><p>{message.text}</p><span>{message.status}</span></li>)}
     </ol>
-    {selected && <div className="decision-card"><div className="guide-message"><small>SpecBridge · current question</small><h4>{selected.text}</h4></div>
+    {selected && <div className="decision-card"><div className="guide-message"><small>SpecBridge · current question</small><h4>{selected.text}</h4>{onLocateQuestion && selected.in_current_draft && <button type="button" className="text-link" onClick={() => onLocateQuestion(selected)}>Locate question in draft →</button>}</div>
       <p className="evidence-badge">{selected.status === 'answered' ? 'Answer saved' : selected.status === 'unresolved' ? 'Unanswered' : selected.status}
         {selected.resolution_revision_id ? ' · linked to a saved revision' : ''}</p>
       {!selected.in_current_draft && <p>This question is in decision history, outside the current draft.</p>}
@@ -47,6 +49,7 @@ export function DecisionQueue({ questions, selected, onSelect, answer, onAnswer,
             <option value="_new">New requirement and linked story</option>
             {artifact.requirements.map((r, i) => <option key={r.id} value={r.id}>Requirement {i + 1}: {r.text.slice(0, 65)}</option>)}
             {artifact.stories.map((s, i) => <option key={s.id} value={s.id}>Story {i + 1}: {s.text.slice(0, 65)}</option>)}</select></label>
+          {onLocateClause && amendment.target !== 'scope' && amendment.target !== '_new' && <button type="button" className="text-link" onClick={() => onLocateClause(amendment.target)}>Locate target in draft →</button>}
           <label>Amendment text<textarea aria-label="Amendment text" required maxLength={16384} rows={3} disabled={disabled} value={amendment.text} onChange={e => onAmendment({ ...amendment, text: e.target.value })} /></label>
           {amendment.target === '_new' && <><label>New story<textarea aria-label="New story" required maxLength={16384} value={amendment.story} onChange={e => onAmendment({ ...amendment, story: e.target.value })} /></label>
             <label>Acceptance criteria (one per line)<textarea aria-label="Acceptance criteria (one per line)" required maxLength={16384} value={amendment.criteria} onChange={e => onAmendment({ ...amendment, criteria: e.target.value })} /></label></>}

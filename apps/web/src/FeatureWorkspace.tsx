@@ -2,13 +2,14 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 're
 import type { components } from './api/schema';
 import { request, ApiError } from './api/client';
 import { WorkspaceShell, type WorkspaceTask } from './WorkspaceShell';
-import { ReferenceProvider } from './SourceReferences';
+import { ReferenceProvider, revealReference } from './SourceReferences';
 import { DecisionQueue, type Amendment } from './DecisionQueue';
 import { ArtifactWorkspace } from './ArtifactWorkspace';
 import { ArtifactPreview } from './ArtifactPreview';
 import { DiffView } from './DiffView';
 import { RevisionTimeline } from './RevisionTimeline';
 import { ReviewPanel } from './ReviewPanel';
+import { DeliveryAutomation } from './DeliveryAutomation';
 type S = components['schemas'];
 export function FeatureWorkspace({ token, project, run, revision, disabled, onDirty, onSaved, onAuthError, review, reviewRequest }: {
   onAuthError: () => void;
@@ -210,6 +211,29 @@ export function FeatureWorkspace({ token, project, run, revision, disabled, onDi
     setPendingAmendments({});
     setMessage('Amendments discarded. Saved answers are retained.');
   }
+  function locateClause(targetId: string) {
+    setPane('draft');
+    setTimeout(() => {
+      revealReference(targetId);
+    }, 50);
+  }
+
+  function locateQuestion(question: S['QuestionView']) {
+    setPane('draft');
+    setTimeout(() => {
+      const qIndex = question.current_index;
+      const el = qIndex !== null && qIndex !== undefined ? document.getElementById(`read-question-${qIndex}`) : document.getElementById('preview-questions');
+      if (el) {
+        let parent = el.closest('details');
+        while (parent) { parent.open = true; parent = parent.parentElement?.closest('details') || null; }
+        document.querySelectorAll('.reference-highlight').forEach(node => node.classList.remove('reference-highlight'));
+        el.classList.add('reference-highlight');
+        el.focus?.({ preventScroll: true });
+        el.scrollIntoView({ block: 'center', behavior: 'instant' });
+      }
+    }, 50);
+  }
+
   const selectedPending = !!q && answers[q.id] !== undefined && answers[q.id] !== (q.latest_answer?.text || '');
   return <ReferenceProvider token={token} project={project} onAuthError={onAuthError}><div className="feature-review">
     {error && <p role="alert" className="error">{error}</p>}
@@ -226,7 +250,7 @@ export function FeatureWorkspace({ token, project, run, revision, disabled, onDi
       <button type="button" disabled={locked} onClick={() => void act(async () => { const receipt = await request<S['CommitReceipt']>(token, url + '/commits', { working_copy_version: commitAttempt.version, idempotency_key: commitAttempt.key }); await onSaved(await request(token, `${base}/revisions/${receipt.revision_id}`)); setCommitAttempt(undefined); commitKey.current = undefined; })}>Check or retry this revision save</button>
       <button type="button" className="secondary" disabled={locked} onClick={() => { setCommitAttempt(undefined); commitKey.current = undefined; setMessage('Attempt released. Compare current saved state before changing your preview.'); }}>Keep preview for reconciliation</button></aside>}
     <WorkspaceShell pane={pane} onPane={setPane} task={task} onTask={setTask} tasks={<>
-      <div className="conversation-task" hidden={task !== 'questions'}><DecisionQueue messages={chatRequests} onPending={setPendingChat} onRequest={async text => { let saved = false; await act(async () => { const recorded = await request<S['RequestView']>(token, url + '/change-requests', { base_revision_id: revision.id, text, target_ids: [] }); setChatRequests(current => [recorded, ...current]); setRequestRefresh(n => n + 1); setMessage('Change request recorded. The draft is unchanged.'); saved = true; }); return saved; }} questions={questions} selected={q} onSelect={id => { setSelected(id); }} answer={answer} onAnswer={text => {
+      <div className="conversation-task" hidden={task !== 'questions'}><DecisionQueue messages={chatRequests} onPending={setPendingChat} onLocateQuestion={locateQuestion} onLocateClause={locateClause} onRequest={async text => { let saved = false; await act(async () => { const recorded = await request<S['RequestView']>(token, url + '/change-requests', { base_revision_id: revision.id, text, target_ids: [] }); setChatRequests(current => [recorded, ...current]); setRequestRefresh(n => n + 1); setMessage('Change request recorded. The draft is unchanged.'); saved = true; }); return saved; }} questions={questions} selected={q} onSelect={id => { setSelected(id); }} answer={answer} onAnswer={text => {
         if (q)
           setAnswers({ ...answers, [q.id]: text });
         setMessage('');
@@ -262,6 +286,7 @@ export function FeatureWorkspace({ token, project, run, revision, disabled, onDi
       })} />
         {pendingAnswers && <button type="button" className="secondary" disabled={locked} onClick={() => setAnswers({})}>Restore saved answers</button>}</div>
       <div hidden={task !== 'changes'}><RevisionTimeline onRequests={setChatRequests} refresh={requestRefresh} onAuthError={onAuthError} token={token} project={project} run={run} revision={revision} onPending={setPendingRequest} selectedRequests={requestChanges} onRequestSelection={setRequestChanges} disabled={editLocked} /></div>
+      <div hidden={task !== 'delivery'}><DeliveryAutomation token={token} project={project} artifact={value} disabled={editLocked} onAuthError={onAuthError} /></div>
       <div hidden={task !== 'review'}><ReviewPanel>{review}</ReviewPanel></div>
     </>} document={<>
       <div className="revision-line"><strong>{featureNumber ? `Revision ${featureNumber}` : `Legacy revision ${revision.number}`}</strong>
