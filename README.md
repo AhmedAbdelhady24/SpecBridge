@@ -50,6 +50,14 @@ flowchart LR
 
 ![Two-pane workspace with an answerable question queue alongside the complete readable draft](docs/media/review.png)
 
+### Follow the original evidence
+
+![Original source quote beside the conversation and specification, with technical identifiers tucked away](docs/media/source-reference.png)
+
+### Compare revisions
+
+![Expanded revision comparison with changed-section navigation, before/after columns and word-level additions/deletions](docs/media/revisions.png)
+
 ### Review the exact package
 
 ![Recorded demo review with exact prepared documentation preview and secondary integrity details](docs/media/approval.png)
@@ -112,9 +120,9 @@ Existing workspaces require an additive schema upgrade before running this branc
 
 1. Select a project or choose **Create a project**. **Project context** is reusable background: save a note, then select **Use in next draft** to include that exact version. Saving background alone does not change a feature.
 2. Open existing work, or enter a feature idea and choose **Review generation**. Confirm the displayed destination before generating.
-3. Read the full draft beside **Questions**. **Save answer** records your decision separately. Choose a target and enter exact wording, then **Preview amendment** to see the proposed change. These actions make no model call.
+3. Read the full draft beside the **Questions** conversation. Use **Answer question** or **Request a change** in the composer. **Save answer** records your decision separately. Choose a target and enter exact wording, then **Preview amendment** to see the proposed change. Source references quote original text; requirement/story links reveal and highlight the linked clause. Exact wording can be highlighted in the full source; when no precise passage was recorded, the UI says so. These actions make no model call.
 4. Edit individual sections as needed. **Save working preview** preserves private work for reconnection; **Save revision** commits a new immutable revision and requires fresh review. Unpreviewed wording must be previewed or explicitly discarded first.
-5. Use **Changes** for feature revision history, before/after comparison and requested changes. A request becomes addressed only with an explicit saved revision.
+5. Use **Changes** for feature revision history, before/after comparison and requested changes. **Expand comparison** opens a section-indexed split diff with word highlights. A request becomes addressed only with an explicit saved revision.
 6. In **Review & export**, record review, prepare and read the exact package, then approve it. Download and extract its ZIP into a new directory.
 
 From the extracted directory:

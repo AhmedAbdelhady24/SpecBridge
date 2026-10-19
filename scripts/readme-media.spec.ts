@@ -29,8 +29,16 @@ test('capture an isolated fixture handoff and its independently built documentat
   await page.screenshot({ path: resolve(output, 'intake.png'), animations: 'disabled' });
   await page.getByRole('button', { name: 'Generate draft', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Edit draft', exact: true })).toBeVisible();
+  await page.getByLabel('Your answer', { exact: true }).fill('The intended user is a report reviewer.');
+  await page.getByRole('button', { name: 'Save answer', exact: true }).click();
+  await expect(page.getByText('Answer saved. The draft is unchanged.', { exact: true })).toBeVisible();
   await page.getByRole('heading', { name: 'Draft review', exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: resolve(output, 'review.png'), animations: 'disabled' });
+  const sourceReference = page.getByRole('article', { name: 'Readable draft' }).getByText('Source references', { exact: true }).first();
+  await sourceReference.click();
+  await expect(page.getByRole('article', { name: 'Readable draft' }).getByRole('blockquote').first()).toContainText('Export saved reports as CSV');
+  await page.screenshot({ path: resolve(output, 'source-reference.png'), animations: 'disabled' });
+  await sourceReference.click();
   await editDraft(page);
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(/DEMO fixture/);
   await reviewTask(page);
@@ -38,6 +46,15 @@ test('capture an isolated fixture handoff and its independently built documentat
   const requirementLabel = await page.getByText('Requirement ID:', { exact: false }).first().textContent();
   const requirementId = requirementLabel?.match(/REQ-[a-z0-9-]+/i)?.[0];
   expect(requirementId).toBeTruthy();
+  await page.getByLabel('Purpose', { exact: true }).fill('Review the proposed report export, retaining unknown ownership and permission decisions.');
+  await page.getByRole('button', { name: 'Save revision', exact: true }).click();
+  await expect(page.getByText('New revision saved. Review and approve it again.', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Changes', exact: true }).click();
+  await page.getByRole('button', { name: 'Compare revisions', exact: true }).click();
+  await page.getByRole('button', { name: 'Expand comparison', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Revision comparison', exact: true })).toBeVisible();
+  await page.screenshot({ path: resolve(output, 'revisions.png'), animations: 'disabled' });
+  await page.getByRole('button', { name: 'Close comparison', exact: true }).click();
   await page.getByRole('button', { name: 'Read draft', exact: true }).click();
   await reviewTask(page);
   await page.getByLabel('Review notes', { exact: true }).fill(
@@ -81,7 +98,7 @@ test('capture an isolated fixture handoff and its independently built documentat
     }, { timeout: 30_000 }).toBe(200);
     await page.goto(`${origin}/requirements/`);
     await expect(page.getByRole('heading', { name: 'Requirements', exact: true }).first()).toBeVisible();
-    await expect(page.locator('main')).toContainText(requirementId!);
+    await expect(page.getByRole('heading', { name: 'Requirement 1', exact: true })).toBeVisible();
     await page.screenshot({ path: resolve(output, 'documentation.png'), animations: 'disabled' });
     expect(errors).toEqual([]);
     expect(candidate.digest).toMatch(/^[a-f0-9]{64}$/);
