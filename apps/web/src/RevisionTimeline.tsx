@@ -3,8 +3,10 @@ import type { components } from './api/schema';
 import { ApiError, request } from './api/client';
 import { DiffView } from './DiffView';
 type S = components['schemas'];
-export function RevisionTimeline({ token, project, run, revision, onAuthError, selectedRequests, onRequestSelection, disabled, onPending }: {
+export function RevisionTimeline({ token, project, run, revision, onRequests, refresh, onAuthError, selectedRequests, onRequestSelection, disabled, onPending }: {
   onAuthError: () => void;
+  onRequests: (requests: S["RequestView"][]) => void;
+  refresh: number;
   token: string;
   project: string;
   run: string;
@@ -26,6 +28,7 @@ export function RevisionTimeline({ token, project, run, revision, onAuthError, s
   const [error, setError] = useState('');
   const [working, setWorking] = useState(false);
   const url = `/projects/${project}/runs/${run}`;
+  useEffect(() => onRequests(requests), [requests, onRequests]);
   useEffect(() => onPending(!!text.trim()), [text, onPending]);
   useEffect(() => {
     let active = true;
@@ -42,7 +45,7 @@ export function RevisionTimeline({ token, project, run, revision, onAuthError, s
         { if (e instanceof ApiError && e.status === 401) onAuthError(); setError(e.message); }
     });
     return () => { active = false; };
-  }, [token, url, revision.id]);
+  }, [token, url, revision.id, refresh]);
   async function act(op: () => Promise<void>) {
     setWorking(true);
     setError('');
@@ -97,7 +100,7 @@ export function RevisionTimeline({ token, project, run, revision, onAuthError, s
         {([['Before', comparison.base_decisions], ['After', comparison.head_decisions]] as const).map(([label, snapshot]) => <section key={label}><h4>{label}</h4>
           {snapshot ? <>{(snapshot.questions || []).map(q => <div key={q.id}><strong>{q.text}</strong>
             <p>{q.latest_answer?.text || 'No answer recorded'}</p>
-            <small>Resolution recorded in {q.resolution_revision_id}</small></div>)}
+            <small>Resolution recorded in {entries.find(entry => entry.revision_id === q.resolution_revision_id)?.feature_number ? `Revision ${entries.find(entry => entry.revision_id === q.resolution_revision_id)!.feature_number}` : 'an earlier saved revision'}</small></div>)}
             {(snapshot.requests || []).map(r => <p key={r.id}>Addressed request: {r.text}</p>)}
             {!(snapshot.questions || []).length && !(snapshot.requests || []).length && <p>No incorporated decisions recorded.</p>}</> : <p>Decision history was not recorded for this revision.</p>}</section>)}</details></>}
   </section>;

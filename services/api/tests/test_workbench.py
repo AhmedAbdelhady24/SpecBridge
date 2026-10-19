@@ -463,7 +463,13 @@ def test_exact_package_preview_is_authenticated_bounded_and_inert(workbench):
     assert "src/content/docs/requirements.md" in [f["path"] for f in preview["files"]]
     doc = c.get(url, params={"path": "src/content/docs/requirements.md"})
     assert doc.status_code == 200
-    assert revision["artifact"]["requirements"][0]["id"] in doc.json()["content"]
+    from specbridge.publisher import text
+
+    assert "## Requirement 1" in doc.json()["content"]
+    assert (
+        text(revision["artifact"]["requirements"][0]["text"]) in doc.json()["content"]
+    )
+    assert revision["artifact"]["requirements"][0]["id"] not in doc.json()["content"]
     assert c.get(url, params={"path": "../.env"}).status_code == 404
     assert c.get(url, params={"path": "astro.config.mjs"}).status_code == 404
     other = c.post("/api/projects", json={"name": "Other"}).json()["id"]

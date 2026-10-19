@@ -58,8 +58,9 @@ try {
       }
     }
     if (slug === 'requirements') {
-      for (const requirement of snapshot.artifact.requirements) {
-        assert.equal(await page.getByRole('heading', { name: requirement.id, exact: true }).count(), 1);
+      for (const [index, requirement] of snapshot.artifact.requirements.entries()) {
+        assert.equal(await page.getByRole('heading', { name: `Requirement ${index + 1}`, exact: true }).count(), 1);
+        assert.ok((await page.locator('main').textContent()).includes(requirement.text));
       }
       for (const link of await page.locator('main a[href*="stories/#"]').all()) {
         const target = new URL(await link.getAttribute('href'), page.url());

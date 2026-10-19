@@ -75,3 +75,28 @@ def test_exported_template_has_no_vulnerable_selector_parser(artifact_dict):
         assert all(
             tuple(map(int, version.split("."))) >= (7, 1, 6) for version in parsers
         )
+
+
+def test_readable_quotes_and_links_preserve_technical_mapping(artifact_dict, template):
+    source_id = "source-opaque-uuid"
+    source = 'Original spec: Export saved reports. <img src="https://evil.example">'
+    artifact_dict["requirements"][0]["source_ids"] = [source_id]
+    package = render_package(
+        Artifact.model_validate(artifact_dict),
+        {"source_texts": json.dumps({source_id: source})},
+        template,
+    )
+    with ZipFile(BytesIO(package.zip_bytes)) as archive:
+        requirements = archive.read("src/content/docs/requirements.md").decode()
+        provenance = archive.read("src/content/docs/provenance.md").decode()
+        assert "## Requirement 1" in requirements
+        assert "[Story 1:" in requirements
+        assert "../stories/#story-1" in requirements
+        assert "[Source 1](../provenance/#source-1)" in requirements
+        assert source_id not in requirements
+        assert "Original spec: Export saved reports" in provenance
+        assert "<img" not in provenance
+        assert "&lt;img" in provenance
+        assert json.loads(archive.read("revision.json"))["artifact"]["requirements"][0][
+            "source_ids"
+        ] == [source_id]

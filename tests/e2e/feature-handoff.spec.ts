@@ -30,7 +30,12 @@ test('human review binds the exact package before download', async ({ page, requ
   const run = await (await request.get(`${api}/projects/${projectId}/runs/${runId}`, { headers: authHeaders() })).json();
   const revision = await (await request.get(`${api}/projects/${projectId}/revisions/${run.revision_id}`, { headers: authHeaders() })).json();
   const ids = revision.artifact.requirements.map((r: { id: string }) => r.id);
-  for (const id of ids) await expect(page.getByText(`Requirement ID: ${id}`, { exact: false })).toBeVisible();
+  for (const id of ids) {
+    const reference = page.getByText(`Requirement ID: ${id}`, { exact: false });
+    await expect(reference).toBeHidden();
+    await reference.locator('..').evaluate(node => { (node as HTMLDetailsElement).open = true; });
+    await expect(reference).toBeVisible();
+  }
   expect(revision.artifact.requirements[0].source_ids).toEqual(run.source_ids);
   const saveResponse = page.waitForResponse(r => r.url().endsWith('/commits') && r.request().method() === 'POST');
   await page.getByLabel('Purpose', { exact: true }).fill('Revised purpose; keep source and requirement IDs unchanged.');

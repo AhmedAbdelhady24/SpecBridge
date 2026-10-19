@@ -229,7 +229,7 @@ test('delayed answer history stays associated with its question',async({page,req
   await page.getByRole('button',{name:`2. ${questions[1].text}`,exact:true}).click();
   const completed=page.waitForResponse(r=>r.url().endsWith(`/questions/${questions[0].id}/answers`));
   release();await completed;
-  await expect(page.getByRole('region',{name:'Questions and decisions'})).not.toContainText('Answer belonging only to question A');
+  await expect(page.locator('.decision-card')).not.toContainText('Answer belonging only to question A');
 });
 
 test('reauthentication after commit retains the receipt for safe reconciliation',async({page,request})=>{

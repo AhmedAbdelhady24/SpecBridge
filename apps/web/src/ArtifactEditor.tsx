@@ -1,3 +1,4 @@
+import { SourceReferences } from "./SourceReferences";
 import { evidenceLabel } from "./labels";
 import { useId, useRef } from "react";
 import type { components } from "./api/schema";
@@ -71,18 +72,13 @@ export function ArtifactEditor({ value, onChange, disabled, section, }: {
           ...value,
           [sectionKey]: value[sectionKey].map((s, j) => j === i ? { ...s, kind } : s),
         }))}
-        <p className="provenance">
-          {evidenceLabel(item.kind)} · Source IDs:{" "}
-          {(item.source_ids ?? []).join(", ") || "none"}
-        </p>
+        <SourceReferences ids={item.source_ids ?? []} claim={item.text} />
       </div>))}
     </details>))}
     {(!section || section === 'requirements') && <details className="editor-section" open={!!section}>
       <summary>Requirements ({value.requirements.length})</summary>
       {value.requirements.map((item, i) => (<div key={item.id}>
-        <p>
-          Requirement ID: <code>{item.id}</code>
-        </p>
+        <details className="technical-reference"><summary>Technical reference</summary><p>Requirement ID: <code>{item.id}</code></p></details>
         {field(`Requirement ${i + 1}`, item.text, (text) => onChange({
           ...value,
           requirements: value.requirements.map((s, j) => j === i ? { ...s, text } : s),
@@ -91,18 +87,14 @@ export function ArtifactEditor({ value, onChange, disabled, section, }: {
           ...value,
           requirements: value.requirements.map((s, j) => j === i ? { ...s, kind } : s),
         }), true)}
-        <p className="provenance">
-          {evidenceLabel(item.kind)} · Source IDs:{" "}
-          {(item.source_ids ?? []).join(", ") || "none"}
-        </p>
+        <SourceReferences ids={item.source_ids ?? []} claim={item.text} />
       </div>))}
     </details>}
     {(!section || section === 'stories') && <details className="editor-section" open={!!section}>
       <summary>User stories &amp; acceptance criteria ({value.stories.length})</summary>
       {value.stories.map((item, i) => (<div key={item.id}>
-        <p>
-          Story ID: <code>{item.id}</code>
-        </p>
+        <details className="technical-reference"><summary>Technical reference</summary><p>Story ID: <code>{item.id}</code></p></details>
+        <SourceReferences ids={item.source_ids ?? []} claim={item.text} />
         {field(`Story ${i + 1}`, item.text, (text) => onChange({
           ...value,
           stories: value.stories.map((s, j) => j === i ? { ...s, text } : s),
@@ -112,8 +104,7 @@ export function ArtifactEditor({ value, onChange, disabled, section, }: {
           stories: value.stories.map((s, j) => j === i ? { ...s, kind } : s),
         }))}
         <p className="provenance">
-          {evidenceLabel(item.kind)} · Requirements: {item.requirement_ids.join(", ")} ·
-          Source IDs: {(item.source_ids ?? []).join(", ") || "none"}
+          {evidenceLabel(item.kind)} · Requirements: {item.requirement_ids.map(id => `Requirement ${value.requirements.findIndex(r => r.id === id) + 1}: ${value.requirements.find(r => r.id === id)?.text || 'Unavailable'}`).join('; ')}
         </p>
         {item.acceptance_criteria.map((criterion, k) => (<div key={k}>
           {field(`Acceptance criterion ${i + 1}.${k + 1}`, criterion, (text) => onChange({

@@ -1,5 +1,6 @@
 import hashlib
 import html
+import json
 import re
 from dataclasses import dataclass
 from io import BytesIO
@@ -55,14 +56,20 @@ def text(value: str) -> str:
     )
 
 
-def statements(values: list[Statement]) -> str:
-    return (
-        "\n".join(
-            f"- {text(value.text)} — {value.kind}; sources: {', '.join(text(s) for s in value.source_ids) or 'none supplied'}"
-            for value in values
+def statements(values: list[Statement], sources: dict[str, str] | None = None) -> str:
+    sources = sources or {}
+    numbers = {key: i + 1 for i, key in enumerate(sources)}
+    lines = []
+    for value in values:
+        citations = ", ".join(
+            f"[Source {numbers[key]}](../provenance/#source-{numbers[key]})"
+            for key in value.source_ids
+            if key in numbers
         )
-        or "Not supplied."
-    )
+        lines.append(
+            f"- {text(value.text)} — {value.kind}; sources: {citations or 'No source text supplied'}"
+        )
+    return "\n".join(lines) or "Not supplied."
 
 
 def page(title: str, body: str) -> bytes:
@@ -86,29 +93,48 @@ def render_package(
 ) -> CandidatePackage:
     files = template_files(template_root)
     template_hash = digest(hashes(files))
+    try:
+        raw_sources = json.loads(provenance.get("source_texts", "{}"))
+    except (ValueError, TypeError):
+        raw_sources = {}
+    sources = (
+        {
+            key: value
+            for key, value in sorted(raw_sources.items())
+            if isinstance(key, str) and isinstance(value, str)
+        }
+        if isinstance(raw_sources, dict)
+        else {}
+    )
+    source_quotes = "\n\n".join(
+        f"## Source {i}\n\n"
+        + "\n".join("> " + text(line) for line in value.split("\n"))
+        for i, value in enumerate(sources.values(), 1)
+    )
+    requirement_numbers = {r.id: i for i, r in enumerate(artifact.requirements, 1)}
     pages = {
         "index": (
             artifact.title,
             "## Product overview\n\n"
             + text(artifact.purpose)
             + "\n\n## Scope\n\n"
-            + statements(artifact.scope)
+            + statements(artifact.scope, sources)
             + "\n\n## Non-goals\n\n"
-            + statements(artifact.non_goals),
+            + statements(artifact.non_goals, sources),
         ),
         "edge-cases": (
             "Edge cases and QA",
-            statements(artifact.edge_cases)
+            statements(artifact.edge_cases, sources)
             + "\n\n## QA scenarios\n\nTest each story's acceptance criteria, invalid input, retry behavior and unresolved questions. These are proposed checks, not executed QA results.",
         ),
         "risks": (
             "Risks, dependencies and metrics",
             "## Risks\n\n"
-            + statements(artifact.risks)
+            + statements(artifact.risks, sources)
             + "\n\n## Dependencies\n\n"
-            + statements(artifact.dependencies)
+            + statements(artifact.dependencies, sources)
             + "\n\n## Proposed success metrics\n\n"
-            + statements(artifact.success_metrics),
+            + statements(artifact.success_metrics, sources),
         ),
         "questions": (
             "Open questions and technical constraints",
@@ -119,46 +145,65 @@ def render_package(
             "Requirements",
             "\n\n".join(
                 "## "
-                + requirement.id
+                + f"Requirement {i}"
                 + "\n\n"
-                + statements([requirement])
+                + statements([requirement], sources)
                 + "\n\nStories: "
                 + ", ".join(
-                    f"[{story.id}](../stories/#{story.id.lower()})"
-                    for story in artifact.stories
+                    f"[Story {j}: {text(story.text[:120])}](../stories/#story-{j})"
+                    for j, story in enumerate(artifact.stories, 1)
                     if requirement.id in story.requirement_ids
                 )
-                for requirement in artifact.requirements
+                for i, requirement in enumerate(artifact.requirements, 1)
             ),
         ),
         "stories": (
             "User stories and acceptance criteria",
             "\n\n".join(
                 "## "
-                + story.id
+                + f"Story {i}"
                 + "\n\n"
-                + statements([story])
+                + statements([story], sources)
                 + "\n\nRequirements: "
                 + ", ".join(
-                    f"[{key}](../requirements/#{key.lower()})"
+                    f"[Requirement {requirement_numbers[key]}: {text(next(r.text for r in artifact.requirements if r.id == key)[:120])}](../requirements/#requirement-{requirement_numbers[key]})"
                     for key in story.requirement_ids
+                    if key in requirement_numbers
                 )
                 + "\n\n### Acceptance criteria\n\n"
                 + "\n".join(
                     "- " + text(criterion) for criterion in story.acceptance_criteria
                 )
-                for story in artifact.stories
+                for i, story in enumerate(artifact.stories, 1)
             ),
         ),
         "provenance": (
             "Sources and revision history",
             "This is an approved snapshot, not a live project-status report. User input remains user-provided information, not independently verified fact.\n\n"
+            + source_quotes
+            + "\n\n## Technical revision details\n\n"
             + "\n\n".join(
-                f"## {text(key)}\n\n{text(value)}"
+                f"### {text(key)}\n\n{text(value)}"
                 for key, value in sorted(provenance.items())
+                if key != "source_texts"
             ),
         ),
     }
+    pages["provenance"] = (
+        pages["provenance"][0],
+        pages["provenance"][1]
+        + "\n\n"
+        + "\n".join(f"- Source {i}: {text(key)}" for i, key in enumerate(sources, 1))
+        + "\n"
+        + "\n".join(
+            f"- Requirement {i}: {text(r.id)}"
+            for i, r in enumerate(artifact.requirements, 1)
+        )
+        + "\n"
+        + "\n".join(
+            f"- Story {i}: {text(r.id)}" for i, r in enumerate(artifact.stories, 1)
+        ),
+    )
     decisions = decisions or DecisionSnapshot()
     decision_lines = [
         "This is recorded decision history, not independently verified fact. Each resolution names its revision; later edits may supersede it. Inspect the current requirements for applicability."

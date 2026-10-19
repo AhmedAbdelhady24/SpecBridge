@@ -8,7 +8,7 @@ function Inline({ text, onNavigate }: {
   onNavigate: (path: string) => void;
 }) {
   const nodes: ReactNode[] = [];
-  const pattern = /(?<!\\)\[([^\]]+)\]\(\.\.\/(requirements|stories)\/#([a-z0-9-]+)\)/g;
+  const pattern = /(?<!\\)\[([^\]]+)\]\(\.\.\/(requirements|stories|provenance)\/#([a-z0-9-]+)\)/g;
   let start = 0;
   for (const match of text.matchAll(pattern)) {
     nodes.push(plain(text.slice(start, match.index)));
@@ -38,6 +38,7 @@ function ReadableDocument({ content, onNavigate }: {
       blocks.push(<h4 key={i}>{plain(line.replace(/^#{1,6} /, ''))}</h4>);
       continue;
     }
+    if (line.startsWith('> ')) { blocks.push(<blockquote key={i}>{plain(line.slice(2))}</blockquote>); continue; }
     if (line.startsWith('- ')) {
       const items = [];
       const key = i;

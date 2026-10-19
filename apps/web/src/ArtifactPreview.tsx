@@ -1,3 +1,4 @@
+import { SourceReferences, revealReference } from "./SourceReferences";
 import { evidenceLabel } from "./labels";
 import type { ReactNode } from "react";
 import type { components } from "./api/schema";
@@ -8,10 +9,7 @@ function Evidence({ item }: {
 }) {
   return (<>
     <span className="evidence-badge">{evidenceLabel(item.kind)}</span>
-    <details className="item-provenance">
-      <summary>Source references</summary>
-      <p>{(item.source_ids ?? []).join(", ") || "No source supplied"}</p>
-    </details>
+    <SourceReferences ids={item.source_ids ?? []} claim={item.text} />
   </>);
 }
 export function ArtifactPreview({ value, onEditSection, renderSectionEditor, original }: {
@@ -57,11 +55,11 @@ export function ArtifactPreview({ value, onEditSection, renderSectionEditor, ori
       <summary>Requirements ({value.requirements.length})</summary>
       {renderSectionEditor?.("requirements") ?? <>
         {onEditSection && <button type="button" className="secondary" onClick={() => onEditSection("requirements")}>Edit requirements</button>}
-        {value.requirements.map((item) => (<section className={original && JSON.stringify(original.requirements.find(r => r.id === item.id)) !== JSON.stringify(item) ? "statement amendment-highlight" : "statement"} key={item.id} id={`read-${item.id}`}>
+        {value.requirements.map((item) => (<section className={original && JSON.stringify(original.requirements.find(r => r.id === item.id)) !== JSON.stringify(item) ? "statement amendment-highlight" : "statement"} key={item.id} id={`read-${item.id}`} tabIndex={-1}>
           {original && original.requirements.find(r => r.id === item.id)?.text !== item.text && <p className="diff-before"><strong>Before: </strong>
             <del>{original.requirements.find(r => r.id === item.id)?.text || "New requirement"}</del></p>}
           <h4>{item.text}</h4>
-          <code>{item.id}</code>
+          <details className="technical-reference"><summary>Technical reference</summary><code>{item.id}</code></details>
           <div className="evidence-line">
             <Evidence item={item} />
           </div>
@@ -69,8 +67,8 @@ export function ArtifactPreview({ value, onEditSection, renderSectionEditor, ori
             Stories:{" "}
             {value.stories
               .filter((story) => story.requirement_ids.includes(item.id))
-              .map((story) => (<a key={story.id} href={`#read-${story.id}`}>
-                {story.id}
+              .map((story) => (<a key={story.id} href={`#read-${story.id}`} onClick={() => revealReference(story.id)}>
+                Story {value.stories.indexOf(story) + 1}: {story.text}
                 {" "}
               </a>))}
           </p>
@@ -83,16 +81,16 @@ export function ArtifactPreview({ value, onEditSection, renderSectionEditor, ori
       </summary>
       {renderSectionEditor?.("stories") ?? <>
         {onEditSection && <button type="button" className="secondary" onClick={() => onEditSection("stories")}>Edit stories and criteria</button>}
-        {value.stories.map((story) => (<section className={original && JSON.stringify(original.stories.find(s => s.id === story.id)) !== JSON.stringify(story) ? "statement amendment-highlight" : "statement"} key={story.id} id={`read-${story.id}`}>
+        {value.stories.map((story) => (<section className={original && JSON.stringify(original.stories.find(s => s.id === story.id)) !== JSON.stringify(story) ? "statement amendment-highlight" : "statement"} key={story.id} id={`read-${story.id}`} tabIndex={-1}>
           <h4>{story.text}</h4>
-          <code>{story.id}</code>
+          <details className="technical-reference"><summary>Technical reference</summary><code>{story.id}</code></details>
           <div className="evidence-line">
             <Evidence item={story} />
           </div>
           <p>
             Requirements:{" "}
-            {story.requirement_ids.map((id) => (<a key={id} href={`#read-${id}`}>
-              {id}
+            {story.requirement_ids.map((id) => (<a key={id} href={`#read-${id}`} onClick={() => revealReference(id)}>
+              Requirement {value.requirements.findIndex(r => r.id === id) + 1}: {value.requirements.find(r => r.id === id)?.text || "Unavailable requirement"}
               {" "}
             </a>))}
           </p>

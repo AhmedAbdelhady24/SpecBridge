@@ -142,6 +142,17 @@ export default function App() {
     if (current.revision_id)
       await loadRevision(current.revision_id);
   }
+  async function openFeatureRun(id: string) {
+    if (!mayLeaveDraft()) return;
+    workspaceEpoch.current++;
+    clearRevision();
+    setSelectedRun(id);
+    setSelectedSources([]);
+    const saved = await api<Schema["Run"]>(`${base}/runs/${id}`);
+    setRun(saved);
+    setSelectedSources(await Promise.all(saved.source_ids.map(id => api<Schema["Source"]>(`${base}/sources/${id}`))));
+    if (saved.revision_id) await loadRevision(saved.revision_id);
+  }
   async function generate() {
     if (!generationConfirmation || !ack)
       return;
@@ -346,6 +357,7 @@ export default function App() {
           <aside className="intake panel">
             <p className="step">01 / START WITH CONTEXT</p>
             <h2 id="intake-heading" tabIndex={-1}>Feature workspace</h2>
+            {revision && <nav className="feature-list" aria-label="Feature history"><h3>Features</h3>{runs.map(item => <button type="button" key={item.id} disabled={disabled} aria-current={run?.id === item.id ? 'page' : undefined} className="secondary" onClick={() => void act(() => openFeatureRun(item.id))}>{item.title || item.intent}<small>{item.revision_number ? `Revision ${item.revision_number}` : item.status.replaceAll('_', ' ')}</small></button>)}</nav>}
             <details open={!revision}><summary>Choose or start a feature</summary>
 
               {project && runs.length > 0 && (<fieldset disabled={disabled}>
@@ -362,16 +374,7 @@ export default function App() {
                   </select>
                 </div>
                 <button className="secondary" disabled={!selectedRun} onClick={() => void act(async () => {
-                  if (!mayLeaveDraft())
-                    return;
-                  workspaceEpoch.current++;
-                  clearRevision();
-                  setSelectedSources([]);
-                  const saved = await api<Schema["Run"]>(`${base}/runs/${selectedRun}`);
-                  setRun(saved);
-                  setSelectedSources(await Promise.all(saved.source_ids.map(id => api<Schema["Source"]>(`${base}/sources/${id}`))));
-                  if (saved.revision_id)
-                    await loadRevision(saved.revision_id);
+                  await openFeatureRun(selectedRun);
                 })}>
                   Open run
                 </button>
@@ -443,8 +446,9 @@ export default function App() {
                   </ol>
                   <details className="source-evidence">
                     <summary>Selected source evidence</summary>
-                    {selectedSources.map(source => (<section key={source.id}>
-                      <p>Source ID: <code>{source.id}</code> · {source.kind}</p>
+                    {selectedSources.map((source, i) => (<section key={source.id}>
+                      <p>Original source {i + 1} · {source.kind.replaceAll("_", " ")}</p>
+                      <details><summary>Technical reference</summary><code>{source.id}</code></details>
                       <pre>{source.text}</pre>
                     </section>))}
                     {selectedSources.length === 0 && (<p>Source evidence has not loaded.</p>)}

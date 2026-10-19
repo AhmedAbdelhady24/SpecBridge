@@ -1,3 +1,4 @@
+import { ChatComposer } from "./ChatComposer";
 import type { components } from './api/schema';
 type S = components['schemas'];
 export type Amendment = {
@@ -6,7 +7,7 @@ export type Amendment = {
   story: string;
   criteria: string;
 };
-export function DecisionQueue({ questions, selected, onSelect, answer, onAnswer, amendment, onAmendment, artifact, disabled, onSave, onPreview, onStatus, onReopen, history, onHistory, pending }: {
+export function DecisionQueue({ questions, selected, onSelect, answer, onAnswer, amendment, onAmendment, artifact, disabled, onSave, onPreview, onStatus, onReopen, history, onHistory, pending, onRequest, onPending, messages }: {
   questions: S['QuestionView'][];
   selected?: S['QuestionView'];
   onSelect: (id: string) => void;
@@ -23,19 +24,24 @@ export function DecisionQueue({ questions, selected, onSelect, answer, onAnswer,
   history: S['AnswerVersion'][];
   onHistory: () => void;
   pending: boolean;
+  onRequest: (text: string) => Promise<boolean>;
+  onPending: (pending: boolean) => void;
+  messages: S["RequestView"][];
 }) {
-  return <section aria-label="Questions and decisions"><h3>Questions & decisions</h3>
+  return <section aria-label="Questions and decisions"><h3>Conversation</h3>
     <p>Save your answer first. Preview an amendment, then save a revision to incorporate it.</p>
     {!questions.length && <p>No questions recorded for this feature.</p>}
-    {selected && <div className="decision-card"><h4>{selected.text}</h4>
+    <div className="conversation-thread">
+    <ol role="log" aria-label="Feature conversation" className="chat-messages">
+      {questions.filter(q => q.latest_answer).sort((a, b) => a.latest_answer!.created_at.localeCompare(b.latest_answer!.created_at)).map(q => <li key={q.id}><div className="guide-message"><small>SpecBridge · question</small><p>{q.text}</p></div><div className="user-message"><small>You · saved answer</small><p>{q.latest_answer!.text}</p><button type="button" className="text-link" onClick={() => onSelect(q.id)}>Review this decision</button></div></li>)}
+      {[...messages].reverse().map(message => <li key={message.id} className="user-message"><small>You · change requested</small><p>{message.text}</p><span>{message.status}</span></li>)}
+    </ol>
+    {selected && <div className="decision-card"><div className="guide-message"><small>SpecBridge · current question</small><h4>{selected.text}</h4></div>
       <p className="evidence-badge">{selected.status === 'answered' ? 'Answer saved' : selected.status === 'unresolved' ? 'Unanswered' : selected.status}
         {selected.resolution_revision_id ? ' · linked to a saved revision' : ''}</p>
       {!selected.in_current_draft && <p>This question is in decision history, outside the current draft.</p>}
       {selected.status === 'resolved' ? <><p>{selected.latest_answer?.text}</p>
         <button type="button" disabled={disabled} onClick={onReopen}>Preview reopening this question</button></> : <>
-        <label>Your answer<textarea aria-label="Your answer" rows={4} maxLength={16384} value={answer} disabled={disabled || selected.status === 'dismissed'} onChange={e => onAnswer(e.target.value)} /></label>
-        <p className="muted">{pending ? 'Not saved yet.' : 'Saved answers remain separate from the specification.'}</p>
-        <button type="button" disabled={disabled || !answer.trim() || selected.status === 'dismissed'} onClick={onSave}>Save answer</button>
         {selected.latest_answer && selected.status === 'answered' && selected.in_current_draft && <form onSubmit={e => { e.preventDefault(); onPreview(); }}>
           <label>Amendment target<select aria-label="Amendment target" value={amendment.target} disabled={disabled} onChange={e => onAmendment({ ...amendment, target: e.target.value })}><option value="scope">Append to scope</option>
             <option value="_new">New requirement and linked story</option>
@@ -65,8 +71,12 @@ export function DecisionQueue({ questions, selected, onSelect, answer, onAnswer,
           <p>{a.text}</p>
           <small>{new Date(a.created_at).toLocaleString()}</small></div>) : <p>No saved answers loaded.</p>}</details>
     </div>}
+
+    <details className="question-directory" open><summary>Questions & decisions ({questions.length})</summary>
     <ol className="question-list">{questions.map((q, i) => <li key={q.id}><button type="button" className="secondary" aria-current={selected?.id === q.id ? 'true' : undefined} onClick={() => onSelect(q.id)}>{i + 1}. {q.text}</button>
       <small>{q.status === 'unresolved' ? 'Unanswered' : q.status}
-        {!q.in_current_draft ? ' · history' : ''}</small></li>)}</ol>
+        {!q.in_current_draft ? ' · history' : ''}</small></li>)}</ol></details>
+    </div>
+    <ChatComposer answer={answer} onAnswer={onAnswer} onSave={onSave} onRequest={onRequest} onPending={onPending} disabled={disabled} canAnswer={!!selected && !["dismissed", "resolved"].includes(selected.status)} pending={pending} />
   </section>;
 }

@@ -13,7 +13,7 @@ export function WorkspaceShell({ task, onTask, tasks, document, pane, onPane }: 
       <button type="button" aria-pressed={pane === 'draft'} onClick={() => onPane('draft')}>Draft pane</button></nav>
     <aside className="task-pane" aria-label="Feature tasks" tabIndex={0}>
       <nav className="task-nav" aria-label="Feature tasks">{([['questions', 'Questions'], ['changes', 'Changes'], ['review', 'Review & export']] as const).map(([key, label]) => <button type="button" key={key} className={task === key ? '' : 'secondary'} aria-pressed={task === key} onClick={() => onTask(key)}>{label}</button>)}</nav>
-      {tasks}
+      <div className="task-content">{tasks}</div>
     </aside>
     <section className="document-pane" aria-label="Complete specification" tabIndex={0}>{document}</section>
   </div>;
