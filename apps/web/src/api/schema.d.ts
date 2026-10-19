@@ -124,6 +124,143 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{project_id}/delivery/jira/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview Jira */
+        post: operations["preview_jira_api_projects__project_id__delivery_jira_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/delivery/jira/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sync Jira */
+        post: operations["sync_jira_api_projects__project_id__delivery_jira_sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/delivery/meetings/extract": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Extract Actions */
+        post: operations["extract_actions_api_projects__project_id__delivery_meetings_extract_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/delivery/prioritize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Prioritize */
+        post: operations["prioritize_api_projects__project_id__delivery_prioritize_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/git/audits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Audits */
+        get: operations["list_audits_api_projects__project_id__git_audits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/git/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview */
+        post: operations["preview_api_projects__project_id__git_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/git/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish */
+        post: operations["publish_api_projects__project_id__git_publish_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/git/targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Target */
+        get: operations["get_target_api_projects__project_id__git_targets_get"];
+        put?: never;
+        /** Save Target */
+        post: operations["save_target_api_projects__project_id__git_targets_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects/{project_id}/knowledge": {
         parameters: {
             query?: never;
@@ -578,6 +715,29 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActionItem */
+        ActionItem: {
+            /** Deadline */
+            deadline?: string | null;
+            /** Description */
+            description: string;
+            /** Id */
+            id: string;
+            /** Owner */
+            owner?: string | null;
+            /** Requirement Id */
+            requirement_id?: string | null;
+            /** Source Id */
+            source_id: string;
+            /** Source Quote */
+            source_quote: string;
+            /**
+             * Status
+             * @default not_started
+             * @enum {string}
+             */
+            status: "not_started" | "in_progress" | "blocked" | "done" | "unknown";
+        };
         /** AdvanceRequest */
         AdvanceRequest: {
             /**
@@ -746,6 +906,44 @@ export interface components {
             /** Requests */
             requests?: components["schemas"]["RequestView"][];
         };
+        /** DeliverySyncPreview */
+        DeliverySyncPreview: {
+            /**
+             * Changeset Digest
+             * @default
+             */
+            changeset_digest: string;
+            /** Items To Create */
+            items_to_create?: {
+                [key: string]: unknown;
+            }[];
+            /** Items To Update */
+            items_to_update?: {
+                [key: string]: unknown;
+            }[];
+            target: components["schemas"]["JiraTarget"];
+        };
+        /** DeliverySyncReceipt */
+        DeliverySyncReceipt: {
+            /** Changeset Digest */
+            changeset_digest: string;
+            /** Created Issues */
+            created_issues?: {
+                [key: string]: unknown;
+            }[];
+            /** Id */
+            id: string;
+            /** Project Id */
+            project_id: string;
+            /**
+             * Status
+             * @default synced
+             * @enum {string}
+             */
+            status: "synced" | "already_synced";
+            /** Timestamp */
+            timestamp: string;
+        };
         /** DiscardInput */
         DiscardInput: {
             /** Expected Version */
@@ -768,6 +966,31 @@ export interface components {
             /** Run Id */
             run_id: string;
         };
+        /** FileComparison */
+        FileComparison: {
+            /** Base Sha */
+            base_sha?: string | null;
+            /** Conflict Reason */
+            conflict_reason?: string | null;
+            /** Diff */
+            diff?: string | null;
+            /** Incoming Sha */
+            incoming_sha?: string | null;
+            /**
+             * Is Managed
+             * @default true
+             */
+            is_managed: boolean;
+            /** Local Sha */
+            local_sha?: string | null;
+            /** Path */
+            path: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "added" | "modified" | "deleted" | "unmodified" | "conflict";
+        };
         /** Finding */
         Finding: {
             /** Code */
@@ -781,10 +1004,148 @@ export interface components {
              */
             severity: "warning" | "error";
         };
+        /** GitPreviewInput */
+        GitPreviewInput: {
+            /** Candidate Id */
+            candidate_id: string;
+            /** Proposed Branch */
+            proposed_branch?: string | null;
+        };
+        /** GitPublishInput */
+        GitPublishInput: {
+            /** Approval Digest */
+            approval_digest: string;
+            /** Candidate Id */
+            candidate_id: string;
+            /** Commit Message */
+            commit_message?: string | null;
+            /** Pr Body */
+            pr_body?: string | null;
+            /** Pr Title */
+            pr_title?: string | null;
+            /** Proposed Branch */
+            proposed_branch: string;
+        };
+        /** GitPublishPreview */
+        GitPublishPreview: {
+            /** Changeset Digest */
+            changeset_digest: string;
+            /** Commit Message */
+            commit_message: string;
+            diff: components["schemas"]["ThreeWayDiff"];
+            /** Incoming Files */
+            incoming_files?: {
+                [key: string]: string;
+            };
+            /** Pr Body */
+            pr_body: string;
+            /** Pr Title */
+            pr_title: string;
+            /** Proposed Branch */
+            proposed_branch: string;
+            target: components["schemas"]["GitTarget"];
+        };
+        /** GitPublishReceipt */
+        GitPublishReceipt: {
+            /** Branch Name */
+            branch_name: string;
+            /** Changeset Digest */
+            changeset_digest: string;
+            /** Commit Sha */
+            commit_sha: string;
+            /** Id */
+            id: string;
+            /** Pr Number */
+            pr_number?: number | null;
+            /** Pr Url */
+            pr_url?: string | null;
+            /** Project Id */
+            project_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "published" | "already_published";
+            /** Timestamp */
+            timestamp: string;
+        };
+        /** GitTarget */
+        GitTarget: {
+            /**
+             * Base Branch
+             * @default main
+             */
+            base_branch: string;
+            /**
+             * Docs Path
+             * @default docs
+             */
+            docs_path: string;
+            /** Project Id */
+            project_id: string;
+            /** Remote Url */
+            remote_url?: string | null;
+            /** Repo Path */
+            repo_path?: string | null;
+            /**
+             * Target Type
+             * @default local
+             * @enum {string}
+             */
+            target_type: "local" | "github_mock";
+        };
+        /** GitTargetInput */
+        GitTargetInput: {
+            /**
+             * Base Branch
+             * @default main
+             */
+            base_branch: string;
+            /**
+             * Docs Path
+             * @default docs
+             */
+            docs_path: string;
+            /** Remote Url */
+            remote_url?: string | null;
+            /** Repo Path */
+            repo_path?: string | null;
+            /**
+             * Target Type
+             * @default local
+             * @enum {string}
+             */
+            target_type: "local" | "github_mock";
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** JiraPreviewInput */
+        JiraPreviewInput: {
+            /** Items */
+            items: {
+                [key: string]: unknown;
+            }[];
+            target: components["schemas"]["JiraTarget"];
+        };
+        /** JiraSyncInput */
+        JiraSyncInput: {
+            /** Approval Digest */
+            approval_digest: string;
+            preview: components["schemas"]["DeliverySyncPreview"];
+        };
+        /** JiraTarget */
+        JiraTarget: {
+            /** Instance Url */
+            instance_url: string;
+            /** Issue Type Mapping */
+            issue_type_mapping?: {
+                [key: string]: string;
+            };
+            /** Project Key */
+            project_key: string;
         };
         /** KnowledgeEdit */
         KnowledgeEdit: {
@@ -848,6 +1209,37 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** MeetingActionsResult */
+        MeetingActionsResult: {
+            /** Actions */
+            actions?: components["schemas"]["ActionItem"][];
+            /** Date */
+            date?: string | null;
+            /**
+             * Digest
+             * @default
+             */
+            digest: string;
+            /** Meeting Title */
+            meeting_title: string;
+            /**
+             * Unassigned Count
+             * @default 0
+             */
+            unassigned_count: number;
+        };
+        /** MeetingExtractInput */
+        MeetingExtractInput: {
+            /**
+             * Meeting Title
+             * @default Team Sync
+             */
+            meeting_title: string;
+            /** Source Id */
+            source_id: string;
+            /** Text */
+            text: string;
+        };
         /** PackageFile */
         PackageFile: {
             /** Path */
@@ -867,6 +1259,54 @@ export interface components {
             path?: string | null;
             /** Template Digest */
             template_digest: string;
+        };
+        /** PrioritizationRequest */
+        PrioritizationRequest: {
+            /** Items */
+            items?: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Method
+             * @default rice
+             * @enum {string}
+             */
+            method: "rice" | "weighted_criteria";
+        };
+        /** PrioritizationResult */
+        PrioritizationResult: {
+            /** Method */
+            method: string;
+            /** Ranked Items */
+            ranked_items?: components["schemas"]["PriorityScore"][];
+            /** Unranked Items */
+            unranked_items?: components["schemas"]["PriorityScore"][];
+        };
+        /** PriorityScore */
+        PriorityScore: {
+            /** Confidence */
+            confidence?: number | null;
+            /** Effort */
+            effort?: number | null;
+            /** Impact */
+            impact?: number | null;
+            /** Item Id */
+            item_id: string;
+            /** Missing Metrics */
+            missing_metrics?: string[];
+            /**
+             * Rank
+             * @default 0
+             */
+            rank: number;
+            /** Reach */
+            reach?: number | null;
+            /** Score */
+            score?: number | null;
+            /** Title */
+            title: string;
+            /** Urgency */
+            urgency?: number | null;
         };
         /** Project */
         Project: {
@@ -1264,6 +1704,34 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** ThreeWayDiff */
+        ThreeWayDiff: {
+            /** Base Digest */
+            base_digest?: string | null;
+            /** Base Revision Id */
+            base_revision_id?: string | null;
+            /** Changes */
+            changes?: components["schemas"]["FileComparison"][];
+            /**
+             * Changeset Digest
+             * @default
+             */
+            changeset_digest: string;
+            /**
+             * Has Conflicts
+             * @default false
+             */
+            has_conflicts: boolean;
+            /** Incoming Digest */
+            incoming_digest: string;
+            /** Incoming Revision Id */
+            incoming_revision_id: string;
+            /**
+             * Target Head Sha
+             * @default
+             */
+            target_head_sha: string;
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -1557,6 +2025,315 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ContextItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_jira_api_projects__project_id__delivery_jira_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JiraPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliverySyncPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sync_jira_api_projects__project_id__delivery_jira_sync_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JiraSyncInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliverySyncReceipt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    extract_actions_api_projects__project_id__delivery_meetings_extract_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeetingExtractInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeetingActionsResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    prioritize_api_projects__project_id__delivery_prioritize_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrioritizationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrioritizationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_audits_api_projects__project_id__git_audits_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_api_projects__project_id__git_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GitPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GitPublishPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    publish_api_projects__project_id__git_publish_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GitPublishInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GitPublishReceipt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_target_api_projects__project_id__git_targets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GitTarget"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_target_api_projects__project_id__git_targets_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GitTargetInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GitTarget"];
                 };
             };
             /** @description Validation Error */

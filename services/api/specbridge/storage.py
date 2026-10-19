@@ -1,10 +1,13 @@
+import json
 import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
+from .git_collaboration import GitPublishReceipt, GitTarget
 from .migrations import (
     BASE_TABLES,
     LINEAGE_TABLES,
@@ -20,6 +23,7 @@ from .models import (
     Project,
     Revision,
     Source,
+    canonical,
     digest,
     validate_handoff,
 )
@@ -83,6 +87,12 @@ class Store:
             )
             db.execute(
                 "CREATE INDEX IF NOT EXISTS knowledge_project ON knowledge(project_id,id,version)"
+            )
+            db.execute(
+                "CREATE TABLE IF NOT EXISTS git_targets (project_id TEXT PRIMARY KEY REFERENCES projects(id), target_type TEXT NOT NULL, repo_path TEXT, remote_url TEXT, base_branch TEXT NOT NULL DEFAULT 'main', docs_path TEXT NOT NULL DEFAULT 'docs', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+            )
+            db.execute(
+                "CREATE TABLE IF NOT EXISTS git_audits (id INTEGER PRIMARY KEY AUTOINCREMENT, project_id TEXT NOT NULL REFERENCES projects(id), action TEXT NOT NULL, receipt_id TEXT NOT NULL, changeset_digest TEXT NOT NULL, branch_name TEXT NOT NULL, commit_sha TEXT NOT NULL, pr_url TEXT, pr_number INTEGER, data TEXT NOT NULL, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
             )
             if version < 3:
                 migrate_lineage(db)
@@ -328,3 +338,104 @@ class Store:
             "INSERT INTO audit(project_id,action,subject) VALUES (?,?,?)",
             (project_id, action, subject),
         )
+
+    def save_git_target(self, target: GitTarget) -> GitTarget:
+        with self.transaction() as db:
+            self.require_project(db, target.project_id)
+            db.execute(
+                """
+                INSERT INTO git_targets (project_id, target_type, repo_path, remote_url, base_branch, docs_path, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+                ON CONFLICT(project_id) DO UPDATE SET
+                    target_type=excluded.target_type,
+                    repo_path=excluded.repo_path,
+                    remote_url=excluded.remote_url,
+                    base_branch=excluded.base_branch,
+                    docs_path=excluded.docs_path,
+                    updated_at=datetime('now')
+                """,
+                (
+                    target.project_id,
+                    target.target_type,
+                    target.repo_path,
+                    target.remote_url,
+                    target.base_branch,
+                    target.docs_path,
+                ),
+            )
+            self.audit(db, target.project_id, "git_target_updated", target.project_id)
+        return target
+
+    def get_git_target(self, project_id: str) -> GitTarget | None:
+        with self.transaction() as db:
+            self.require_project(db, project_id)
+            row = db.execute(
+                "SELECT project_id, target_type, repo_path, remote_url, base_branch, docs_path FROM git_targets WHERE project_id=?",
+                (project_id,),
+            ).fetchone()
+            if not row:
+                return None
+            return GitTarget(
+                project_id=row["project_id"],
+                target_type=row["target_type"],
+                repo_path=row["repo_path"],
+                remote_url=row["remote_url"],
+                base_branch=row["base_branch"],
+                docs_path=row["docs_path"],
+            )
+
+    def record_git_audit(
+        self,
+        project_id: str,
+        action: str,
+        receipt: GitPublishReceipt,
+        extra_data: dict[str, Any] | None = None,
+    ) -> None:
+        payload = {
+            "receipt": receipt.model_dump(),
+            "extra": extra_data or {},
+        }
+        with self.transaction() as db:
+            self.require_project(db, project_id)
+            db.execute(
+                """
+                INSERT INTO git_audits (project_id, action, receipt_id, changeset_digest, branch_name, commit_sha, pr_url, pr_number, data)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    project_id,
+                    action,
+                    receipt.id,
+                    receipt.changeset_digest,
+                    receipt.branch_name,
+                    receipt.commit_sha,
+                    receipt.pr_url,
+                    receipt.pr_number,
+                    canonical(payload),
+                ),
+            )
+            self.audit(db, project_id, f"git_{action}", receipt.id)
+
+    def list_git_audits(self, project_id: str) -> list[dict[str, Any]]:
+        with self.transaction() as db:
+            self.require_project(db, project_id)
+            rows = db.execute(
+                "SELECT id, project_id, action, receipt_id, changeset_digest, branch_name, commit_sha, pr_url, pr_number, data, at FROM git_audits WHERE project_id=? ORDER BY id DESC",
+                (project_id,),
+            ).fetchall()
+            return [
+                {
+                    "id": row["id"],
+                    "project_id": row["project_id"],
+                    "action": row["action"],
+                    "receipt_id": row["receipt_id"],
+                    "changeset_digest": row["changeset_digest"],
+                    "branch_name": row["branch_name"],
+                    "commit_sha": row["commit_sha"],
+                    "pr_url": row["pr_url"],
+                    "pr_number": row["pr_number"],
+                    "data": json.loads(row["data"]),
+                    "at": row["at"],
+                }
+                for row in rows
+            ]

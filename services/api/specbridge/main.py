@@ -12,7 +12,9 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
 
+from .delivery_routes import register_delivery_routes
 from .feature_history import FeatureHistory, FeatureRevision, RevisionComparison
+from .git_routes import register_git_routes
 from .knowledge import register_knowledge_routes
 from .models import (
     AdvanceRequest,
@@ -106,6 +108,8 @@ def create_app(
     registry = SkillRegistry(skill_root or ROOT / "skills/runtime")
     workflow = Workflow(store, registry, configured_provider)
     publication = Publication(store, template_root or ROOT / "packages/docs-template")
+    register_git_routes(app, store, publication)
+    register_delivery_routes(app, store)
 
     @app.exception_handler(StarletteHTTPException)
     async def http_failure(
