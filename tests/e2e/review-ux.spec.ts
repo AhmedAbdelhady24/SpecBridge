@@ -12,7 +12,7 @@ async function openDraft(page: Page, request: APIRequestContext) {
 }
 
 test('authentication errors retain and focus the private input with inline help', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?manual_auth=1');
   const token = page.getByLabel('Session token', { exact: true });
   await token.fill('synthetic-invalid-session');
   await page.getByRole('button', { name: 'Connect', exact: true }).click();

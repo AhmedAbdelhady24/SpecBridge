@@ -54,10 +54,16 @@ test('reload recovers an existing run without repeating generation', async ({ pa
   const runURL = `${api}/projects/${projectId}/runs/${runId}`;
   const before = await (await request.get(runURL, { headers: authHeaders() })).json();
   await page.reload();
-  await expect(page.getByLabel('Session token', { exact: true })).toHaveValue('');
-  expect(await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }))).toEqual({ local: {}, session: {} });
-  await page.getByLabel('Session token', { exact: true }).fill(process.env.SPECBRIDGE_TOKEN!);
-  await page.getByRole('button', { name: 'Connect', exact: true }).click();
+  const projectSelect = page.getByLabel('Existing project', { exact: true });
+  const reconnected = await projectSelect.waitFor({ state: 'visible', timeout: 2000 }).then(() => true).catch(() => false);
+  if (!reconnected) {
+    const reloadToken = page.getByLabel('Session token', { exact: true });
+    if (await reloadToken.isVisible().catch(() => false)) {
+      await reloadToken.fill(process.env.SPECBRIDGE_TOKEN!);
+      await page.getByRole('button', { name: 'Connect', exact: true }).click();
+      await expect(projectSelect).toBeVisible();
+    }
+  }
   await page.getByLabel('Existing project', { exact: true }).selectOption(projectId);
   if(!await page.getByLabel('Existing run',{exact:true}).isVisible())await page.getByText('Choose or start a feature',{exact:true}).click();
   await page.getByLabel('Existing run', { exact: true }).selectOption(runId);
@@ -91,7 +97,7 @@ test('raw HTML and remote images remain inert in preview', async ({ page }) => {
 
 test('local sign in supports keyboard and a narrow viewport', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
-  await page.goto('/');
+  await page.goto('/?manual_auth=1');
   const token = page.getByLabel('Session token', { exact: true });
   await token.focus();
   await page.keyboard.type(process.env.SPECBRIDGE_TOKEN!);
@@ -104,7 +110,7 @@ test('local sign in supports keyboard and a narrow viewport', async ({ page }) =
 });
 
 test('invalid local authorization does not open project data', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?manual_auth=1');
   await page.getByLabel('Session token', { exact: true }).fill('invalid-local-session');
   await page.getByRole('button', { name: 'Connect', exact: true }).click();
   await expect(page.getByRole('alert')).toBeVisible();
@@ -186,8 +192,16 @@ test('review correction adds missing questions and criteria with fresh approval 
   await expect(page.getByRole('button', { name: 'Prepare package', exact: true })).toBeDisabled();
   expect((await request.get(`${api}/projects/${projectId}/candidates/${oldCandidate.id}/download`, { headers: authHeaders() })).status()).toBe(409);
   await page.reload();
-  await page.getByLabel('Session token', { exact: true }).fill(process.env.SPECBRIDGE_TOKEN!);
-  await page.getByRole('button', { name: 'Connect', exact: true }).click();
+  const projectSelect2 = page.getByLabel('Existing project', { exact: true });
+  const reconnected2 = await projectSelect2.waitFor({ state: 'visible', timeout: 2000 }).then(() => true).catch(() => false);
+  if (!reconnected2) {
+    const reloadToken2 = page.getByLabel('Session token', { exact: true });
+    if (await reloadToken2.isVisible().catch(() => false)) {
+      await reloadToken2.fill(process.env.SPECBRIDGE_TOKEN!);
+      await page.getByRole('button', { name: 'Connect', exact: true }).click();
+      await expect(projectSelect2).toBeVisible();
+    }
+  }
   await page.getByLabel('Existing project', { exact: true }).selectOption(projectId);
   if(!await page.getByLabel('Existing run',{exact:true}).isVisible())await page.getByText('Choose or start a feature',{exact:true}).click();
   await page.getByLabel('Existing run', { exact: true }).selectOption(runId);

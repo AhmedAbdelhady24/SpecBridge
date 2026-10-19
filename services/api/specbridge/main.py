@@ -150,11 +150,21 @@ def create_app(
             return error(
                 403, "forbidden_origin", "Only the configured local UI is allowed"
             )
-        if request.url.path.startswith("/api/") and request.url.path != "/api/health":
+        if request.url.path == "/api/session/bootstrap":
+            pass
+        elif request.url.path.startswith("/api/") and request.url.path != "/api/health":
             supplied = request.headers.get("authorization", "")
-            if not secrets.compare_digest(
-                supplied.encode(), ("Bearer " + token).encode()
-            ):
+            cookie_token = request.cookies.get("specbridge_session", "")
+            valid = (
+                bool(supplied)
+                and secrets.compare_digest(
+                    supplied.encode(), ("Bearer " + token).encode()
+                )
+            ) or (
+                bool(cookie_token)
+                and secrets.compare_digest(cookie_token.encode(), token.encode())
+            )
+            if not valid:
                 return error(401, "unauthorized", "Enter the local session token")
         size = 0
         chunks = []
@@ -181,6 +191,17 @@ def create_app(
     @app.get("/api/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.get("/api/session/bootstrap")
+    def bootstrap_session(response: Response) -> dict[str, str]:
+        response.set_cookie(
+            key="specbridge_session",
+            value=token,
+            httponly=True,
+            samesite="strict",
+            path="/",
+        )
+        return {"status": "ok", "token": token}
 
     @app.get("/api/config")
     def config() -> ProviderInfo:

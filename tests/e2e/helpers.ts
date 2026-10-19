@@ -11,9 +11,16 @@ export const api = `${process.env.SPECBRIDGE_E2E_API_ORIGIN || 'http://127.0.0.1
 
 export async function signInLocal(page: Page) {
   await page.goto('/');
-  await page.getByLabel('Session token', { exact: true }).fill(sessionToken());
-  await page.getByRole('button', { name: 'Connect', exact: true }).click();
-  await expect(page.getByLabel('Project name', { exact: true })).toBeVisible();
+  const projectInput = page.getByLabel('Project name', { exact: true });
+  const connected = await projectInput.waitFor({ state: 'visible', timeout: 2000 }).then(() => true).catch(() => false);
+  if (!connected) {
+    const tokenInput = page.getByLabel('Session token', { exact: true });
+    if (await tokenInput.isVisible().catch(() => false)) {
+      await tokenInput.fill(sessionToken());
+      await page.getByRole('button', { name: 'Connect', exact: true }).click();
+      await expect(projectInput).toBeVisible();
+    }
+  }
 }
 
 export async function editDraft(page: Page) {

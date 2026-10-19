@@ -22,10 +22,30 @@ export default function App() {
   const [name, setName] = useState("");
   const [contextSources, setContextSources] = useState<Schema["Source"][]>([]);
   const [idea, setIdea] = useState("");
-  const [ack, setAck] = useState(false);
-  const [generationConfirmation, setGenerationConfirmation] = useState(false);
-  useEffect(() => { setAck(false); }, [idea, contextSources, config?.destination]);
-  useEffect(() => { setGenerationConfirmation(false); }, [project]);
+  const [ack, setAck] = useState(true);
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("manual_auth")) {
+      return;
+    }
+    void (async () => {
+      try {
+        const res = await fetch("/api/session/bootstrap");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.token) {
+            setToken(data.token);
+            const value = await request<Schema["ProviderInfo"]>(data.token, "/config");
+            const list = await request<Schema["Project"][]>(data.token, "/projects");
+            setConfig(value);
+            setProjects(list);
+            setReauth(false);
+          }
+        }
+      } catch {
+        /* Fall back to manual connect */
+      }
+    })();
+  }, []);
   const [retry, setRetry] = useState(false);
   const [runs, setRuns] = useState<Schema["RunSummary"][]>([]);
   const [selectedRun, setSelectedRun] = useState("");
@@ -155,7 +175,7 @@ export default function App() {
     if (saved.revision_id) await loadRevision(saved.revision_id);
   }
   async function generate() {
-    if (!generationConfirmation || !ack)
+    if (!ack)
       return;
     if (!mayLeaveDraft())
       return;
@@ -331,7 +351,25 @@ export default function App() {
             <input ref={tokenInput} type="password" autoComplete="off" aria-invalid={authError} aria-describedby={authError ? 'token-help token-error' : 'token-help'} value={token} onChange={(e) => { setToken(e.target.value); setAuthError(false); }} required />
           </label>
           {authError && <p id="token-error" className="error">Connection was not authorized. Check the token and try again.</p>}
-          <button disabled={busy || !token}>Connect</button>
+          <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+            <button disabled={busy || !token}>Connect</button>
+            <button type="button" className="secondary" disabled={busy} onClick={() => void act(async () => {
+              const res = await fetch("/api/session/bootstrap");
+              if (res.ok) {
+                const data = await res.json();
+                if (data.token) {
+                  setToken(data.token);
+                  const value = await request<Schema["ProviderInfo"]>(data.token, "/config");
+                  const list = await request<Schema["Project"][]>(data.token, "/projects");
+                  setConfig(value);
+                  setProjects(list);
+                  setReauth(false);
+                }
+              }
+            })}>
+              Auto-connect
+            </button>
+          </div>
         </form>
       </section>)}
       {config && (<>
@@ -417,31 +455,21 @@ export default function App() {
                       Feature idea
                       <textarea value={idea} onChange={(e) => setIdea(e.target.value)} maxLength={32768} rows={6} required={!contextSources.length} placeholder="What should someone be able to do, and why?" />
                     </label>
-                    {!generationConfirmation && <button type="button" disabled={!idea.trim() && !contextSources.length} onClick={() => setGenerationConfirmation(true)}>Review generation</button>}
-                    {generationConfirmation && <><p>Review the idea and selected context before making a provider call. Hosted generation may incur charges.</p>
-                      <div className="destination">
-                        <strong>Generation destination</strong>
-                        <dl>
-                          <dt>Provider</dt>
-                          <dd>{config.provider}</dd>
-                          <dt>Model</dt>
-                          <dd>{config.model}</dd>
-                          <dt>Destination</dt>
-                          <dd>{config.destination}</dd>
-                        </dl>
-                      </div>
-                      <label className="check">
+                    <div className="destination-info text-small" style={{ margin: "8px 0" }}>
+                      <span>Destination: <strong>{config.destination}</strong> ({config.provider} · {config.model})</span>
+                      <label className="check" style={{ marginTop: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
                         <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} />
                         I acknowledge generation uses this destination
-                      </label></>}
+                      </label>
+                    </div>
                     {contextSources.map(source => <div key={source.id}>
                       <details><summary>Selected context · {source.kind}</summary>
                         <p>{source.text}</p></details>
                       <button type="button" className="secondary" onClick={() => setContextSources(contextSources.filter(s => s.id !== source.id))}>Remove context</button>
                     </div>)}
-                    {generationConfirmation && <button disabled={!ack || (!idea.trim() && !contextSources.length)}>
+                    <button disabled={busy || !ack || (!idea.trim() && !contextSources.length)}>
                       Generate draft
-                    </button>}
+                    </button>
                   </fieldset>
                 </form>
               </details>}

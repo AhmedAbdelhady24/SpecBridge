@@ -32,8 +32,16 @@ test('answer beside full draft, preview only, recover after reconnect and save o
   await expect(page.getByText('Working preview saved privately. It is not a revision.',{exact:true})).toBeVisible();
   page.once('dialog',dialog=>dialog.accept());
   await page.reload();
-  await page.getByLabel('Session token',{exact:true}).fill(process.env.SPECBRIDGE_TOKEN!);
-  await page.getByRole('button',{name:'Connect',exact:true}).click();
+  const projectSelect = page.getByLabel('Existing project', { exact: true });
+  const reconnected = await projectSelect.waitFor({ state: 'visible', timeout: 2000 }).then(() => true).catch(() => false);
+  if (!reconnected) {
+    const reloadToken = page.getByLabel('Session token', { exact: true });
+    if (await reloadToken.isVisible().catch(() => false)) {
+      await reloadToken.fill(process.env.SPECBRIDGE_TOKEN!);
+      await page.getByRole('button', { name: 'Connect', exact: true }).click();
+      await expect(projectSelect).toBeVisible();
+    }
+  }
   await page.getByLabel('Existing project',{exact:true}).selectOption(data.project.id);
   await page.getByLabel('Existing run',{exact:true}).selectOption(data.run.id);
   await page.getByRole('button',{name:'Open run',exact:true}).click();

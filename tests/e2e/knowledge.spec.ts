@@ -46,8 +46,16 @@ test('knowledge persists, versions remain visible and selected context is immuta
   await page.getByRole('button', { name: /View revision 1/ }).click();
   await expect(page.getByRole('heading', { name: 'Saved revision 1', exact: true })).toBeVisible();
   await page.reload();
-  await page.getByLabel('Session token', { exact: true }).fill(process.env.SPECBRIDGE_TOKEN!);
-  await page.getByRole('button', { name: 'Connect', exact: true }).click();
+  const projectSelect = page.getByLabel('Existing project', { exact: true });
+  const reconnected = await projectSelect.waitFor({ state: 'visible', timeout: 2000 }).then(() => true).catch(() => false);
+  if (!reconnected) {
+    const reloadToken = page.getByLabel('Session token', { exact: true });
+    if (await reloadToken.isVisible().catch(() => false)) {
+      await reloadToken.fill(process.env.SPECBRIDGE_TOKEN!);
+      await page.getByRole('button', { name: 'Connect', exact: true }).click();
+      await expect(projectSelect).toBeVisible();
+    }
+  }
   await page.getByLabel('Existing project', { exact: true }).selectOption(project.id);
   await page.getByText('Project context', { exact: true }).click();
   await expect(page.getByRole('button', { name: 'Edit Offline export decision', exact: true })).toBeVisible();
