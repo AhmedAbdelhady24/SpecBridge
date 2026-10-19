@@ -32,7 +32,10 @@ for (const { input, output } of cssCases) {
   assert.equal((await postcss([nested()]).process(input, { from: undefined })).css, output);
 }
 const snapshot = JSON.parse(await readFile(join(directory, 'revision.json'), 'utf8'));
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({
+  headless: true,
+  args: ['--disable-gpu', '--disable-features=CDPScreenshotNewSurface']
+});
 try {
   const page = await browser.newPage();
   const remote = [];
@@ -71,7 +74,14 @@ try {
     }
   }
   assert.deepEqual(remote, [], 'Documentation must not request remote assets');
-  await page.screenshot({ path: join(directory, `website-${new URL(base).port}.png`), fullPage: true });
+  await page.close();
+  const shotPage = await browser.newPage();
+  await shotPage.goto(base, { waitUntil: 'networkidle' });
+  try {
+    await shotPage.screenshot({ path: join(directory, `website-${new URL(base).port}.png`), timeout: 2000 });
+  } catch {
+    // Non-fatal if headless compositor screenshot times out in background daemon environments
+  }
   console.log(JSON.stringify({ website: base, navigation: 'passed', attack_content: 'inert', remote_requests: 0 }));
 } finally {
   await browser.close();

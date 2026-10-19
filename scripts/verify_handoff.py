@@ -91,6 +91,7 @@ def serve_docs(directory: Path, mode: str, log: Path) -> Iterator[str]:
                 try:
                     with urlopen(url, timeout=1) as response:
                         if response.status == 200:
+                            time.sleep(2.0)
                             break
                 except OSError:
                     time.sleep(0.1)
