@@ -224,7 +224,7 @@ export function DeliveryAutomation({
           </button>
 
           {extractedResult && (
-            <div className="actions-table-wrapper" style={{ marginTop: '1rem' }}>
+            <div className="actions-table-wrapper">
               <h4>Extracted items ({actionsList.length})</h4>
               <p className="muted">
                 Unassigned items: <strong>{extractedResult.unassigned_count}</strong>.
@@ -279,7 +279,7 @@ export function DeliveryAutomation({
           </button>
 
           {prioResult && (
-            <div className="priority-results" style={{ marginTop: '1rem' }}>
+            <div className="priority-results">
               <h4>Ranked items ({rankedList.length})</h4>
               <ol className="ranked-list">
                 {rankedList.map((item) => (
@@ -336,7 +336,7 @@ export function DeliveryAutomation({
           </button>
 
           {jiraPreview && (
-            <div className="jira-preview-box" style={{ marginTop: '1rem' }}>
+            <div className="jira-preview-box">
               <h4>Jira sync preview</h4>
               <p>Items to create: <strong>{jiraItemsToCreate.length}</strong></p>
               <p>Changeset digest: <code>{jiraPreview.changeset_digest}</code></p>
@@ -360,7 +360,7 @@ export function DeliveryAutomation({
           )}
 
           {jiraReceipt && (
-            <aside className="publish-receipt" role="status" style={{ marginTop: '1rem' }}>
+            <aside className="publish-receipt" role="status">
               <h4>Jira sync receipt</h4>
               <p>Status: <strong>{jiraReceipt.status}</strong></p>
               <p>Created issues ({jiraCreatedIssues.length}):</p>

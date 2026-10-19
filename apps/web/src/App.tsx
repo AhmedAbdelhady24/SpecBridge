@@ -347,7 +347,7 @@ export default function App() {
             <input ref={tokenInput} type="password" autoComplete="off" aria-invalid={authError} aria-describedby={authError ? 'token-help token-error' : 'token-help'} value={token} onChange={(e) => { setToken(e.target.value); setAuthError(false); }} required />
           </label>
           {authError && <p id="token-error" className="error">Connection was not authorized. Check the token and try again.</p>}
-          <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+          <div className="actions session-actions">
             <button disabled={busy || !token}>Connect</button>
             <button type="button" className="secondary" disabled={busy} onClick={() => void act(async () => {
               const res = await fetch("/api/session/bootstrap");
@@ -451,9 +451,9 @@ export default function App() {
                       Feature idea
                       <textarea value={idea} onChange={(e) => setIdea(e.target.value)} maxLength={32768} rows={6} required={!contextSources.length} placeholder="What should someone be able to do, and why?" />
                     </label>
-                    <div className="destination-info text-small" style={{ margin: "8px 0" }}>
+                    <div className="destination-info text-small">
                       <span>Destination: <strong>{config.destination}</strong> ({config.provider} · {config.model})</span>
-                      <label className="check" style={{ marginTop: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <label className="check">
                         <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} />
                         I acknowledge generation uses this destination
                       </label>

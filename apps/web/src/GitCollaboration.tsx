@@ -221,7 +221,7 @@ export function GitCollaboration({
         </div>
       </details>
 
-      <div className="actions" style={{ marginTop: '1rem' }}>
+      <div className="actions">
         <button
           type="button"
           disabled={isLocked || !candidate?.approved || !savedTarget}
@@ -374,7 +374,7 @@ export function GitCollaboration({
       )}
 
       {audits.length > 0 && (
-        <details className="git-audits" style={{ marginTop: '1rem' }}>
+        <details className="git-audits">
           <summary>Git publish audit log ({audits.length})</summary>
           <ul className="audit-list">
             {audits.map((a, i) => (
