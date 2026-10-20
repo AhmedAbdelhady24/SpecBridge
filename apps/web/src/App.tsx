@@ -281,7 +281,7 @@ export default function App() {
     <a className="skip" href="#workspace">
       Skip to workspace
     </a>
-    <header>
+    <header className={project ? "compact" : ""}>
       <a className="brand" href="/" aria-label="SpecBridge home">
         <span className="brand-mark" aria-hidden="true">
           S/B
@@ -291,7 +291,7 @@ export default function App() {
       </a>
       <span className="local">● Local workspace</span>
     </header>
-    <main id="workspace" tabIndex={-1}>
+    <main id="workspace" tabIndex={-1} className={`${project ? "workspace-active has-project" : ""} ${revision ? "has-revision" : ""}`}>
       <nav className="workflow-stepper" aria-label="Workflow progress">
         <div className={`step-item ${!project ? 'current' : 'completed'}`}>
           <span className="step-num">1</span>
@@ -310,10 +310,10 @@ export default function App() {
           <span className="step-name">Review & Export</span>
         </div>
       </nav>
-      <div className={`intro ${revision ? "compact" : ""}`}>
-        <p className="eyebrow">IDEA → REQUIREMENTS → HANDOFF</p>
+      <div className={`intro ${project || revision ? "compact" : ""}`}>
+        <p className="eyebrow lead">IDEA → REQUIREMENTS → HANDOFF</p>
         <h1>{revision ? revision.artifact.title : "Make the next step clear."}</h1>
-        <p>
+        <p className="description">
           Shape a feature, inspect the evidence, and hand developers a
           reviewed specification.
         </p>
@@ -377,7 +377,7 @@ export default function App() {
             factual validation.
           </span>
         </aside>)}
-        <nav className="workspace-jumps" aria-label="Workspace sections">
+        <nav className="workspace-jumps jump-nav" aria-label="Workspace sections">
           <a href="#intake-heading">Jump to feature intake</a>
           <a href="#draft-heading">Jump to draft review</a>
           {revision && <a href="#package-heading" onClick={e => { e.preventDefault(); setReviewRequest(n => n + 1); }}>Jump to review and package</a>}
