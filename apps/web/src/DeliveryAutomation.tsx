@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { components } from './api/schema';
 import { ApiError, request } from './api/client';
+import { CustomSelect } from './CustomSelect';
 
 type S = components['schemas'];
 
@@ -268,15 +269,16 @@ export function DeliveryAutomation({
         <div className="section-body">
           <label>
             Method
-            <select
+            <CustomSelect
               aria-label="Prioritization method"
               value={prioMethod}
               disabled={isLocked}
-              onChange={(e) => setPrioMethod(e.target.value as 'rice' | 'weighted_criteria')}
-            >
-              <option value="rice">RICE (Reach × Impact × Confidence / Effort)</option>
-              <option value="weighted_criteria">Weighted criteria</option>
-            </select>
+              onChange={(val) => setPrioMethod(val as 'rice' | 'weighted_criteria')}
+              options={[
+                { value: "rice", label: "RICE (Reach × Impact × Confidence / Effort)" },
+                { value: "weighted_criteria", label: "Weighted criteria" },
+              ]}
+            />
           </label>
           <p className="muted">
             Missing metrics are strictly flagged and preserved as unranked without arbitrary defaults.

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { components } from './api/schema';
 import { ApiError, request } from './api/client';
 import { DiffView } from './DiffView';
+import { CustomSelect } from './CustomSelect';
 type S = components['schemas'];
 export function RevisionTimeline({ token, project, run, revision, onRequests, refresh, onAuthError, selectedRequests, onRequestSelection, disabled, onPending }: {
   onAuthError: () => void;
@@ -63,9 +64,18 @@ export function RevisionTimeline({ token, project, run, revision, onRequests, re
   return <section aria-label="Feature revision history"><h3>Changes & requests</h3>
     {error && <p role="alert" className="error">{error}</p>}
     <form onSubmit={e => { e.preventDefault(); void act(async () => { await request(token, url + '/change-requests', { base_revision_id: revision.id, text, target_ids: target ? [target] : [] }); setRequests(await request(token, url + '/change-requests')); setText(''); }); }}><label>Requested change<textarea aria-label="Requested change" required rows={3} maxLength={16384} value={text} onChange={e => setText(e.target.value)} disabled={disabled || working} /></label>
-      <label>Target (optional)<select aria-label="Request target" value={target} onChange={e => setTarget(e.target.value)}><option value="">Whole draft</option>
-        {revision.artifact.requirements.map((item, i) => <option key={item.id} value={item.id}>Requirement {i + 1}</option>)}
-        {revision.artifact.stories.map((item, i) => <option key={item.id} value={item.id}>Story {i + 1}</option>)}</select></label>
+      <label>Target (optional)
+        <CustomSelect
+          aria-label="Request target"
+          value={target}
+          onChange={(val) => setTarget(val)}
+          options={[
+            { value: "", label: "Whole draft" },
+            ...revision.artifact.requirements.map((item, i) => ({ value: item.id, label: `Requirement ${i + 1}` })),
+            ...revision.artifact.stories.map((item, i) => ({ value: item.id, label: `Story ${i + 1}` })),
+          ]}
+        />
+      </label>
       <button disabled={disabled || working || !text.trim()}>Record requested change</button></form>
     {requests.map(r => <article key={r.id} className="request-card"><p>{r.text}</p>
       <small>{r.status}
@@ -91,8 +101,29 @@ export function RevisionTimeline({ token, project, run, revision, onRequests, re
       <small>{r.created_at ? new Date(r.created_at).toLocaleString() : 'Creation time not recorded'}
         {r.parent_revision_id ? '' : ' · parent not recorded'}</small></li>)}</ol>
     {entries.length >= 20 && <button type="button" className="secondary" disabled={working} onClick={() => void act(async () => setEntries([...entries, ...await request<S['FeatureRevision'][]>(token, url + `/history?before=${entries.at(-1)!.legacy_number}`)]))}>Load older revisions</button>}
-    {!!entries.length && <form onSubmit={e => { e.preventDefault(); void act(async () => setComparison(await request(token, url + `/compare?base=${encodeURIComponent(base)}&head=${encodeURIComponent(head)}`))); }}><label>Compare from<select aria-label="Compare from" value={base} onChange={e => setBase(e.target.value)}>{entries.map(r => <option value={r.revision_id} key={r.revision_id}>{r.feature_number ? `Revision ${r.feature_number}` : `Legacy ${r.legacy_number}`}</option>)}</select></label>
-      <label>Compare to<select aria-label="Compare to" value={head} onChange={e => setHead(e.target.value)}>{entries.map(r => <option value={r.revision_id} key={r.revision_id}>{r.feature_number ? `Revision ${r.feature_number}` : `Legacy ${r.legacy_number}`}</option>)}</select></label>
+    {!!entries.length && <form onSubmit={e => { e.preventDefault(); void act(async () => setComparison(await request(token, url + `/compare?base=${encodeURIComponent(base)}&head=${encodeURIComponent(head)}`))); }}>
+      <label>Compare from
+        <CustomSelect
+          aria-label="Compare from"
+          value={base}
+          onChange={(val) => setBase(val)}
+          options={entries.map(r => ({
+            value: r.revision_id,
+            label: r.feature_number ? `Revision ${r.feature_number}` : `Legacy ${r.legacy_number}`,
+          }))}
+        />
+      </label>
+      <label>Compare to
+        <CustomSelect
+          aria-label="Compare to"
+          value={head}
+          onChange={(val) => setHead(val)}
+          options={entries.map(r => ({
+            value: r.revision_id,
+            label: r.feature_number ? `Revision ${r.feature_number}` : `Legacy ${r.legacy_number}`,
+          }))}
+        />
+      </label>
       <button className="secondary" disabled={working || !base || !head}>Compare revisions</button></form>}
     {comparison && <><p>Historical comparison · read only</p>
       <DiffView base={comparison.base.artifact} head={comparison.head.artifact} />

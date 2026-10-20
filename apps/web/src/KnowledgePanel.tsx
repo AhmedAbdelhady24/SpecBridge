@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { components } from "./api/schema";
 import { request } from "./api/client";
 import { EvidencePicker } from "./EvidencePicker";
+import { CustomSelect } from "./CustomSelect";
 type S = components["schemas"];
 type Input = S["KnowledgeInput"];
 const empty: Input = { entity_type: "goal", title: "", text: "", kind: "user_provided", source_ids: [], archived: false };
@@ -123,17 +124,31 @@ export function KnowledgePanel({ token, project, disabled, onSelect, selectedRef
       <form onSubmit={e => { e.preventDefault(); void act(save); }}>
         <details><summary>Background classification</summary>
           <label htmlFor="knowledge-type">Background type</label>
-          <select id="knowledge-type" value={draft.entity_type} onChange={e => changeDraft({ entity_type: e.target.value as Input["entity_type"] })}>
-            {(["goal", "stakeholder", "decision", "risk", "dependency", "api_reference", "conversation"] as const).map(t => <option key={t} value={t}>{evidenceLabel(t)}</option>)}
-          </select></details>
+          <CustomSelect
+            id="knowledge-type"
+            aria-label="Background type"
+            value={draft.entity_type}
+            onChange={(val) => changeDraft({ entity_type: val as Input["entity_type"] })}
+            options={(["goal", "stakeholder", "decision", "risk", "dependency", "api_reference", "conversation"] as const).map(t => ({
+              value: t,
+              label: evidenceLabel(t),
+            }))}
+          /></details>
         <label>Background title<input required maxLength={200} value={draft.title} onChange={e => changeDraft({ title: e.target.value })} /></label>
         <label htmlFor="knowledge-text">Background text</label>
         <textarea id="knowledge-text" required maxLength={16384} rows={4} value={draft.text} onChange={e => changeDraft({ text: e.target.value })} />
         <details><summary>Supporting evidence & classification</summary>
           <label htmlFor="knowledge-kind">Information type</label>
-          <select id="knowledge-kind" value={draft.kind} onChange={e => changeDraft({ kind: e.target.value as Input["kind"] })}>
-            {(["user_provided", "recommendation", "assumption", "unknown"] as const).map(t => <option key={t} value={t}>{evidenceLabel(t)}</option>)}
-          </select>
+          <CustomSelect
+            id="knowledge-kind"
+            aria-label="Information type"
+            value={draft.kind}
+            onChange={(val) => changeDraft({ kind: val as Input["kind"] })}
+            options={(["user_provided", "recommendation", "assumption", "unknown"] as const).map(t => ({
+              value: t,
+              label: evidenceLabel(t),
+            }))}
+          />
           <EvidencePicker token={token} project={project} ids={evidence} disabled={disabled || working} onChange={ids => { setEvidence(ids); setConfirm(false); }} />
           <label className="check"><input type="checkbox" checked={draft.archived} onChange={e => changeDraft({ archived: e.target.checked })} />Archive entry</label>
         </details>

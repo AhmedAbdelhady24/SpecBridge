@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import type { components } from './api/schema';
 import { request } from './api/client';
+import { CustomSelect } from './CustomSelect';
 type S = components['schemas'];
 const plain = (text: string) => text.replace(/\\([\\`*{}\[\]()#+\-.!|_>~])/g, '$1').replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&amp;', '&');
 function Inline({ text, onNavigate }: {
@@ -83,7 +84,17 @@ export function PackagePreview({ token, project, candidate }: {
     <p>Read the content stored in this package. It is separate from your working draft; this view does not reproduce the website styling.</p>
     {error && <p role="alert" className="error">{error}</p>}
     <p role="status">{loading ? 'Verifying package and loading content…' : preview && !error ? 'Package integrity checked. This does not verify factual accuracy.' : ''}</p>
-    {preview && !error && <><label>Documentation file<select aria-label="Documentation file" value={path} onChange={e => setPath(e.target.value)}>{preview.files.map(file => <option key={file.path} value={file.path}>{file.path.split('/').at(-1)?.replace('.md', '').replaceAll('-', ' ')}</option>)}</select></label>
+    {preview && !error && <><label>Documentation file
+      <CustomSelect
+        aria-label="Documentation file"
+        value={path}
+        onChange={(val) => setPath(val)}
+        options={preview.files.map((file) => ({
+          value: file.path,
+          label: file.path.split('/').at(-1)?.replace('.md', '').replaceAll('-', ' ') || file.path,
+        }))}
+      />
+    </label>
       {!loading && preview.content !== null && preview.content !== undefined && <ReadableDocument content={preview.content} onNavigate={setPath} />}
       <details><summary>Document source</summary>
         <pre>{preview.content}</pre></details></>}

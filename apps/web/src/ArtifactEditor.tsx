@@ -2,6 +2,7 @@ import { SourceReferences } from "./SourceReferences";
 import { evidenceLabel } from "./labels";
 import { useId, useRef } from "react";
 import type { components } from "./api/schema";
+import { CustomSelect } from "./CustomSelect";
 type Artifact = components["schemas"]["Artifact"];
 type EvidenceKind = components["schemas"]["Statement"]["kind"];
 const evidenceKinds = [
@@ -44,12 +45,19 @@ export function ArtifactEditor({ value, onChange, disabled, section, }: {
     const id = `${editorId}-evidence-${label.replaceAll(" ", "-")}`;
     return (<div>
       <label htmlFor={id}>Evidence type for {label}</label>
-      <select id={id} value={selectable ? kind : ""} required disabled={disabled} onChange={(e) => change(e.target.value as EvidenceKind)}>
-        {!selectable && (<option value="" disabled>Choose evidence type</option>)}
-        {options.map((option) => (<option key={option} value={option}>
-          {evidenceLabel(option)}
-        </option>))}
-      </select>
+      <CustomSelect
+        id={id}
+        aria-label={`Evidence type for ${label}`}
+        value={selectable ? kind : ""}
+        placeholder="Choose evidence type"
+        required
+        disabled={disabled}
+        onChange={(val) => change(val as EvidenceKind)}
+        options={options.map((option) => ({
+          value: option,
+          label: evidenceLabel(option),
+        }))}
+      />
     </div>);
   };
   return (<div className="artifact" ref={root}>

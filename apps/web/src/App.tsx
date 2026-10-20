@@ -453,20 +453,31 @@ export default function App() {
               {project && runs.length > 0 && (<fieldset disabled={disabled}>
                 <legend>Resume saved work</legend>
                 <div>
-                  <label htmlFor="existing-run">Feature specification</label>
-                  <select
+                  <label
+                    htmlFor="existing-run"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const btn = e.currentTarget.parentElement?.querySelector<HTMLButtonElement>(".custom-select-trigger");
+                      btn?.click();
+                    }}
+                  >
+                    Feature specification
+                  </label>
+                  <CustomSelect
                     id="existing-run"
                     aria-label="Existing run"
+                    placeholder="Choose a specification"
                     value={selectedRun}
-                    onChange={(e) => setSelectedRun(e.target.value)}
-                  >
-                    <option value="">Choose a specification</option>
-                    {runs.map((r) => (<option key={r.id} value={r.id}>
-                      {r.title || r.intent}
-                      {r.revision_number ? ` · Revision ${r.revision_number}` : ''}
-                      {r.created_at ? ` · ${new Date(r.created_at).toLocaleDateString()}` : ''} · {r.status.replaceAll('_', ' ')}
-                    </option>))}
-                  </select>
+                    disabled={disabled}
+                    onChange={(val) => setSelectedRun(val)}
+                    options={[
+                      { value: "", label: "Choose a specification" },
+                      ...runs.map((r) => ({
+                        value: r.id,
+                        label: `${r.title || r.intent}${r.revision_number ? ` · Revision ${r.revision_number}` : ""}${r.status !== "review" ? ` (${r.status.replaceAll("_", " ")})` : ""}`,
+                      })),
+                    ]}
+                  />
                 </div>
                 <button
                   type="button"

@@ -12,6 +12,8 @@ interface CustomSelectProps {
   options: CustomSelectOption[];
   placeholder?: string;
   disabled?: boolean;
+  required?: boolean;
+  size?: "sm" | "md";
   onChange: (value: string) => void;
   className?: string;
   "aria-label"?: string;
@@ -22,8 +24,10 @@ export function CustomSelect({
   name,
   value,
   options,
-  placeholder = "Choose a project",
+  placeholder,
   disabled = false,
+  required = false,
+  size = "md",
   onChange,
   className = "",
   "aria-label": ariaLabel,
@@ -67,7 +71,8 @@ export function CustomSelect({
   }, [focusedIndex, isOpen]);
 
   const selectedOption = options.find((o) => o.value === value);
-  const displayLabel = selectedOption?.value ? selectedOption.label : placeholder;
+  const displayLabel = selectedOption ? selectedOption.label : (placeholder || "");
+  const isPlaceholder = !selectedOption || selectedOption.value === "";
 
   function handleSelect(val: string) {
     setIsOpen(false);
@@ -115,7 +120,7 @@ export function CustomSelect({
   return (
     <div
       ref={containerRef}
-      className={`custom-select-wrapper ${isOpen ? "open" : ""} ${disabled ? "disabled" : ""} ${className}`}
+      className={`custom-select-wrapper ${size === "sm" ? "sm" : ""} ${isOpen ? "open" : ""} ${disabled ? "disabled" : ""} ${className}`.trim().replace(/\s+/g, " ")}
     >
       {/* 
         Native select: kept visually hidden behind the custom UI so:
@@ -128,11 +133,17 @@ export function CustomSelect({
         name={name}
         value={value}
         disabled={disabled}
+        required={required}
+        aria-label={ariaLabel}
         onChange={(e) => onChange(e.target.value)}
         tabIndex={-1}
-        aria-hidden="true"
         className="custom-select-native"
       >
+        {placeholder && !options.some((o) => o.value === "") && (
+          <option value="" disabled={required}>
+            {placeholder}
+          </option>
+        )}
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
@@ -144,10 +155,9 @@ export function CustomSelect({
       <button
         ref={triggerRef}
         type="button"
-        className={`custom-select-trigger ${!selectedOption?.value ? "is-placeholder" : ""}`}
+        className={`custom-select-trigger ${isPlaceholder ? "is-placeholder" : ""}`}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-label={ariaLabel}
         disabled={disabled}
         onClick={() => !disabled && setIsOpen((prev) => !prev)}
         onKeyDown={handleKeyDown}

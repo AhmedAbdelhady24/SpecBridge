@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { components } from './api/schema';
 import { ApiError, request } from './api/client';
+import { CustomSelect } from './CustomSelect';
 
 type S = components['schemas'];
 
@@ -157,15 +158,16 @@ export function GitCollaboration({
         <div className="target-form">
           <label>
             Destination type
-            <select
+            <CustomSelect
               aria-label="Destination type"
               value={targetType}
               disabled={isLocked}
-              onChange={(e) => setTargetType(e.target.value as 'local' | 'github_mock')}
-            >
-              <option value="local">Local repository path</option>
-              <option value="github_mock">GitHub repository (mock adapter)</option>
-            </select>
+              onChange={(val) => setTargetType(val as 'local' | 'github_mock')}
+              options={[
+                { value: "local", label: "Local repository path" },
+                { value: "github_mock", label: "GitHub repository (mock adapter)" },
+              ]}
+            />
           </label>
 
           {targetType === 'local' ? (

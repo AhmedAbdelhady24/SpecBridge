@@ -1,5 +1,6 @@
 import { ChatComposer } from "./ChatComposer";
 import type { components } from './api/schema';
+import { CustomSelect } from "./CustomSelect";
 type S = components['schemas'];
 export type Amendment = {
   text: string;
@@ -45,10 +46,20 @@ export function DecisionQueue({ questions, selected, onSelect, answer, onAnswer,
       {selected.status === 'resolved' ? <><p>{selected.latest_answer?.text}</p>
         <button type="button" disabled={disabled} onClick={onReopen}>Preview reopening this question</button></> : <>
         {selected.latest_answer && selected.status === 'answered' && selected.in_current_draft && <form onSubmit={e => { e.preventDefault(); onPreview(); }}>
-          <label>Amendment target<select aria-label="Amendment target" value={amendment.target} disabled={disabled} onChange={e => onAmendment({ ...amendment, target: e.target.value })}><option value="scope">Append to scope</option>
-            <option value="_new">New requirement and linked story</option>
-            {artifact.requirements.map((r, i) => <option key={r.id} value={r.id}>Requirement {i + 1}: {r.text.slice(0, 65)}</option>)}
-            {artifact.stories.map((s, i) => <option key={s.id} value={s.id}>Story {i + 1}: {s.text.slice(0, 65)}</option>)}</select></label>
+          <label>Amendment target
+            <CustomSelect
+              aria-label="Amendment target"
+              value={amendment.target}
+              disabled={disabled}
+              onChange={(val) => onAmendment({ ...amendment, target: val })}
+              options={[
+                { value: "scope", label: "Append to scope" },
+                { value: "_new", label: "New requirement and linked story" },
+                ...artifact.requirements.map((r, i) => ({ value: r.id, label: `Requirement ${i + 1}: ${r.text.slice(0, 65)}` })),
+                ...artifact.stories.map((s, i) => ({ value: s.id, label: `Story ${i + 1}: ${s.text.slice(0, 65)}` })),
+              ]}
+            />
+          </label>
           {onLocateClause && amendment.target !== 'scope' && amendment.target !== '_new' && <button type="button" className="text-link" onClick={() => onLocateClause(amendment.target)}>Locate target in draft →</button>}
           <label>Amendment text<textarea aria-label="Amendment text" required maxLength={16384} rows={3} disabled={disabled} value={amendment.text} onChange={e => onAmendment({ ...amendment, text: e.target.value })} /></label>
           {amendment.target === '_new' && <><label>New story<textarea aria-label="New story" required maxLength={16384} value={amendment.story} onChange={e => onAmendment({ ...amendment, story: e.target.value })} /></label>

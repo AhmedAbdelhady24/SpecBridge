@@ -1041,6 +1041,25 @@ body:has(.edit-action-bar) :focus {
   z-index: 0;
 }
 
+.custom-select-wrapper.sm button.custom-select-trigger {
+  height: 34px;
+  font-size: 0.85rem;
+  padding: 0 0.65rem;
+}
+
+.custom-select-wrapper.sm .custom-select-native {
+  height: 34px;
+}
+
+.custom-select-wrapper.sm .custom-select-menu {
+  max-height: 200px;
+}
+
+.custom-select-wrapper.sm .custom-select-option {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8125rem;
+}
+
 button.custom-select-trigger,
 button.custom-select-trigger:hover,
 button.custom-select-trigger:active,
@@ -1113,17 +1132,18 @@ button.custom-select-trigger:disabled {
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 1000;
   background: #ffffff;
   border: 1px solid #a5b5a9;
   border-radius: var(--radius-control);
-  box-shadow: 0 8px 24px rgba(29, 48, 47, 0.12), 0 2px 6px rgba(29, 48, 47, 0.08);
+  box-shadow: 0 8px 24px rgba(29, 48, 47, 0.16), 0 2px 6px rgba(29, 48, 47, 0.08);
   margin: 0;
   padding: 0.35rem;
   list-style: none;
   max-height: 240px;
   overflow-y: auto;
   box-sizing: border-box;
+  font-weight: 400;
 }
 
 .custom-select-option {
@@ -1134,6 +1154,7 @@ button.custom-select-trigger:disabled {
   padding: 0.55rem 0.75rem;
   border-radius: 4px;
   font-size: 0.875rem;
+  font-weight: 400;
   color: var(--ink);
   cursor: pointer;
   user-select: none;
