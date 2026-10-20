@@ -394,7 +394,6 @@ export default function App() {
               </select>
             </div>
             <div className="project-create-field">
-              <label className="create-project-label">New project</label>
               <details open={!project}>
                 <summary>Create a project</summary>
                 <form onSubmit={(e) => {
