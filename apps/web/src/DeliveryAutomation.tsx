@@ -25,6 +25,9 @@ export function DeliveryAutomation({
   // 2. Prioritization state
   const [prioMethod, setPrioMethod] = useState<'rice' | 'weighted_criteria'>('rice');
   const [prioResult, setPrioResult] = useState<S['PrioritizationResult'] | null>(null);
+  const [metricsOverrides, setMetricsOverrides] = useState<
+    Record<string, { effort?: number; reach?: number; impact?: number; confidence?: number }>
+  >({});
 
   // 3. Jira Sync state
   const [jiraUrl, setJiraUrl] = useState('https://baskhealth.atlassian.net');
@@ -83,24 +86,28 @@ export function DeliveryAutomation({
 
     if (extractedActions.length) {
       extractedActions.forEach((a, i) => {
+        const override = metricsOverrides[a.id];
+        const defaultEffort = (i + 1) * 2;
         itemsToRank.push({
           id: a.id,
           title: a.description,
-          reach: (i + 1) * 100,
-          impact: 2.0,
-          confidence: 0.8,
-          effort: (i + 1) * 2,
+          reach: override?.reach !== undefined ? override.reach : (i + 1) * 100,
+          impact: override?.impact !== undefined ? override.impact : 2.0,
+          confidence: override?.confidence !== undefined ? override.confidence : 0.8,
+          effort: override?.effort !== undefined ? override.effort : defaultEffort,
         });
       });
     } else if (artifact?.requirements.length) {
       artifact.requirements.forEach((r, i) => {
+        const override = metricsOverrides[r.id];
+        const defaultEffort = (i % 2 === 0) ? (i + 1) * 2 : null; // alternate missing effort to test unranked items
         itemsToRank.push({
           id: r.id,
           title: r.text.slice(0, 80),
-          reach: 500,
-          impact: 3.0,
-          confidence: 0.9,
-          effort: (i % 2 === 0) ? (i + 1) * 2 : null, // alternate missing effort to test unranked items
+          reach: override?.reach !== undefined ? override.reach : 500,
+          impact: override?.impact !== undefined ? override.impact : 3.0,
+          confidence: override?.confidence !== undefined ? override.confidence : 0.9,
+          effort: override?.effort !== undefined ? override.effort : defaultEffort,
         });
       });
     } else {
@@ -293,13 +300,66 @@ export function DeliveryAutomation({
                 <div className="unranked-box">
                   <h5>Unranked items (missing metrics)</h5>
                   <p className="muted">These items cannot be deterministically scored until missing values are provided:</p>
-                  <ul>
+                  <ul className="unranked-list">
                     {unrankedList.map((item) => (
-                      <li key={item.item_id}>
-                        {item.title} — <em>Missing: {(item.missing_metrics ?? []).join(', ')}</em>
+                      <li key={item.item_id} className="unranked-item-row">
+                        <div className="unranked-item-info">
+                          <span className="unranked-item-title">{item.title}</span>
+                          <span className="badge-warning">Missing: {(item.missing_metrics ?? []).join(', ')}</span>
+                        </div>
+                        <div className="unranked-item-actions">
+                          <label className="inline-metric-label">
+                            Effort:{' '}
+                            <input
+                              type="number"
+                              aria-label="Effort"
+                              min="0.5"
+                              max="100"
+                              step="0.5"
+                              placeholder="e.g. 2"
+                              value={metricsOverrides[item.item_id]?.effort ?? ''}
+                              disabled={isLocked}
+                              onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                setMetricsOverrides((prev) => ({
+                                  ...prev,
+                                  [item.item_id]: {
+                                    ...prev[item.item_id],
+                                    effort: isNaN(val) ? undefined : val,
+                                  },
+                                }));
+                              }}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            className="secondary btn-sm"
+                            disabled={isLocked || metricsOverrides[item.item_id]?.effort === undefined}
+                            onClick={runPrioritization}
+                          >
+                            Recalculate with effort
+                          </button>
+                        </div>
                       </li>
                     ))}
                   </ul>
+                  {unrankedList.length > 1 && (
+                    <div className="unranked-actions-all">
+                      <button
+                        type="button"
+                        className="secondary btn-sm"
+                        disabled={
+                          isLocked ||
+                          !unrankedList.some(
+                            (item) => metricsOverrides[item.item_id]?.effort !== undefined
+                          )
+                        }
+                        onClick={runPrioritization}
+                      >
+                        Recalculate all
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

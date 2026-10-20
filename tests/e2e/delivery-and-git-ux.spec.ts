@@ -45,6 +45,64 @@ test('delivery automation extracts meeting actions and calculates deterministic 
   await expect(page.getByRole('heading', { name: /Ranked items/ })).toBeVisible();
 });
 
+test('delivery automation unblocks unranked items by providing missing effort input', async ({ page, request }) => {
+  const data = await apiDraft(request);
+  const headers = { Authorization: `Bearer ${process.env.SPECBRIDGE_TOKEN!}` };
+  const prev = await (
+    await request.get(
+      `${process.env.SPECBRIDGE_E2E_API_ORIGIN || 'http://127.0.0.1:8000'}/api/projects/${data.project.id}/revisions/${data.run.revision_id}`,
+      { headers }
+    )
+  ).json();
+  const next = structuredClone(prev.artifact);
+  const id = `REQ-2`;
+  next.requirements.push({
+    ...next.requirements[0],
+    id,
+    text: 'Second requirement with missing effort for unranked testing',
+  });
+  next.stories.push({
+    ...next.stories[0],
+    id: `STORY-2`,
+    requirement_ids: [id],
+  });
+  await data.send(`/projects/${data.project.id}/revisions/${prev.id}/edits`, {
+    expected_digest: prev.digest,
+    artifact: next,
+  });
+
+  await signInLocal(page);
+  await page.getByLabel('Existing project', { exact: true }).selectOption(data.project.id);
+  await page.getByLabel('Existing run', { exact: true }).selectOption(data.run.id);
+  await page.getByRole('button', { name: 'Open run', exact: true }).click();
+
+  const deliveryTab = page.getByRole('button', { name: 'Delivery', exact: true });
+  await expect(deliveryTab).toBeVisible();
+  await deliveryTab.click();
+
+  // Calculate priority ranking without extracted meeting actions to rank draft requirements
+  await page.getByRole('button', { name: 'Calculate priority ranking', exact: true }).click();
+  await expect(page.getByText('Calculated priority for 1 items (1 unranked due to missing metrics).')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Unranked items (missing metrics)' })).toBeVisible();
+  await expect(page.getByText('Missing: effort')).toBeVisible();
+
+  // Inline effort input and recalculate button
+  const effortInput = page.getByLabel('Effort');
+  await expect(effortInput).toBeVisible();
+  const recalcBtn = page.getByRole('button', { name: 'Recalculate with effort' });
+  await expect(recalcBtn).toBeDisabled();
+
+  // Provide effort override and recalculate
+  await effortInput.fill('3');
+  await expect(recalcBtn).toBeEnabled();
+  await recalcBtn.click();
+
+  // Both items should now be ranked
+  await expect(page.getByText('Calculated priority for 2 items (0 unranked due to missing metrics).')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Unranked items (missing metrics)' })).not.toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ranked items (2)' })).toBeVisible();
+});
+
 test('git collaboration appears in review panel, provides three-way sync preview and requires explicit digest approval', async ({ page, request }) => {
   await openDraft(page, request);
   await recordReview(page);
