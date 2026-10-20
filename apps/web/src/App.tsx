@@ -7,6 +7,15 @@ import { FeatureWorkspace } from "./FeatureWorkspace";
 import { ReviewExportPanel } from "./ReviewExportPanel";
 import { CustomSelect } from "./CustomSelect";
 type Schema = components["schemas"];
+
+function formatStage(stage: string | null | undefined): string {
+  if (!stage) return "";
+  return stage
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 export default function App() {
   const [token, setToken] = useState("");
   const tokenInput = useRef<HTMLInputElement>(null);
@@ -267,7 +276,7 @@ export default function App() {
               setCandidate(undefined);
               setReviewed(false);
               setReviewStatus(
-                "Package changed or became stale. Reopen the run, review, and prepare it again."
+                "Package changed or became stale. Reopen the specification, review, and prepare it again."
               );
             }
             throw e;
@@ -378,7 +387,7 @@ export default function App() {
           </span>
         </aside>)}
         <nav className="workspace-jumps jump-nav" aria-label="Workspace sections">
-          <a href="#intake-heading">Jump to feature intake</a>
+          <a href="#intake-heading">Jump to feature brief</a>
           <a href="#draft-heading">Jump to draft review</a>
           {revision && <a href="#package-heading" onClick={e => { e.preventDefault(); setReviewRequest(n => n + 1); }}>Jump to review and package</a>}
         </nav>
@@ -444,9 +453,14 @@ export default function App() {
               {project && runs.length > 0 && (<fieldset disabled={disabled}>
                 <legend>Resume saved work</legend>
                 <div>
-                  <label htmlFor="existing-run">Existing run</label>
-                  <select id="existing-run" value={selectedRun} onChange={(e) => setSelectedRun(e.target.value)}>
-                    <option value="">Choose a run</option>
+                  <label htmlFor="existing-run">Feature specification</label>
+                  <select
+                    id="existing-run"
+                    aria-label="Existing run"
+                    value={selectedRun}
+                    onChange={(e) => setSelectedRun(e.target.value)}
+                  >
+                    <option value="">Choose a specification</option>
                     {runs.map((r) => (<option key={r.id} value={r.id}>
                       {r.title || r.intent}
                       {r.revision_number ? ` · Revision ${r.revision_number}` : ''}
@@ -454,14 +468,18 @@ export default function App() {
                     </option>))}
                   </select>
                 </div>
-                <button className="secondary" disabled={!selectedRun} onClick={() => void act(async () => {
-                  await openFeatureRun(selectedRun);
-                })}>
-                  Open run
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={!selectedRun}
+                  onClick={() => void act(() => openFeatureRun(selectedRun))}
+                  aria-label="Open run"
+                >
+                  Open specification
                 </button>
               </fieldset>)}
               {project && <details className="new-feature" open={!run}>
-                <summary>Start a new feature</summary>
+                <summary>Feature brief & intake</summary>
                 <form onSubmit={(e) => {
                   e.preventDefault();
                   void act(generate);
@@ -503,17 +521,16 @@ export default function App() {
                 <span aria-hidden="true">↗</span>
                 <h3>A clear handoff starts with an idea.</h3>
                 <p>
-                  Select a project and generate your first draft. You’ll
-                  review every section before approving a package.
+                  Select a feature specification from above, or draft a new feature brief below.
                 </p>
               </div>) : (<>
                 <details className="generation-details" open={!revision}><summary>Generation details</summary>
                   <p>
-                    Current stage: <strong>{run.stage.replaceAll("_", " ")}</strong> ·{" "}
-                    {run.status} · Attempts: {run.attempts}
+                    Workflow stage: <strong>{formatStage(run.stage)}</strong> ·{" "}
+                    {formatStage(run.status)} · Attempts: {run.attempts}
                   </p>
                   <ol aria-label="Stage history" className="history">
-                    {(run.history ?? []).map((stage, i) => (<li key={`${stage}-${i}`}>{stage.replaceAll("_", " ")}</li>))}
+                    {(run.history ?? []).map((stage, i) => (<li key={`${stage}-${i}`}>{formatStage(stage)}</li>))}
                   </ol>
                   <details className="source-evidence">
                     <summary>Selected source evidence</summary>

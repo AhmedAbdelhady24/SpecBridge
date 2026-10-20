@@ -91,7 +91,7 @@ export function ReviewExportPanel({
       )}
 
       <p className="panel-intro">
-        Record your review, inspect the exact package, then approve its digest.
+        Record your review, inspect the exact handoff package, then approve its digest.
       </p>
 
       {/* Stepper Progress Bar & Badge */}
@@ -237,8 +237,8 @@ export function ReviewExportPanel({
             </span>
           </div>
           <p className="step-card-desc">
-            Assemble an immutable static documentation package from the current
-            reviewed revision with deterministic cryptographic digests.
+            Assemble an immutable handoff package from the current
+            reviewed specification with verifiable digests.
           </p>
 
           {!reviewed && (
@@ -249,7 +249,7 @@ export function ReviewExportPanel({
 
           {candidate && (
             <div className="step-candidate-summary">
-              <span className="step-summary-label">Candidate digest:</span>{" "}
+              <span className="step-summary-label">Handoff package digest:</span>{" "}
               <code>{candidate.digest.slice(0, 24)}…</code>
             </div>
           )}
@@ -292,13 +292,13 @@ export function ReviewExportPanel({
             </span>
           </div>
           <p className="step-card-desc">
-            Verify the exact content of the generated files, inspect the technical
-            manifest, and formally approve the package for developer consumption.
+            Inspect the exact contents of the documentation files and package
+            manifest, then formally approve the handoff package for engineering.
           </p>
 
           {!candidate ? (
             <div className="step-waiting-box">
-              Prepare a package candidate in Step 2 to inspect and approve its contents.
+              Prepare a handoff package in Step 2 to inspect and approve its contents.
             </div>
           ) : (
             <PackagePreview
@@ -330,9 +330,9 @@ export function ReviewExportPanel({
                 : !reviewed
                 ? "Step 1 must be completed before package approval."
                 : !candidate
-                ? "Step 2 must be completed before inspecting and approving the package."
+                ? "Step 2 must be completed before inspecting and approving the handoff package."
                 : candidate.approved
-                ? "Package candidate is approved and locked for developer handoff."
+                ? "Handoff package is approved and locked for engineering handoff."
                 : ""}
             </p>
           )}
@@ -359,7 +359,7 @@ export function ReviewExportPanel({
 
           {!isStep3Done && (
             <div className="step-waiting-box">
-              Approve the package candidate in Step 3 before downloading or publishing to Git.
+              Approve the handoff package in Step 3 before downloading or publishing to Git.
             </div>
           )}
 

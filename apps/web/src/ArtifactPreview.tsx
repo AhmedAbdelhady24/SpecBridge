@@ -137,7 +137,7 @@ export function ArtifactPreview({
                   className="text-link annotate-trigger"
                   onClick={() => setActiveTarget(activeTarget === key ? null : key)}
                 >
-                  💬 Annotate {title.toLowerCase()}
+                  💬 Request change on {title.toLowerCase()}
                 </button>
               )}
             </div>
