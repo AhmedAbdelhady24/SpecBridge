@@ -81,14 +81,14 @@ def create_app(
     skill_root: Path | None = None,
     template_root: Path | None = None,
 ) -> FastAPI:
-    origin = urlsplit(allowed_origin)
+    parsed_allowed_origin = urlsplit(allowed_origin)
     if (
-        origin.scheme != "http"
-        or origin.hostname not in LOOPBACK
-        or origin.path
-        or origin.query
-        or origin.fragment
-        or origin.username
+        parsed_allowed_origin.scheme != "http"
+        or parsed_allowed_origin.hostname not in LOOPBACK
+        or parsed_allowed_origin.path
+        or parsed_allowed_origin.query
+        or parsed_allowed_origin.fragment
+        or parsed_allowed_origin.username
     ):
         raise ValueError("UI origin must be an exact loopback HTTP origin")
     if not token:
@@ -143,10 +143,24 @@ def create_app(
             host = urlsplit("http://" + request.headers.get("host", "")).hostname
         except ValueError:
             host = None
-        if (
-            host not in LOOPBACK
-            or request.headers.get("origin", allowed_origin) != allowed_origin
-        ):
+
+        origin_header = request.headers.get("origin")
+        origin_valid = True
+        if origin_header is not None:
+            if origin_header == allowed_origin:
+                origin_valid = True
+            else:
+                try:
+                    origin_url = urlsplit(origin_header)
+                    origin_valid = (
+                        origin_url.scheme == "http"
+                        and origin_url.hostname in LOOPBACK
+                        and origin_url.port == parsed_allowed_origin.port
+                    )
+                except ValueError:
+                    origin_valid = False
+
+        if host not in LOOPBACK or not origin_valid:
             return error(
                 403, "forbidden_origin", "Only the configured local UI is allowed"
             )

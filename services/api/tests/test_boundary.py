@@ -32,6 +32,8 @@ def test_reads_require_token(client):
     "headers",
     [
         {"Origin": "https://evil.example"},
+        {"Origin": "http://evil.example:5173"},
+        {"Origin": "http://192.168.1.10:5173"},
         {"Origin": "null"},
         {"Host": "evil.example"},
         {"Host": "127.0.0.1.evil.example"},
@@ -40,6 +42,40 @@ def test_reads_require_token(client):
 def test_foreign_browser_denied(client, headers):
     headers["Authorization"] = "Bearer test-token"
     assert client.get("/api/config", headers=headers).status_code == 403
+
+
+@pytest.mark.parametrize(
+    "origin",
+    [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://[::1]:5173",
+    ],
+)
+def test_loopback_origins_permitted(client, origin):
+    response = client.get(
+        "/api/config",
+        headers={"Authorization": "Bearer test-token", "Origin": origin},
+    )
+    assert response.status_code == 200
+
+
+@pytest.mark.parametrize(
+    "origin",
+    [
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+        "http://localhost",
+        "https://localhost:5173",
+    ],
+)
+def test_mismatched_loopback_origins_denied(client, origin):
+    response = client.get(
+        "/api/config",
+        headers={"Authorization": "Bearer test-token", "Origin": origin},
+    )
+    assert response.status_code == 403
+    assert response.json()["error"]["code"] == "forbidden_origin"
 
 
 def test_token_is_private_and_stable(tmp_path):
