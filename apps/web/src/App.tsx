@@ -5,6 +5,7 @@ import { KnowledgePanel } from "./KnowledgePanel";
 import { generationError, generationErrors } from "./generationErrors";
 import { FeatureWorkspace } from "./FeatureWorkspace";
 import { ReviewExportPanel } from "./ReviewExportPanel";
+import { CustomSelect } from "./CustomSelect";
 type Schema = components["schemas"];
 export default function App() {
   const [token, setToken] = useState("");
@@ -385,13 +386,27 @@ export default function App() {
           <fieldset disabled={disabled}>
             <legend>Project</legend>
             <div className="project-select-field">
-              <label htmlFor="existing-project">Existing project</label>
-              <select id="existing-project" value={project} onChange={(e) => void act(() => chooseProject(e.target.value))}>
-                <option value="">Choose a project</option>
-                {projects.map((p) => (<option key={p.id} value={p.id}>
-                  {p.name}
-                </option>))}
-              </select>
+              <label
+                htmlFor="existing-project"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const btn = e.currentTarget.parentElement?.querySelector<HTMLButtonElement>(".custom-select-trigger");
+                  btn?.click();
+                }}
+              >
+                Existing project
+              </label>
+              <CustomSelect
+                id="existing-project"
+                value={project}
+                placeholder="Choose a project"
+                disabled={disabled}
+                onChange={(val) => void act(() => chooseProject(val))}
+                options={[
+                  { value: "", label: "Choose a project" },
+                  ...projects.map((p) => ({ value: p.id, label: p.name })),
+                ]}
+              />
             </div>
             <div className="project-create-field">
               <details open={!project}>
