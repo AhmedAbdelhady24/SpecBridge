@@ -2709,3 +2709,362 @@ button.custom-select-trigger:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   Review & Export Guided Stepper
+   ========================================================================== */
+
+.review-export-panel .panel-intro {
+  color: var(--muted);
+  margin-top: -0.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.export-stepper-header {
+  background: #f5f7f4;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.export-stepper-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+}
+
+.export-stepper-title {
+  font: 700 0.75rem ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.export-overall-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #e1ede2;
+  color: #174733;
+  border: 1px solid #b7d6bb;
+}
+
+.export-stepper-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.export-track-step {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.export-track-step.active {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.export-track-step.completed {
+  color: #194e39;
+  font-weight: 600;
+}
+
+.export-track-step.locked {
+  color: #81948d;
+}
+
+.track-step-circle {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.725rem;
+  font-weight: 700;
+  background: #dfe5dc;
+  color: #556661;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.2s ease;
+}
+
+.export-track-step.active .track-step-circle {
+  background: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(34, 94, 72, 0.15);
+}
+
+.export-track-step.completed .track-step-circle {
+  background: #1f543e;
+  color: #ffffff;
+}
+
+.export-track-step.locked .track-step-circle {
+  background: #e4e8e1;
+  color: #8c9c96;
+}
+
+.export-track-line {
+  flex: 1;
+  height: 2px;
+  background: #d8ded4;
+  min-width: 10px;
+}
+
+.export-track-line.filled {
+  background: var(--accent);
+}
+
+.handoff-steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.handoff-step-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: 1.35rem 1.5rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.handoff-step-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 2px 10px rgba(34, 94, 72, 0.08);
+}
+
+.handoff-step-card.completed {
+  border-color: #bfe4c7;
+  background: #fbfdfa;
+}
+
+.handoff-step-card.locked {
+  background: #f9faf7;
+  border-color: #dfe5dc;
+}
+
+.step-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-bottom: 0.625rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.step-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.step-tag {
+  font: 700 0.6875rem ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: #eaf1e8;
+  color: #24503e;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid #c9d8c8;
+}
+
+.step-card-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.step-badge.completed {
+  background: #d1eed6;
+  color: #14492d;
+  border: 1px solid #b2e2bb;
+}
+
+.step-badge.in-progress {
+  background: #e3ece4;
+  color: #1b4b39;
+  border: 1px solid #c2d8c3;
+}
+
+.step-badge.ready {
+  background: #c3ebd0;
+  color: #114c2b;
+  border: 1px solid #a6e0b7;
+}
+
+.step-badge.locked {
+  background: #e8ece6;
+  color: #637770;
+  border: 1px solid #d4ded1;
+}
+
+.step-card-desc {
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-top: 0;
+  margin-bottom: 1rem;
+  line-height: 1.45;
+}
+
+.handoff-step-card.locked .step-card-desc {
+  color: #72847e;
+}
+
+/* Note Suggestions / Chips */
+.note-chips-group {
+  margin: 0.5rem 0 1rem;
+}
+
+.note-chips-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.35rem;
+}
+
+.note-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.chip-btn {
+  background: #edf3e8;
+  border: 1px solid #cddac8;
+  color: #1f4f3c;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.775rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.3;
+}
+
+.chip-btn:hover:not(:disabled) {
+  background: #deecd7;
+  border-color: #b5cba9;
+  color: #143e2d;
+  transform: translateY(-1px);
+}
+
+.chip-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Friendly Subtitle / Hints */
+.step-hint {
+  font-size: 0.8125rem;
+  color: #556e65;
+  margin-top: 0.625rem;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-style: italic;
+}
+
+.step-hint::before {
+  content: "ℹ";
+  font-style: normal;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.step-waiting-box {
+  background: #f4f6f1;
+  border: 1px dashed #cad5c7;
+  border-radius: var(--radius-card);
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.step-candidate-summary {
+  background: #edf4eb;
+  border: 1px solid #c8dbc6;
+  border-radius: var(--radius-card);
+  padding: 0.5rem 0.875rem;
+  margin-bottom: 1rem;
+  font-size: 0.8125rem;
+  color: #1d4333;
+}
+
+.step-summary-label {
+  font-weight: 600;
+}
+
+.step-candidate-summary code {
+  font-family: ui-monospace, monospace;
+  background: #ffffff;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid #cfe0cd;
+}
+
+/* Nesting GitCollaboration seamlessly inside Step 4 */
+.handoff-step-card .git-collaboration.panel {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 1.25rem;
+  padding-inline: 0;
+  padding-bottom: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .export-stepper-track {
+    gap: 0.2rem;
+  }
+  .export-track-step .track-step-label {
+    font-size: 0.7rem;
+  }
+  .handoff-step-card {
+    padding: 1rem;
+  }
+  .step-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
