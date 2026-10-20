@@ -235,6 +235,20 @@ export function FeatureWorkspace({ token, project, run, revision, disabled, onDi
   }
 
   const selectedPending = !!q && answers[q.id] !== undefined && answers[q.id] !== (q.latest_answer?.text || '');
+
+  const onAnnotateClause = async (targetId: string, text: string) => {
+    await act(async () => {
+      const recorded = await request<S['RequestView']>(token, url + '/change-requests', {
+        base_revision_id: revision.id,
+        text,
+        target_ids: [targetId],
+      });
+      setChatRequests(current => [recorded, ...current]);
+      setRequestRefresh(n => n + 1);
+      setMessage(`Change request recorded on draft clause.`);
+    });
+  };
+
   return <ReferenceProvider token={token} project={project} onAuthError={onAuthError}><div className="feature-review">
     {error && <p role="alert" className="error">{error}</p>}
     <p role="status">{loading ? 'Loading saved feature…' : busy ? 'Saving or loading your work…' : message}</p>
@@ -297,7 +311,26 @@ export function FeatureWorkspace({ token, project, run, revision, disabled, onDi
         <label>Change summary<input maxLength={2000} value={summary} disabled={editLocked} onChange={e => setSummary(e.target.value)} /></label>
         <details><summary>Working changes</summary>
           <DiffView base={revision.artifact} head={value} /></details></>}
-      {showSaved ? <ArtifactPreview value={revision.artifact} /> : <ArtifactWorkspace revision={revision} original={docDirty ? revision.artifact : undefined} value={value} disabled={editLocked} dirty={docDirty} onChange={change} onSave={() => void act(saveRevision)} onDiscard={() => void act(discard)} />}
+      {showSaved ? (
+        <ArtifactPreview
+          value={revision.artifact}
+          requests={chatRequests}
+          onRequestChange={onAnnotateClause}
+        />
+      ) : (
+        <ArtifactWorkspace
+          revision={revision}
+          original={docDirty ? revision.artifact : undefined}
+          value={value}
+          disabled={editLocked}
+          dirty={docDirty}
+          onChange={change}
+          onSave={() => void act(saveRevision)}
+          onDiscard={() => void act(discard)}
+          requests={chatRequests}
+          onRequestChange={onAnnotateClause}
+        />
+      )}
       <details><summary>Validation & technical details</summary>
         <p>Structural checks do not verify facts. Review all claims before approval.</p>
         {(revision.findings || []).map((f, i) => <p key={i}>{f.message}</p>)}

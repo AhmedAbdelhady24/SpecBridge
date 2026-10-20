@@ -75,10 +75,31 @@ export function DecisionQueue({ questions, selected, onSelect, answer, onAnswer,
           <small>{new Date(a.created_at).toLocaleString()}</small></div>) : <p>No saved answers loaded.</p>}</details>
     </div>}
 
-    <details className="question-directory" open><summary>Questions & decisions ({questions.length})</summary>
-    <ol className="question-list">{questions.map((q, i) => <li key={q.id}><button type="button" className="secondary" aria-current={selected?.id === q.id ? 'true' : undefined} onClick={() => onSelect(q.id)}>{i + 1}. {q.text}</button>
-      <small>{q.status === 'unresolved' ? 'Unanswered' : q.status}
-        {!q.in_current_draft ? ' · history' : ''}</small></li>)}</ol></details>
+    <details className="question-directory" open>
+      <summary>Questions & decisions ({questions.length})</summary>
+      <ol className="question-list">
+        {questions.map((q, i) => (
+          <li key={q.id} className="question-item">
+            <button
+              type="button"
+              aria-label={`${i + 1}. ${q.text}`}
+              className={`secondary question-card-btn ${selected?.id === q.id ? "active" : ""}`}
+              aria-current={selected?.id === q.id ? "true" : undefined}
+              onClick={() => onSelect(q.id)}
+            >
+              <div className="q-card-header">
+                <span className="q-badge">Q{i + 1}</span>
+                <span className={`status-pill status-${q.status}`}>
+                  {q.status === "unresolved" ? "Unanswered" : q.status === "answered" ? "Answer saved" : q.status}
+                </span>
+              </div>
+              <span className="q-text">{i + 1}. {q.text}</span>
+              {!q.in_current_draft && <small className="q-history-tag">In decision history</small>}
+            </button>
+          </li>
+        ))}
+      </ol>
+    </details>
     </div>
     <ChatComposer answer={answer} onAnswer={onAnswer} onSave={onSave} onRequest={onRequest} onPending={onPending} disabled={disabled} canAnswer={!!selected && !["dismissed", "resolved"].includes(selected.status)} pending={pending} />
   </section>;

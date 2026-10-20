@@ -18,6 +18,7 @@ export function ChatComposer({ answer, onAnswer, onSave, onRequest, onPending, d
     </> : <>
       <label>Message<textarea aria-label="Message" rows={3} maxLength={16384} value={message} disabled={disabled} placeholder="Describe the change you want reviewed…" onChange={e => { setMessage(e.target.value); onPending(!!e.target.value.trim()); }} /></label>
       <p className="muted">Records a change request. Preview and save a revision to apply changes; no AI call is made.</p>
+      <p className="muted annotation-tip">💡 Tip: You can also click <strong>💬 Request change</strong> directly on any requirement or story in the draft to annotate that specific line.</p>
       <button type="button" disabled={disabled || !message.trim()} onClick={() => void onRequest(message).then(saved => { if (saved) { setMessage(''); onPending(false); } })}>Send change request</button>
       {message && <button type="button" className="secondary" disabled={disabled} onClick={() => { setMessage(''); onPending(false); }}>Discard message</button>}
     </>}

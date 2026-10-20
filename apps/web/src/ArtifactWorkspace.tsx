@@ -4,7 +4,20 @@ import { ArtifactEditor } from "./ArtifactEditor";
 import { ArtifactPreview } from "./ArtifactPreview";
 type Artifact = components["schemas"]["Artifact"];
 type Revision = components["schemas"]["Revision"];
-export function ArtifactWorkspace({ revision, value, disabled, dirty, onChange, onSave, onDiscard, original, }: {
+type RequestView = components["schemas"]["RequestView"];
+
+export function ArtifactWorkspace({
+  revision,
+  value,
+  disabled,
+  dirty,
+  onChange,
+  onSave,
+  onDiscard,
+  original,
+  requests,
+  onRequestChange,
+}: {
   revision: Revision;
   value: Artifact;
   disabled: boolean;
@@ -13,6 +26,8 @@ export function ArtifactWorkspace({ revision, value, disabled, dirty, onChange, 
   onSave: () => void;
   onDiscard?: () => void;
   original?: Artifact;
+  requests?: RequestView[];
+  onRequestChange?: (targetId: string, text: string) => Promise<void>;
 }) {
   const [editing, setEditing] = useState(false);
   const [section, setSection] = useState<string>();
@@ -43,7 +58,18 @@ export function ArtifactWorkspace({ revision, value, disabled, dirty, onChange, 
       edits before recording a review or preparing a package.
     </p>)}
     <form id="artifact-edit-form" ref={form} onSubmit={submit}>
-      {editing && !section ? (<ArtifactEditor value={value} disabled={disabled} onChange={change} section={section} />) : (<ArtifactPreview value={value} original={original} onEditSection={disabled ? undefined : next => { setSection(next); setEditing(true); }} renderSectionEditor={editing ? key => key === section ? <ArtifactEditor value={value} disabled={disabled} onChange={change} section={section} /> : null : undefined} />)}
+      {editing && !section ? (
+        <ArtifactEditor value={value} disabled={disabled} onChange={change} section={section} />
+      ) : (
+        <ArtifactPreview
+          value={value}
+          original={original}
+          requests={requests}
+          onRequestChange={onRequestChange}
+          onEditSection={disabled ? undefined : next => { setSection(next); setEditing(true); }}
+          renderSectionEditor={editing ? key => key === section ? <ArtifactEditor value={value} disabled={disabled} onChange={change} section={section} /> : null : undefined}
+        />
+      )}
     </form>
     {(editing || dirty) && (<div className="edit-action-bar" role="region" aria-label="Revision actions">
       <span>
