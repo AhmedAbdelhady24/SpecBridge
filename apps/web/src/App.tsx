@@ -381,38 +381,45 @@ export default function App() {
           <a href="#draft-heading">Jump to draft review</a>
           {revision && <a href="#package-heading" onClick={e => { e.preventDefault(); setReviewRequest(n => n + 1); }}>Jump to review and package</a>}
         </nav>
-        <div className="project-switcher panel">                <fieldset disabled={disabled}>
-          <legend>Project</legend>
-          <div>
-            <label htmlFor="existing-project">Existing project</label>
-            <select id="existing-project" value={project} onChange={(e) => void act(() => chooseProject(e.target.value))}>
-              <option value="">Choose a project</option>
-              {projects.map((p) => (<option key={p.id} value={p.id}>
-                {p.name}
-              </option>))}
-            </select>
-          </div>
-          <details open={!project}><summary>Create a project</summary>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              void act(async () => {
-                if (!mayLeaveDraft())
-                  return;
-                const created = await api<Schema["Project"]>("/projects", { name });
-                setProjects([...projects, created]);
-                setName("");
-                await chooseProject(created.id, true);
-              });
-            }}>
-              <label>
-                Project name
-                <input value={name} onChange={(e) => setName(e.target.value)} maxLength={200} required />
-              </label>
-              <button className="secondary" disabled={!name.trim()}>
-                Create project
-              </button>
-            </form></details>
-        </fieldset></div>
+        <div className="project-switcher panel">
+          <fieldset disabled={disabled}>
+            <legend>Project</legend>
+            <div className="project-select-field">
+              <label htmlFor="existing-project">Existing project</label>
+              <select id="existing-project" value={project} onChange={(e) => void act(() => chooseProject(e.target.value))}>
+                <option value="">Choose a project</option>
+                {projects.map((p) => (<option key={p.id} value={p.id}>
+                  {p.name}
+                </option>))}
+              </select>
+            </div>
+            <div className="project-create-field">
+              <label className="create-project-label">New project</label>
+              <details open={!project}>
+                <summary>Create a project</summary>
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  void act(async () => {
+                    if (!mayLeaveDraft())
+                      return;
+                    const created = await api<Schema["Project"]>("/projects", { name });
+                    setProjects([...projects, created]);
+                    setName("");
+                    await chooseProject(created.id, true);
+                  });
+                }}>
+                  <label>
+                    Project name
+                    <input value={name} onChange={(e) => setName(e.target.value)} maxLength={200} required />
+                  </label>
+                  <button className="secondary" disabled={!name.trim()}>
+                    Create project
+                  </button>
+                </form>
+              </details>
+            </div>
+          </fieldset>
+        </div>
         <div className={`workspace-grid ${revision ? "has-draft" : ""}`}>
           <aside className="intake panel">
             <p className="step">01 / START WITH CONTEXT</p>

@@ -856,14 +856,14 @@ body:has(.edit-action-bar) :focus {
 }
 
 .project-switcher.panel {
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
 }
 
 .project-switcher > fieldset {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  gap: 1.5rem;
+  gap: 1.75rem;
   margin: 0;
   border: 0;
   padding: 0;
@@ -879,31 +879,94 @@ body:has(.edit-action-bar) :focus {
   white-space: nowrap;
 }
 
-.project-switcher details {
-  background: var(--surface-muted);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  padding: 0.5rem 1rem 0.75rem;
-  margin: 0;
+.project-select-field,
+.project-create-field {
   min-width: 16rem;
+  flex: 1;
+  max-width: 22rem;
 }
 
-.project-switcher details summary {
+.project-select-field label,
+.project-create-field label.create-project-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 0.375rem;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.project-select-field select {
+  margin-top: 0;
+  height: 42px;
+}
+
+.project-create-field details {
+  background: #fff;
+  border: 1px solid #a5b5a9;
+  border-radius: var(--radius-control);
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.project-create-field details:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(34, 94, 72, 0.16);
+}
+
+.project-create-field details summary {
   color: var(--accent);
-  font-size: 0.8125rem;
-  padding: 0.25rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0 0.85rem;
+  min-height: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+  background: var(--surface-muted);
+  box-sizing: border-box;
+  transition: background-color 0.15s ease;
 }
 
-.project-switcher form {
+.project-create-field details summary:hover {
+  background: #dfe8de;
+}
+
+.project-create-field details[open] summary {
+  border-bottom: 1px solid var(--border);
+  background: #e7eee4;
+}
+
+.project-create-field details form {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  padding: 0.875rem 1rem 1rem;
+  background: var(--surface-muted);
 }
 
-.project-switcher form button {
-  align-self: flex-start;
+.project-create-field details form label {
   margin: 0;
+  font-size: 0.8125rem;
+}
+
+.project-create-field details form input {
+  margin-top: 0.25rem;
+  height: 38px;
+}
+
+.project-create-field details form button {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  min-height: 36px;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
 }
 
 /* Focused workspace */
