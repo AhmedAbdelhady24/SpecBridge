@@ -30,6 +30,7 @@ flowchart LR
 - [Architecture](#architecture)
 - [Components](#components)
 - [Install](#install)
+- [Running the application](#running-the-application)
 - [Create a handoff](#create-a-handoff)
 - [Model providers](#model-providers)
 - [Experiments and verification](#experiments-and-verification)
@@ -98,11 +99,29 @@ uv sync --locked
 npm --prefix apps/web ci --ignore-scripts
 ```
 
-Start the API with the deterministic demo provider:
+## Running the application
+
+SpecBridge runs as a local FastAPI backend accompanied by a React/Vite review workspace.
+
+### 1. Start the API Backend
+
+#### Option A: Deterministic Demo / Fixture Mode (No API keys required)
+Run with the built-in synthetic fixture provider to explore workflows, UI interactions, and document packaging with zero configuration and zero API cost:
 
 ```sh
 SPECBRIDGE_PROVIDER=fixture PYTHONPATH=services/api uv run python -m specbridge
 ```
+
+#### Option B: Live LLM Provider (DeepSeek / OpenAI-compatible)
+Copy `.env.example` to `.env`, set your model credentials and base URL (see [model providers guide](docs/engineering/model-providers.md)), then launch with the environment file:
+
+```sh
+uv run --env-file .env python -m specbridge
+```
+
+The API will listen at `http://127.0.0.1:8000` (health check: `http://127.0.0.1:8000/api/health`).
+
+### 2. Start the Web UI
 
 In a second terminal:
 
@@ -110,9 +129,16 @@ In a second terminal:
 npm --prefix apps/web run dev
 ```
 
-Open `http://127.0.0.1:5173`. Copy the contents of the newly created `.data/session-token` privately into the **Session token** field and connect. The browser keeps the token only in tab memory; refreshing requires entering it again. Keep it out of chat, URLs, logs, and Git.
+The React workspace will be available at **`http://127.0.0.1:5173`**.
 
-Fixture mode needs no model credentials and makes no model calls. Its output is labeled **DEMO** and does not interpret arbitrary product requests. For hosted generation or serving the built UI from the API, see [provider setup](docs/engineering/model-providers.md).
+### 3. Connect to your Workspace
+
+1. Open `http://127.0.0.1:5173` in your browser.
+2. Click **Auto-connect** to automatically exchange the local session bootstrap token (or copy the private token from `.data/session-token` into the **Session token** field and click **Connect**).
+3. The session token is held solely in browser tab memory; it is never persisted to disk or external services.
+
+> [!NOTE]
+> For production builds or serving the static UI directly through FastAPI without running Vite separately, run `npm --prefix apps/web run build` and launch SpecBridge with `SPECBRIDGE_SERVE_STATIC=true`.
 
 Existing workspaces require an additive schema upgrade before running this branch. See the [verified upgrade and rollback procedure](docs/engineering/focused-workspace-upgrade.md). The local owner workspace upgrade was separately authorized and verified; the procedure records backup and rollback details.
 
